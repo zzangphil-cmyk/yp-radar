@@ -1,23 +1,11 @@
 import Kpi from "@/components/Kpi";
 import EtfStockMap from "@/components/EtfStockMap";
-import Heatmap, { type HeatTile } from "@/components/Heatmap";
-import { etfStocks, fmtEok, heatColor } from "@/lib/etfData";
+import { etfStocks, fmtEok } from "@/lib/etfData";
 
 export default function EtfStocksPage() {
   const s = etfStocks.stocks;
   const topExp = s[0];
   const topFlow = [...s].sort((a, b) => b.flow - a.flow)[0];
-  const heatTiles: HeatTile[] = s.slice(0, 60).map((x) => {
-    const rate = x.exposure > 0 ? (x.flow / x.exposure) * 100 : 0;
-    return {
-      key: x.code,
-      label: x.name,
-      sub: fmtEok(x.exposure),
-      value: x.exposure,
-      color: heatColor(rate, 20),
-      href: `/etf/stock/${x.code}`,
-    };
-  });
 
   return (
     <div className="space-y-6">
@@ -49,17 +37,6 @@ export default function EtfStocksPage() {
         자금이 이 종목으로 들어오는/빠지는 속도. 오른쪽 위(대형+유입)는 ETF 주력, 왼쪽 위(소형+유입)는
         떠오르는 종목.
       </div>
-
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="section-title">노출 히트맵 <span className="ml-1 align-middle text-xs font-normal text-white/45">크기=노출 · 색=자금유입률</span></h2>
-          <span className="flex items-center gap-3 text-xs text-white/45">
-            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#16c79a" }} />유입</span>
-            <span className="flex items-center gap-1"><span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "#f0616d" }} />유출</span>
-          </span>
-        </div>
-        <Heatmap tiles={heatTiles} height={360} />
-      </section>
 
       <EtfStockMap stocks={s} />
 
