@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"/c/Program Files/nodejs/node\" scripts/build-site-data.mjs)",
+      "Read(//c/c/Users/zzang/Desktop/Yoon_temp/stock/src/**)",
+      "Bash(awk '{print $5, $9}')"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "whale-tracker",
+      "runtimeExecutable": "C:\\Users\\zzang\\Desktop\\Yoon_temp\\stock\\.claude\\dev-server.cmd",
+      "runtimeArgs": [],
+      "autoPort": false,
+      "port": 3100
+    }
+  ]
+}

@@ -1,0 +1,994 @@
+{
+ "years": [
+  2020,
+  2021,
+  2022,
+  2023,
+  2024
+ ],
+ "curYear": 2024,
+ "prevYear": 2023,
+ "totals": [
+  {
+   "year": 2020,
+   "jo": 175.17
+  },
+  {
+   "year": 2021,
+   "jo": 163.93
+  },
+  {
+   "year": 2022,
+   "jo": 123.99
+  },
+  {
+   "year": 2023,
+   "jo": 146.41
+  },
+  {
+   "year": 2024,
+   "jo": 138.01
+  }
+ ],
+ "counts": {
+  "accumulated": 474,
+  "reduced": 529,
+  "newEntries": 113,
+  "exits": 194
+ },
+ "accumulated": [
+  {
+   "name": "STX엔진",
+   "slug": "STX엔진",
+   "ownCur": 11.19,
+   "ownPrev": 0.52,
+   "ownDelta": 10.67,
+   "valCur": 517,
+   "valDelta": 503
+  },
+  {
+   "name": "삼화전기",
+   "slug": "삼화전기",
+   "ownCur": 9.37,
+   "ownPrev": 0.89,
+   "ownDelta": 8.48,
+   "valCur": 193,
+   "valDelta": 183
+  },
+  {
+   "name": "일진전기",
+   "slug": "일진전기",
+   "ownCur": 8.58,
+   "ownPrev": 1.77,
+   "ownDelta": 6.81,
+   "valCur": 1115,
+   "valDelta": 1045
+  },
+  {
+   "name": "HDC현대산업개발",
+   "slug": "HDC현대산업개발",
+   "ownCur": 12.31,
+   "ownPrev": 5.69,
+   "ownDelta": 6.62,
+   "valCur": 1464,
+   "valDelta": 917
+  },
+  {
+   "name": "테크윙",
+   "slug": "테크윙",
+   "ownCur": 5.57,
+   "ownPrev": 0.43,
+   "ownDelta": 5.14,
+   "valCur": 801,
+   "valDelta": 783
+  },
+  {
+   "name": "대한전선",
+   "slug": "대한전선",
+   "ownCur": 5.6,
+   "ownPrev": 0.83,
+   "ownDelta": 4.77,
+   "valCur": 1165,
+   "valDelta": 1061
+  },
+  {
+   "name": "삼성증권",
+   "slug": "삼성증권",
+   "ownCur": 13.37,
+   "ownPrev": 8.78,
+   "ownDelta": 4.59,
+   "valCur": 5191,
+   "valDelta": 2173
+  },
+  {
+   "name": "HD현대건설기계",
+   "slug": "HD현대건설기계",
+   "ownCur": 9.54,
+   "ownPrev": 5.05,
+   "ownDelta": 4.49,
+   "valCur": 1019,
+   "valDelta": 505
+  },
+  {
+   "name": "대웅제약",
+   "slug": "대웅제약",
+   "ownCur": 11.15,
+   "ownPrev": 7.06,
+   "ownDelta": 4.09,
+   "valCur": 1632,
+   "valDelta": 676
+  },
+  {
+   "name": "HL만도",
+   "slug": "HL만도",
+   "ownCur": 11.83,
+   "ownPrev": 7.75,
+   "ownDelta": 4.08,
+   "valCur": 2257,
+   "valDelta": 825
+  },
+  {
+   "name": "비에이치아이",
+   "slug": "비에이치아이",
+   "ownCur": 4.61,
+   "ownPrev": 0.56,
+   "ownDelta": 4.05,
+   "valCur": 220,
+   "valDelta": 206
+  },
+  {
+   "name": "동원시스템즈",
+   "slug": "동원시스템즈",
+   "ownCur": 5.35,
+   "ownPrev": 1.51,
+   "ownDelta": 3.84,
+   "valCur": 626,
+   "valDelta": 475
+  },
+  {
+   "name": "태영건설",
+   "slug": "태영건설",
+   "ownCur": 3.75,
+   "ownPrev": 0.03,
+   "ownDelta": 3.72,
+   "valCur": 260,
+   "valDelta": 260
+  },
+  {
+   "name": "케이씨텍",
+   "slug": "케이씨텍",
+   "ownCur": 7.33,
+   "ownPrev": 3.75,
+   "ownDelta": 3.58,
+   "valCur": 398,
+   "valDelta": 188
+  },
+  {
+   "name": "경동나비엔",
+   "slug": "경동나비엔",
+   "ownCur": 7.59,
+   "ownPrev": 4.06,
+   "ownDelta": 3.53,
+   "valCur": 972,
+   "valDelta": 693
+  },
+  {
+   "name": "녹십자",
+   "slug": "녹십자",
+   "ownCur": 10.6,
+   "ownPrev": 7.1,
+   "ownDelta": 3.5,
+   "valCur": 2224,
+   "valDelta": 1182
+  },
+  {
+   "name": "SNT에너지",
+   "slug": "SNT에너지",
+   "ownCur": 5.13,
+   "ownPrev": 1.66,
+   "ownDelta": 3.47,
+   "valCur": 253,
+   "valDelta": 226
+  },
+  {
+   "name": "삼화콘덴서",
+   "slug": "삼화콘덴서",
+   "ownCur": 6.26,
+   "ownPrev": 2.85,
+   "ownDelta": 3.41,
+   "valCur": 179,
+   "valDelta": 66
+  },
+  {
+   "name": "NH투자증권",
+   "slug": "NH투자증권",
+   "ownCur": 8.65,
+   "ownPrev": 5.57,
+   "ownDelta": 3.08,
+   "valCur": 3949,
+   "valDelta": 2040
+  },
+  {
+   "name": "화승인더",
+   "slug": "화승인더",
+   "ownCur": 5.12,
+   "ownPrev": 2.09,
+   "ownDelta": 3.03,
+   "valCur": 126,
+   "valDelta": 86
+  },
+  {
+   "name": "엘앤에프",
+   "slug": "엘앤에프",
+   "ownCur": 6.33,
+   "ownPrev": 3.32,
+   "ownDelta": 3.01,
+   "valCur": 1862,
+   "valDelta": -591
+  },
+  {
+   "name": "에스티아이",
+   "slug": "에스티아이",
+   "ownCur": 6.45,
+   "ownPrev": 3.46,
+   "ownDelta": 2.99,
+   "valCur": 178,
+   "valDelta": 16
+  },
+  {
+   "name": "피엔에이치테크",
+   "slug": "피엔에이치테크",
+   "ownCur": 8.36,
+   "ownPrev": 5.37,
+   "ownDelta": 2.99,
+   "valCur": 65,
+   "valDelta": -65
+  },
+  {
+   "name": "하나투어",
+   "slug": "하나투어",
+   "ownCur": 8.36,
+   "ownPrev": 5.39,
+   "ownDelta": 2.97,
+   "valCur": 729,
+   "valDelta": 279
+  },
+  {
+   "name": "삼성화재우",
+   "slug": "삼성화재우",
+   "ownCur": 8.28,
+   "ownPrev": 5.37,
+   "ownDelta": 2.91,
+   "valCur": 725,
+   "valDelta": 399
+  }
+ ],
+ "reduced": [
+  {
+   "name": "클리오",
+   "slug": "클리오",
+   "ownCur": 0.74,
+   "ownPrev": 9.14,
+   "ownDelta": -8.4,
+   "valCur": 23,
+   "valDelta": -486
+  },
+  {
+   "name": "티이엠씨",
+   "slug": "티이엠씨",
+   "ownCur": 2.36,
+   "ownPrev": 10.51,
+   "ownDelta": -8.15,
+   "valCur": 39,
+   "valDelta": -537
+  },
+  {
+   "name": "씨앤씨인터내셔널",
+   "slug": "씨앤씨인터내셔널",
+   "ownCur": 5.08,
+   "ownPrev": 12.04,
+   "ownDelta": -6.96,
+   "valCur": 232,
+   "valDelta": -521
+  },
+  {
+   "name": "심텍",
+   "slug": "심텍",
+   "ownCur": 0.85,
+   "ownPrev": 7.57,
+   "ownDelta": -6.72,
+   "valCur": 30,
+   "valDelta": -899
+  },
+  {
+   "name": "신세계인터내셔날",
+   "slug": "신세계인터내셔날",
+   "ownCur": 2.61,
+   "ownPrev": 9.23,
+   "ownDelta": -6.62,
+   "valCur": 94,
+   "valDelta": -509
+  },
+  {
+   "name": "원텍",
+   "slug": "원텍",
+   "ownCur": 0.43,
+   "ownPrev": 5.78,
+   "ownDelta": -5.35,
+   "valCur": 17,
+   "valDelta": -459
+  },
+  {
+   "name": "파마리서치",
+   "slug": "파마리서치",
+   "ownCur": 4.26,
+   "ownPrev": 9.22,
+   "ownDelta": -4.96,
+   "valCur": 1174,
+   "valDelta": 132
+  },
+  {
+   "name": "호텔신라",
+   "slug": "호텔신라",
+   "ownCur": 4.89,
+   "ownPrev": 9.84,
+   "ownDelta": -4.95,
+   "valCur": 708,
+   "valDelta": -1819
+  },
+  {
+   "name": "이수페타시스",
+   "slug": "이수페타시스",
+   "ownCur": 8.09,
+   "ownPrev": 12.91,
+   "ownDelta": -4.82,
+   "valCur": 1401,
+   "valDelta": -1003
+  },
+  {
+   "name": "SBS",
+   "slug": "SBS",
+   "ownCur": 8.52,
+   "ownPrev": 13.28,
+   "ownDelta": -4.76,
+   "valCur": 350,
+   "valDelta": -371
+  },
+  {
+   "name": "HD현대일렉트릭",
+   "slug": "HD현대일렉트릭",
+   "ownCur": 7.67,
+   "ownPrev": 12.39,
+   "ownDelta": -4.72,
+   "valCur": 10556,
+   "valDelta": 6885
+  },
+  {
+   "name": "ISC",
+   "slug": "ISC",
+   "ownCur": 2.7,
+   "ownPrev": 7.41,
+   "ownDelta": -4.71,
+   "valCur": 413,
+   "valDelta": -848
+  },
+  {
+   "name": "효성티앤씨",
+   "slug": "효성티앤씨",
+   "ownCur": 6.98,
+   "ownPrev": 11.67,
+   "ownDelta": -4.69,
+   "valCur": 722,
+   "valDelta": -1122
+  },
+  {
+   "name": "레이",
+   "slug": "레이",
+   "ownCur": 1.77,
+   "ownPrev": 6.36,
+   "ownDelta": -4.59,
+   "valCur": 16,
+   "valDelta": -206
+  },
+  {
+   "name": "고려아연",
+   "slug": "고려아연",
+   "ownCur": 3.92,
+   "ownPrev": 8.34,
+   "ownDelta": -4.42,
+   "valCur": 8171,
+   "valDelta": -515
+  },
+  {
+   "name": "인텍플러스",
+   "slug": "인텍플러스",
+   "ownCur": 0.25,
+   "ownPrev": 4.66,
+   "ownDelta": -4.41,
+   "valCur": 3,
+   "valDelta": -178
+  },
+  {
+   "name": "에코앤드림",
+   "slug": "에코앤드림",
+   "ownCur": 0.68,
+   "ownPrev": 4.94,
+   "ownDelta": -4.26,
+   "valCur": 26,
+   "valDelta": -99
+  },
+  {
+   "name": "삼양식품",
+   "slug": "삼양식품",
+   "ownCur": 8.49,
+   "ownPrev": 12.69,
+   "ownDelta": -4.2,
+   "valCur": 4890,
+   "valDelta": 2826
+  },
+  {
+   "name": "제우스",
+   "slug": "제우스",
+   "ownCur": 0.14,
+   "ownPrev": 4.29,
+   "ownDelta": -4.15,
+   "valCur": 5,
+   "valDelta": -203
+  },
+  {
+   "name": "칩스앤미디어",
+   "slug": "칩스앤미디어",
+   "ownCur": 0.67,
+   "ownPrev": 4.81,
+   "ownDelta": -4.14,
+   "valCur": 22,
+   "valDelta": -273
+  },
+  {
+   "name": "기가비스",
+   "slug": "기가비스",
+   "ownCur": 1.61,
+   "ownPrev": 5.67,
+   "ownDelta": -4.06,
+   "valCur": 50,
+   "valDelta": -480
+  },
+  {
+   "name": "GKL",
+   "slug": "GKL",
+   "ownCur": 7.18,
+   "ownPrev": 11.21,
+   "ownDelta": -4.03,
+   "valCur": 491,
+   "valDelta": -445
+  },
+  {
+   "name": "LIG넥스원",
+   "slug": "LIG넥스원",
+   "ownCur": 9.71,
+   "ownPrev": 13.55,
+   "ownDelta": -3.84,
+   "valCur": 4708,
+   "valDelta": 818
+  },
+  {
+   "name": "대한유화",
+   "slug": "대한유화",
+   "ownCur": 7.99,
+   "ownPrev": 11.61,
+   "ownDelta": -3.62,
+   "valCur": 403,
+   "valDelta": -751
+  },
+  {
+   "name": "드림텍",
+   "slug": "드림텍",
+   "ownCur": 4.32,
+   "ownPrev": 7.73,
+   "ownDelta": -3.41,
+   "valCur": 216,
+   "valDelta": -474
+  }
+ ],
+ "newEntries": [
+  {
+   "name": "HD현대미포",
+   "slug": "HD현대미포",
+   "value": 6557,
+   "ownership": 12.23
+  },
+  {
+   "name": "HD현대마린솔루션",
+   "slug": "HD현대마린솔루션",
+   "value": 4912,
+   "ownership": 6.85
+  },
+  {
+   "name": "시프트업",
+   "slug": "시프트업",
+   "value": 2745,
+   "ownership": 7.42
+  },
+  {
+   "name": "삼성E&A",
+   "slug": "삼성EA",
+   "value": 2252,
+   "ownership": 6.95
+  },
+  {
+   "name": "한화엔진",
+   "slug": "한화엔진",
+   "value": 1953,
+   "ownership": 12.7
+  },
+  {
+   "name": "리가켐바이오",
+   "slug": "리가켐바이오",
+   "value": 1617,
+   "ownership": 4.05
+  },
+  {
+   "name": "에이피알",
+   "slug": "에이피알",
+   "value": 1574,
+   "ownership": 8.25
+  },
+  {
+   "name": "셀트리온(배당)",
+   "slug": "셀트리온(배당)",
+   "value": 1381,
+   "ownership": 0
+  },
+  {
+   "name": "한화인더스트리얼솔루션즈",
+   "slug": "한화인더스트리얼솔루션즈",
+   "value": 1136,
+   "ownership": 7.12
+  },
+  {
+   "name": "산일전기",
+   "slug": "산일전기",
+   "value": 1034,
+   "ownership": 4.95
+  },
+  {
+   "name": "HS효성첨단소재",
+   "slug": "HS효성첨단소재",
+   "value": 499,
+   "ownership": 6.37
+  },
+  {
+   "name": "LS에코에너지",
+   "slug": "LS에코에너지",
+   "value": 488,
+   "ownership": 5.14
+  },
+  {
+   "name": "SOOP",
+   "slug": "SOOP",
+   "value": 392,
+   "ownership": 3.75
+  },
+  {
+   "name": "GS피앤엘",
+   "slug": "GS피앤엘",
+   "value": 379,
+   "ownership": 8.61
+  },
+  {
+   "name": "HD현대마린엔진",
+   "slug": "HD현대마린엔진",
+   "value": 379,
+   "ownership": 4.57
+  },
+  {
+   "name": "신성델타테크",
+   "slug": "신성델타테크",
+   "value": 149,
+   "ownership": 0.47
+  },
+  {
+   "name": "세경하이테크",
+   "slug": "세경하이테크",
+   "value": 129,
+   "ownership": 4.35
+  },
+  {
+   "name": "KB발해인프라",
+   "slug": "KB발해인프라",
+   "value": 111,
+   "ownership": 1.17
+  },
+  {
+   "name": "미코",
+   "slug": "미코",
+   "value": 99,
+   "ownership": 3.69
+  },
+  {
+   "name": "앱클론",
+   "slug": "앱클론",
+   "value": 88,
+   "ownership": 3.57
+  },
+  {
+   "name": "한중엔시에스",
+   "slug": "한중엔시에스",
+   "value": 63,
+   "ownership": 2.96
+  },
+  {
+   "name": "에이치브이엠",
+   "slug": "에이치브이엠",
+   "value": 62,
+   "ownership": 2.12
+  },
+  {
+   "name": "엠앤씨솔루션",
+   "slug": "엠앤씨솔루션",
+   "value": 59,
+   "ownership": 1.5
+  },
+  {
+   "name": "SK이터닉스",
+   "slug": "SK이터닉스",
+   "value": 51,
+   "ownership": 1.26
+  },
+  {
+   "name": "퓨쳐켐",
+   "slug": "퓨쳐켐",
+   "value": 49,
+   "ownership": 1.27
+  }
+ ],
+ "exits": [
+  {
+   "name": "삼성엔지니어링",
+   "slug": "삼성엔지니어링",
+   "prevValue": 4246,
+   "prevOwnership": 7.47
+  },
+  {
+   "name": "현대미포조선",
+   "slug": "현대미포조선",
+   "prevValue": 2414,
+   "prevOwnership": 7.12
+  },
+  {
+   "name": "효성첨단소재",
+   "slug": "효성첨단소재",
+   "prevValue": 1619,
+   "prevOwnership": 9.05
+  },
+  {
+   "name": "쌍용C&E",
+   "slug": "쌍용CE",
+   "prevValue": 1571,
+   "prevOwnership": 5.48
+  },
+  {
+   "name": "레고켐바이오",
+   "slug": "레고켐바이오",
+   "prevValue": 1054,
+   "prevOwnership": 5.91
+  },
+  {
+   "name": "아프리카TV",
+   "slug": "아프리카TV",
+   "prevValue": 648,
+   "prevOwnership": 6.58
+  },
+  {
+   "name": "HSD엔진",
+   "slug": "HSD엔진",
+   "prevValue": 557,
+   "prevOwnership": 7.95
+  },
+  {
+   "name": "제이시스메디칼",
+   "slug": "제이시스메디칼",
+   "prevValue": 387,
+   "prevOwnership": 4.82
+  },
+  {
+   "name": "롯데정보통신",
+   "slug": "롯데정보통신",
+   "prevValue": 281,
+   "prevOwnership": 6.22
+  },
+  {
+   "name": "유한양행(무상)",
+   "slug": "유한양행(무상)",
+   "prevValue": 255,
+   "prevOwnership": 0
+  },
+  {
+   "name": "에이직랜드",
+   "slug": "에이직랜드",
+   "prevValue": 164,
+   "prevOwnership": 2.6
+  },
+  {
+   "name": "LS전선아시아",
+   "slug": "LS전선아시아",
+   "prevValue": 107,
+   "prevOwnership": 1.67
+  },
+  {
+   "name": "한미약품(무상)",
+   "slug": "한미약품(무상)",
+   "prevValue": 100,
+   "prevOwnership": 0
+  },
+  {
+   "name": "넥스트칩",
+   "slug": "넥스트칩",
+   "prevValue": 89,
+   "prevOwnership": 2.67
+  },
+  {
+   "name": "DL건설",
+   "slug": "DL건설",
+   "prevValue": 84,
+   "prevOwnership": 2.98
+  },
+  {
+   "name": "티엘비",
+   "slug": "티엘비",
+   "prevValue": 78,
+   "prevOwnership": 2.61
+  },
+  {
+   "name": "메드팩토",
+   "slug": "메드팩토",
+   "prevValue": 72,
+   "prevOwnership": 2.96
+  },
+  {
+   "name": "한국콜마홀딩스",
+   "slug": "한국콜마홀딩스",
+   "prevValue": 66,
+   "prevOwnership": 2.27
+  },
+  {
+   "name": "이녹스",
+   "slug": "이녹스",
+   "prevValue": 61,
+   "prevOwnership": 2.82
+  },
+  {
+   "name": "STX중공업",
+   "slug": "STX중공업",
+   "prevValue": 60,
+   "prevOwnership": 1.8
+  },
+  {
+   "name": "큐리옥스바이오시스템즈",
+   "slug": "큐리옥스바이오시스템즈",
+   "prevValue": 50,
+   "prevOwnership": 1.25
+  },
+  {
+   "name": "엔케이맥스무상(보)",
+   "slug": "엔케이맥스무상(보)",
+   "prevValue": 46,
+   "prevOwnership": 0
+  },
+  {
+   "name": "디엔에프",
+   "slug": "디엔에프",
+   "prevValue": 43,
+   "prevOwnership": 1.54
+  },
+  {
+   "name": "인트론바이오",
+   "slug": "인트론바이오",
+   "prevValue": 41,
+   "prevOwnership": 1.38
+  },
+  {
+   "name": "더네이쳐홀딩스",
+   "slug": "더네이쳐홀딩스",
+   "prevValue": 39,
+   "prevOwnership": 1.52
+  }
+ ],
+ "topHoldings": [
+  {
+   "name": "삼성전자",
+   "slug": "삼성전자",
+   "value": 230421,
+   "ownership": 7.26,
+   "trend": [
+    10.69,
+    8.52,
+    7.53,
+    7.28,
+    7.26
+   ]
+  },
+  {
+   "name": "SK하이닉스",
+   "slug": "SK하이닉스",
+   "value": 95627,
+   "ownership": 7.55,
+   "trend": [
+    10.97,
+    9.09,
+    7.2,
+    7.98,
+    7.55
+   ]
+  },
+  {
+   "name": "LG에너지솔루션",
+   "slug": "LG에너지솔루션",
+   "value": 51706,
+   "ownership": 6.35,
+   "trend": [
+    null,
+    null,
+    5.37,
+    5.52,
+    6.35
+   ]
+  },
+  {
+   "name": "삼성바이오로직스",
+   "slug": "삼성바이오로직스",
+   "value": 46721,
+   "ownership": 6.92,
+   "trend": [
+    4.34,
+    5.89,
+    6.78,
+    6.69,
+    6.92
+   ]
+  },
+  {
+   "name": "현대차",
+   "slug": "현대차",
+   "value": 33529,
+   "ownership": 7.55,
+   "trend": [
+    10.24,
+    8.11,
+    6.99,
+    7.15,
+    7.55
+   ]
+  },
+  {
+   "name": "기아",
+   "slug": "기아",
+   "value": 28589,
+   "ownership": 7.14,
+   "trend": [
+    null,
+    8.22,
+    6.87,
+    7.11,
+    7.14
+   ]
+  },
+  {
+   "name": "NAVER",
+   "slug": "NAVER",
+   "value": 28134,
+   "ownership": 8.94,
+   "trend": [
+    11.57,
+    8.92,
+    8.46,
+    9.31,
+    8.94
+   ]
+  },
+  {
+   "name": "셀트리온",
+   "slug": "셀트리온",
+   "value": 27624,
+   "ownership": 6.79,
+   "trend": [
+    8.31,
+    6.58,
+    7.61,
+    7.3,
+    6.79
+   ]
+  },
+  {
+   "name": "KB금융",
+   "slug": "KB금융",
+   "value": 27405,
+   "ownership": 8.4,
+   "trend": [
+    9.93,
+    9.1,
+    7.93,
+    8.3,
+    8.4
+   ]
+  },
+  {
+   "name": "신한지주",
+   "slug": "신한지주",
+   "value": 20547,
+   "ownership": 8.56,
+   "trend": [
+    9.83,
+    8.85,
+    7.95,
+    7.4,
+    8.56
+   ]
+  },
+  {
+   "name": "현대모비스",
+   "slug": "현대모비스",
+   "value": 19937,
+   "ownership": 9.06,
+   "trend": [
+    11.8,
+    9.33,
+    9.01,
+    8.81,
+    9.06
+   ]
+  },
+  {
+   "name": "HD현대중공업",
+   "slug": "HD현대중공업",
+   "value": 16837,
+   "ownership": 6.6,
+   "trend": [
+    null,
+    null,
+    null,
+    6.14,
+    6.6
+   ]
+  },
+  {
+   "name": "POSCO홀딩스",
+   "slug": "POSCO홀딩스",
+   "value": 15628,
+   "ownership": 7.46,
+   "trend": [
+    null,
+    null,
+    9.12,
+    6.37,
+    7.46
+   ]
+  },
+  {
+   "name": "하나금융지주",
+   "slug": "하나금융지주",
+   "value": 15081,
+   "ownership": 9.25,
+   "trend": [
+    9.92,
+    9.26,
+    8.75,
+    7.78,
+    9.25
+   ]
+  },
+  {
+   "name": "삼성물산",
+   "slug": "삼성물산",
+   "value": 14852,
+   "ownership": 7.28,
+   "trend": [
+    8.41,
+    7.08,
+    7.2,
+    7,
+    7.28
+   ]
+  }
+ ]
+}

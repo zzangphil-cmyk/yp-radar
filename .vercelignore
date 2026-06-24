@@ -1,0 +1,7 @@
+# 루트의 데이터 생성 산출물·스크립트만 제외 (src/data/*.json은 사이트가 사용하므로 포함!)
+/data/
+/scripts/
+/*.csv
+/*.xml
+/*.zip
+.claude/

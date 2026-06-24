@@ -1,0 +1,1165 @@
+{
+ "asOf": "20260624",
+ "universeAsOf": "2025-12-31",
+ "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
+ "counts": {
+  "holdings": 110,
+  "recent": 5,
+  "recentBuy": 4,
+  "recentSell": 1
+ },
+ "holdings": [
+  {
+   "name": "오씨아이홀딩스",
+   "slug": "오씨아이홀딩스",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 11.72,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251112"
+  },
+  {
+   "name": "대상(주)",
+   "slug": "대상",
+   "inPanel": true,
+   "stockCode": "001680",
+   "ownership": 11.68,
+   "ownDelta": -1.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "대한유화(주)",
+   "slug": "대한유화",
+   "inPanel": true,
+   "stockCode": "006650",
+   "ownership": 11.68,
+   "ownDelta": 1.29,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)파라다이스",
+   "slug": "파라다이스",
+   "inPanel": true,
+   "stockCode": "034230",
+   "ownership": 11.37,
+   "ownDelta": 4.24,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)케이씨씨",
+   "slug": "케이씨씨",
+   "inPanel": false,
+   "stockCode": "002380",
+   "ownership": 11.23,
+   "ownDelta": -1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "HL만도",
+   "slug": "HL만도",
+   "inPanel": true,
+   "stockCode": "204320",
+   "ownership": 10.94,
+   "ownDelta": -2.11,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "삼성전기(주)",
+   "slug": "삼성전기",
+   "inPanel": true,
+   "stockCode": "009150",
+   "ownership": 10.92,
+   "ownDelta": 1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "코스맥스(주)",
+   "slug": "코스맥스",
+   "inPanel": true,
+   "stockCode": "192820",
+   "ownership": 10.81,
+   "ownDelta": -1.1,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "한국전력기술(주)",
+   "slug": "한국전력기술",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 10.57,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251014"
+  },
+  {
+   "name": "한국콜마(주)",
+   "slug": "한국콜마",
+   "inPanel": true,
+   "stockCode": "161890",
+   "ownership": 10.52,
+   "ownDelta": 1.18,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)한국카본",
+   "slug": "한국카본",
+   "inPanel": true,
+   "stockCode": "017960",
+   "ownership": 10.49,
+   "ownDelta": 1,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "에이치디씨현대산업개발",
+   "slug": "에이치디씨현대산업개발",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 10.45,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251222"
+  },
+  {
+   "name": "현대엘리베이터(주)",
+   "slug": "현대엘리베이터",
+   "inPanel": false,
+   "stockCode": "017800",
+   "ownership": 10.28,
+   "ownDelta": 1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)이수페타시스",
+   "slug": "이수페타시스",
+   "inPanel": true,
+   "stockCode": "007660",
+   "ownership": 9.84,
+   "ownDelta": -1.17,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "LX인터내셔널",
+   "slug": "LX인터내셔널",
+   "inPanel": true,
+   "stockCode": "001120",
+   "ownership": 9.77,
+   "ownDelta": 1.03,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "한화엔진",
+   "slug": "한화엔진",
+   "inPanel": true,
+   "stockCode": "082740",
+   "ownership": 9.76,
+   "ownDelta": -1,
+   "reason": "단순추가취득/처분",
+   "date": "20251201"
+  },
+  {
+   "name": "한화비전",
+   "slug": "한화비전",
+   "inPanel": false,
+   "stockCode": "489790",
+   "ownership": 9.66,
+   "ownDelta": 2.22,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)한섬",
+   "slug": "한섬",
+   "inPanel": true,
+   "stockCode": "020000",
+   "ownership": 9.55,
+   "ownDelta": 3.26,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "엘지이노텍(주)",
+   "slug": "엘지이노텍",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 9.46,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251031"
+  },
+  {
+   "name": "(주)테스",
+   "slug": "테스",
+   "inPanel": true,
+   "stockCode": "095610",
+   "ownership": 9.44,
+   "ownDelta": 1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "현대위아(주)",
+   "slug": "현대위아",
+   "inPanel": true,
+   "stockCode": "011210",
+   "ownership": 9.37,
+   "ownDelta": 0.01,
+   "reason": "일반투자목적에서 단순투자목적으로 보유목적 변경",
+   "date": "20260310"
+  },
+  {
+   "name": "롯데관광개발(주)",
+   "slug": "롯데관광개발",
+   "inPanel": true,
+   "stockCode": "032350",
+   "ownership": 9.36,
+   "ownDelta": -1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "에스엘(주)",
+   "slug": "에스엘",
+   "inPanel": true,
+   "stockCode": "005850",
+   "ownership": 9.35,
+   "ownDelta": 1.11,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "S-Oil(주)",
+   "slug": "S-Oil",
+   "inPanel": true,
+   "stockCode": "010950",
+   "ownership": 9.35,
+   "ownDelta": 1.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "한올바이오파마(주)",
+   "slug": "한올바이오파마",
+   "inPanel": true,
+   "stockCode": "009420",
+   "ownership": 9.32,
+   "ownDelta": 1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)제일기획",
+   "slug": "제일기획",
+   "inPanel": true,
+   "stockCode": "030000",
+   "ownership": 9.17,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)오리온",
+   "slug": "오리온",
+   "inPanel": true,
+   "stockCode": "271560",
+   "ownership": 9.14,
+   "ownDelta": 1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "DL",
+   "slug": "DL",
+   "inPanel": true,
+   "stockCode": "000210",
+   "ownership": 9.02,
+   "ownDelta": -1.03,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "씨에스윈드(주)",
+   "slug": "씨에스윈드",
+   "inPanel": true,
+   "stockCode": "112610",
+   "ownership": 8.96,
+   "ownDelta": 1.08,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)이마트",
+   "slug": "이마트",
+   "inPanel": true,
+   "stockCode": "139480",
+   "ownership": 8.94,
+   "ownDelta": 1.05,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "비나텍(주)",
+   "slug": "비나텍",
+   "inPanel": true,
+   "stockCode": "126340",
+   "ownership": 8.92,
+   "ownDelta": 3.69,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "SK스퀘어",
+   "slug": "SK스퀘어",
+   "inPanel": true,
+   "stockCode": "402340",
+   "ownership": 8.8,
+   "ownDelta": 1.13,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "엘아이지넥스원(주)",
+   "slug": "엘아이지넥스원",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 8.66,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251212"
+  },
+  {
+   "name": "(주)엘앤에프",
+   "slug": "엘앤에프",
+   "inPanel": true,
+   "stockCode": "066970",
+   "ownership": 8.54,
+   "ownDelta": 0.17,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "HL홀딩스",
+   "slug": "HL홀딩스",
+   "inPanel": true,
+   "stockCode": "060980",
+   "ownership": 8.41,
+   "ownDelta": 2,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)진성티이씨",
+   "slug": "진성티이씨",
+   "inPanel": true,
+   "stockCode": "036890",
+   "ownership": 8.19,
+   "ownDelta": 1.07,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "CJ제일제당(주)",
+   "slug": "CJ제일제당",
+   "inPanel": true,
+   "stockCode": "097950",
+   "ownership": 8.14,
+   "ownDelta": 0.33,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경",
+   "date": "20260623"
+  },
+  {
+   "name": "피에스케이(주)",
+   "slug": "피에스케이",
+   "inPanel": true,
+   "stockCode": "319660",
+   "ownership": 8.14,
+   "ownDelta": 1.06,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "디엘이앤씨",
+   "slug": "디엘이앤씨",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 8.06,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251204"
+  },
+  {
+   "name": "세아제강지주",
+   "slug": "세아제강지주",
+   "inPanel": true,
+   "stockCode": "003030",
+   "ownership": 8,
+   "ownDelta": -3.06,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "에스케이오션플랜트(주)",
+   "slug": "에스케이오션플랜트",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 8,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251028"
+  },
+  {
+   "name": "덕산네오룩스(주)",
+   "slug": "덕산네오룩스",
+   "inPanel": true,
+   "stockCode": "213420",
+   "ownership": 7.95,
+   "ownDelta": 0.05,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)하나투어",
+   "slug": "하나투어",
+   "inPanel": true,
+   "stockCode": "039130",
+   "ownership": 7.86,
+   "ownDelta": 0.14,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "코오롱인더스트리(주)",
+   "slug": "코오롱인더스트리",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 7.74,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251216"
+  },
+  {
+   "name": "(주)녹십자",
+   "slug": "녹십자",
+   "inPanel": true,
+   "stockCode": "006280",
+   "ownership": 7.69,
+   "ownDelta": -2.07,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)달바글로벌",
+   "slug": "달바글로벌",
+   "inPanel": false,
+   "stockCode": "483650",
+   "ownership": 7.53,
+   "ownDelta": 1.25,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)에스티아이",
+   "slug": "에스티아이",
+   "inPanel": true,
+   "stockCode": "039440",
+   "ownership": 7.43,
+   "ownDelta": 1.17,
+   "reason": "주식소각 및 단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "삼화전기(주)",
+   "slug": "삼화전기",
+   "inPanel": true,
+   "stockCode": "009470",
+   "ownership": 7.29,
+   "ownDelta": -0.35,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "아모레퍼시픽홀딩스",
+   "slug": "아모레퍼시픽홀딩스",
+   "inPanel": false,
+   "stockCode": "002790",
+   "ownership": 7.25,
+   "ownDelta": 1.18,
+   "reason": "주식소각 및 단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "해성디에스(주)",
+   "slug": "해성디에스",
+   "inPanel": true,
+   "stockCode": "195870",
+   "ownership": 7.23,
+   "ownDelta": 0.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)엔씨소프트",
+   "slug": "엔씨소프트",
+   "inPanel": true,
+   "stockCode": null,
+   "ownership": 7.13,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251120"
+  },
+  {
+   "name": "(주)경동나비엔",
+   "slug": "경동나비엔",
+   "inPanel": true,
+   "stockCode": "009450",
+   "ownership": 7.1,
+   "ownDelta": -1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "브이엠(주)",
+   "slug": "브이엠",
+   "inPanel": false,
+   "stockCode": "089970",
+   "ownership": 7.05,
+   "ownDelta": 2,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)유니드",
+   "slug": "유니드",
+   "inPanel": true,
+   "stockCode": "014830",
+   "ownership": 7.04,
+   "ownDelta": 1.12,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)대한항공",
+   "slug": "대한항공",
+   "inPanel": true,
+   "stockCode": "003490",
+   "ownership": 7.01,
+   "ownDelta": -2,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)더블유게임즈",
+   "slug": "더블유게임즈",
+   "inPanel": true,
+   "stockCode": "192080",
+   "ownership": 6.92,
+   "ownDelta": -1.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "STX엔진(주)",
+   "slug": "STX엔진",
+   "inPanel": true,
+   "stockCode": "077970",
+   "ownership": 6.5,
+   "ownDelta": 1.5,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)코리아써키트",
+   "slug": "코리아써키트",
+   "inPanel": true,
+   "stockCode": "007810",
+   "ownership": 6.38,
+   "ownDelta": 1.33,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "엠앤씨솔루션",
+   "slug": "엠앤씨솔루션",
+   "inPanel": true,
+   "stockCode": "484870",
+   "ownership": 6.25,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "하이록코리아(주)",
+   "slug": "하이록코리아",
+   "inPanel": true,
+   "stockCode": "013030",
+   "ownership": 6.2,
+   "ownDelta": 1.08,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)아이에스시",
+   "slug": "아이에스시",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 6.16,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251024"
+  },
+  {
+   "name": "알에프에이치아이씨(주)",
+   "slug": "알에프에이치아이씨",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 6.11,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251001"
+  },
+  {
+   "name": "(주)제이에스코퍼레이션",
+   "slug": "제이에스코퍼레이션",
+   "inPanel": true,
+   "stockCode": "194370",
+   "ownership": 6.08,
+   "ownDelta": 1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "에스티팜(주)",
+   "slug": "에스티팜",
+   "inPanel": true,
+   "stockCode": "237690",
+   "ownership": 6.07,
+   "ownDelta": 1.05,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)지에스피앤엘",
+   "slug": "지에스피앤엘",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 6.06,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251202"
+  },
+  {
+   "name": "한국단자공업(주)",
+   "slug": "한국단자공업",
+   "inPanel": false,
+   "stockCode": "025540",
+   "ownership": 6.04,
+   "ownDelta": -3.15,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "SK가스(주)",
+   "slug": "SK가스",
+   "inPanel": true,
+   "stockCode": "018670",
+   "ownership": 6.01,
+   "ownDelta": 1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)농심",
+   "slug": "농심",
+   "inPanel": true,
+   "stockCode": "004370",
+   "ownership": 5.9,
+   "ownDelta": -2.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "한세실업(주)",
+   "slug": "한세실업",
+   "inPanel": true,
+   "stockCode": "105630",
+   "ownership": 5.8,
+   "ownDelta": -0.3,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "덴티움",
+   "slug": "덴티움",
+   "inPanel": true,
+   "stockCode": "145720",
+   "ownership": 5.78,
+   "ownDelta": -1.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "동아에스티(주)",
+   "slug": "동아에스티",
+   "inPanel": true,
+   "stockCode": "170900",
+   "ownership": 5.78,
+   "ownDelta": -1.03,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "삼성에피스홀딩스(주)",
+   "slug": "삼성에피스홀딩스",
+   "inPanel": false,
+   "stockCode": "0126Z0",
+   "ownership": 5.7,
+   "ownDelta": -1,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)태광",
+   "slug": "태광",
+   "inPanel": true,
+   "stockCode": "023160",
+   "ownership": 5.55,
+   "ownDelta": -1.1,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "한온시스템(주)",
+   "slug": "한온시스템",
+   "inPanel": true,
+   "stockCode": "018880",
+   "ownership": 5.3,
+   "ownDelta": 0.3,
+   "reason": "유상증자 및 단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "아이에스동서(주)",
+   "slug": "아이에스동서",
+   "inPanel": true,
+   "stockCode": "010780",
+   "ownership": 5.18,
+   "ownDelta": 0.2,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "SNT에너지",
+   "slug": "SNT에너지",
+   "inPanel": true,
+   "stockCode": "100840",
+   "ownership": 5.18,
+   "ownDelta": 0.52,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "동국제강",
+   "slug": "동국제강",
+   "inPanel": true,
+   "stockCode": "460860",
+   "ownership": 5.12,
+   "ownDelta": 0.16,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)에이치브이엠",
+   "slug": "에이치브이엠",
+   "inPanel": true,
+   "stockCode": "295310",
+   "ownership": 5.06,
+   "ownDelta": 0.06,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)와이지엔터테인먼트",
+   "slug": "와이지엔터테인먼트",
+   "inPanel": true,
+   "stockCode": "122870",
+   "ownership": 5.05,
+   "ownDelta": -0.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "포스코퓨처엠",
+   "slug": "포스코퓨처엠",
+   "inPanel": true,
+   "stockCode": "003670",
+   "ownership": 5.04,
+   "ownDelta": 0.09,
+   "reason": "단순추가취득/처분",
+   "date": "20251103"
+  },
+  {
+   "name": "디와이파워(주)",
+   "slug": "디와이파워",
+   "inPanel": true,
+   "stockCode": "210540",
+   "ownership": 5.02,
+   "ownDelta": 0.07,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "케이씨씨글라스",
+   "slug": "케이씨씨글라스",
+   "inPanel": true,
+   "stockCode": "344820",
+   "ownership": 5,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20251201"
+  },
+  {
+   "name": "하이트진로(주)",
+   "slug": "하이트진로",
+   "inPanel": true,
+   "stockCode": "000080",
+   "ownership": 5,
+   "ownDelta": -1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20251201"
+  },
+  {
+   "name": "(주)케이씨",
+   "slug": "케이씨",
+   "inPanel": true,
+   "stockCode": "029460",
+   "ownership": 5,
+   "ownDelta": 0.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)두산테스나",
+   "slug": "두산테스나",
+   "inPanel": true,
+   "stockCode": "131970",
+   "ownership": 4.95,
+   "ownDelta": -0.2,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)제이와이피엔터테인먼트",
+   "slug": "제이와이피엔터테인먼트",
+   "inPanel": false,
+   "stockCode": null,
+   "ownership": 4.91,
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251112"
+  },
+  {
+   "name": "(주)케이씨텍",
+   "slug": "케이씨텍",
+   "inPanel": true,
+   "stockCode": "281820",
+   "ownership": 4.42,
+   "ownDelta": -3.1,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)에스투더블유",
+   "slug": "에스투더블유",
+   "inPanel": false,
+   "stockCode": "488280",
+   "ownership": 4.36,
+   "ownDelta": -1.05,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)에스에프에이",
+   "slug": "에스에프에이",
+   "inPanel": true,
+   "stockCode": "056190",
+   "ownership": 4.29,
+   "ownDelta": -1.06,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)우신시스템",
+   "slug": "우신시스템",
+   "inPanel": true,
+   "stockCode": "017370",
+   "ownership": 4.09,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)디어유",
+   "slug": "디어유",
+   "inPanel": true,
+   "stockCode": "376300",
+   "ownership": 4.08,
+   "ownDelta": -1.08,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)테크윙",
+   "slug": "테크윙",
+   "inPanel": true,
+   "stockCode": "089030",
+   "ownership": 4.06,
+   "ownDelta": -0.91,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)한글과컴퓨터",
+   "slug": "한글과컴퓨터",
+   "inPanel": true,
+   "stockCode": "030520",
+   "ownership": 4.04,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "감성코퍼레이션(주)",
+   "slug": "감성코퍼레이션",
+   "inPanel": true,
+   "stockCode": "036620",
+   "ownership": 4.03,
+   "ownDelta": -1,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "솔루스첨단소재",
+   "slug": "솔루스첨단소재",
+   "inPanel": true,
+   "stockCode": "336370",
+   "ownership": 4.03,
+   "ownDelta": -1.08,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)브이티",
+   "slug": "브이티",
+   "inPanel": true,
+   "stockCode": "018290",
+   "ownership": 4.02,
+   "ownDelta": -1.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)진시스템",
+   "slug": "진시스템",
+   "inPanel": true,
+   "stockCode": "363250",
+   "ownership": 4.02,
+   "ownDelta": -2.06,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "코스모신소재(주)",
+   "slug": "코스모신소재",
+   "inPanel": true,
+   "stockCode": "005070",
+   "ownership": 4,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "KG스틸",
+   "slug": "KG스틸",
+   "inPanel": true,
+   "stockCode": "016380",
+   "ownership": 4,
+   "ownDelta": -1,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)TCC스틸",
+   "slug": "TCC스틸",
+   "inPanel": true,
+   "stockCode": "002710",
+   "ownership": 3.98,
+   "ownDelta": -1.02,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)유진테크",
+   "slug": "유진테크",
+   "inPanel": true,
+   "stockCode": "084370",
+   "ownership": 3.98,
+   "ownDelta": -2.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)화승엔터프라이즈",
+   "slug": "화승엔터프라이즈",
+   "inPanel": true,
+   "stockCode": "241590",
+   "ownership": 3.98,
+   "ownDelta": -1.13,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)이녹스첨단소재",
+   "slug": "이녹스첨단소재",
+   "inPanel": true,
+   "stockCode": "272290",
+   "ownership": 3.97,
+   "ownDelta": -1.04,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "대한광통신(주)",
+   "slug": "대한광통신",
+   "inPanel": true,
+   "stockCode": "010170",
+   "ownership": 3.96,
+   "ownDelta": -1.15,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)유비쿼스",
+   "slug": "유비쿼스",
+   "inPanel": true,
+   "stockCode": "264450",
+   "ownership": 3.92,
+   "ownDelta": -1.08,
+   "reason": "단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "(주)오스코텍",
+   "slug": "오스코텍",
+   "inPanel": true,
+   "stockCode": "039200",
+   "ownership": 3.87,
+   "ownDelta": -1.07,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "(주)미코",
+   "slug": "미코",
+   "inPanel": true,
+   "stockCode": "059090",
+   "ownership": 3.8,
+   "ownDelta": -1.29,
+   "reason": "단순추가취득/처분",
+   "date": "20260102"
+  },
+  {
+   "name": "하나머티리얼즈",
+   "slug": "하나머티리얼즈",
+   "inPanel": true,
+   "stockCode": "166090",
+   "ownership": 3.71,
+   "ownDelta": -1.29,
+   "reason": "단순추가취득/처분",
+   "date": "20260601"
+  },
+  {
+   "name": "(주)더존비즈온",
+   "slug": "더존비즈온",
+   "inPanel": true,
+   "stockCode": "012510",
+   "ownership": 0.94,
+   "ownDelta": -7.28,
+   "reason": "공개매수 신청 및 단순추가취득/처분",
+   "date": "20260401"
+  },
+  {
+   "name": "에이치디현대미포",
+   "slug": "에이치디현대미포",
+   "inPanel": false,
+   "stockCode": "010620",
+   "ownership": 0,
+   "ownDelta": -10.22,
+   "reason": "기업합병 및 단순추가취득/처분",
+   "date": "20260102"
+  }
+ ],
+ "recentFilings": [
+  {
+   "name": "CJ제일제당",
+   "slug": "CJ제일제당",
+   "inPanel": true,
+   "stockCode": "097950",
+   "date": "20260623",
+   "ownership": 8.14,
+   "ownDelta": 0.33,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "한화오션",
+   "slug": "한화오션",
+   "inPanel": true,
+   "stockCode": "042660",
+   "date": "20260623",
+   "ownership": 6.66,
+   "ownDelta": 0.19,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "POSCO홀딩스",
+   "slug": "POSCO홀딩스",
+   "inPanel": true,
+   "stockCode": "005490",
+   "date": "20260623",
+   "ownership": 8.3,
+   "ownDelta": 0.01,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "KB금융",
+   "slug": "KB금융",
+   "inPanel": true,
+   "stockCode": "105560",
+   "date": "20260617",
+   "ownership": 9.33,
+   "ownDelta": 0.39,
+   "reason": "일반투자목적에서 단순투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "NH투자증권",
+   "slug": "NH투자증권",
+   "inPanel": true,
+   "stockCode": "005940",
+   "date": "20260617",
+   "ownership": 7.94,
+   "ownDelta": -0.42,
+   "reason": "일반투자목적에서 단순투자목적으로 보유목적 변경"
+  }
+ ]
+}

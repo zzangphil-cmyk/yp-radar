@@ -1,0 +1,537 @@
+{
+ "source": "네이버 금융 ETF 시세 (실시간)",
+ "asOf": "2026-06-24",
+ "asOfTime": "2026-06-24 04:41",
+ "universe": 1145,
+ "eligible": 1041,
+ "excluded": 104,
+ "topN": 30,
+ "etfs": [
+  {
+   "rank": 1,
+   "code": "0167A0",
+   "name": "SOL AI반도체TOP2플러스",
+   "theme": "반도체",
+   "price": 25285,
+   "changeRate": -2.58,
+   "nav": 25267,
+   "ret3m": 159.9399,
+   "volume": 45301242,
+   "amount": 1168974,
+   "marketSum": 70381
+  },
+  {
+   "rank": 2,
+   "code": "229200",
+   "name": "KODEX 코스닥150",
+   "theme": "코스닥",
+   "price": 16145,
+   "changeRate": 1.35,
+   "nav": 16149,
+   "ret3m": -16.0993,
+   "volume": 26370390,
+   "amount": 426882,
+   "marketSum": 46110
+  },
+  {
+   "rank": 3,
+   "code": "069500",
+   "name": "KODEX 200",
+   "theme": "코스피·대형",
+   "price": 134685,
+   "changeRate": 1.4,
+   "nav": 134550,
+   "ret3m": 64.6523,
+   "volume": 24461220,
+   "amount": 3331187,
+   "marketSum": 295634
+  },
+  {
+   "rank": 4,
+   "code": "0162Z0",
+   "name": "RISE 삼성전자SK하이닉스채권혼합50",
+   "theme": "채권·혼합",
+   "price": 15215,
+   "changeRate": -0.26,
+   "nav": 15198,
+   "ret3m": 52.9894,
+   "volume": 20823413,
+   "amount": 319097,
+   "marketSum": 41309
+  },
+  {
+   "rank": 5,
+   "code": "396500",
+   "name": "TIGER 반도체TOP10",
+   "theme": "반도체",
+   "price": 49315,
+   "changeRate": 0.11,
+   "nav": 49270,
+   "ret3m": 52.1225,
+   "volume": 17955633,
+   "amount": 900342,
+   "marketSum": 117197
+  },
+  {
+   "rank": 6,
+   "code": "395160",
+   "name": "KODEX AI반도체TOP2플러스",
+   "theme": "반도체",
+   "price": 55395,
+   "changeRate": -2.3,
+   "nav": 55381,
+   "ret3m": 111.6689,
+   "volume": 14048746,
+   "amount": 792819,
+   "marketSum": 42931
+  },
+  {
+   "rank": 7,
+   "code": "360750",
+   "name": "TIGER 미국S&P500",
+   "theme": "미국·해외",
+   "price": 28210,
+   "changeRate": -0.12,
+   "nav": 28145,
+   "ret3m": 16.2376,
+   "volume": 12630486,
+   "amount": 355520,
+   "marketSum": 196469
+  },
+  {
+   "rank": 8,
+   "code": "379800",
+   "name": "KODEX 미국S&P500",
+   "theme": "미국·해외",
+   "price": 25715,
+   "changeRate": -0.12,
+   "nav": 25661,
+   "ret3m": 16.2131,
+   "volume": 12492636,
+   "amount": 320602,
+   "marketSum": 98476
+  },
+  {
+   "rank": 9,
+   "code": "0210A0",
+   "name": "ACE K반도체TOP2+",
+   "theme": "반도체",
+   "price": 9835,
+   "changeRate": -2.62,
+   "nav": 9833,
+   "ret3m": null,
+   "volume": 12095811,
+   "amount": 121583,
+   "marketSum": 984
+  },
+  {
+   "rank": 10,
+   "code": "0177N0",
+   "name": "KODEX 삼성전자SK하이닉스채권혼합50",
+   "theme": "채권·혼합",
+   "price": 16060,
+   "changeRate": 0.75,
+   "nav": 16044,
+   "ret3m": null,
+   "volume": 11108207,
+   "amount": 179573,
+   "marketSum": 14486
+  },
+  {
+   "rank": 11,
+   "code": "0148J0",
+   "name": "TIGER 코리아휴머노이드로봇산업",
+   "theme": "로봇",
+   "price": 10355,
+   "changeRate": 2.83,
+   "nav": 10376,
+   "ret3m": -9.0335,
+   "volume": 9701498,
+   "amount": 100986,
+   "marketSum": 6125
+  },
+  {
+   "rank": 12,
+   "code": "498400",
+   "name": "KODEX 200타겟위클리커버드콜",
+   "theme": "배당·커버드콜",
+   "price": 26015,
+   "changeRate": 1.25,
+   "nav": 25975,
+   "ret3m": 59.0087,
+   "volume": 8791907,
+   "amount": 230261,
+   "marketSum": 65246
+  },
+  {
+   "rank": 13,
+   "code": "0080G0",
+   "name": "KODEX 방산TOP10",
+   "theme": "방산",
+   "price": 11720,
+   "changeRate": 0.86,
+   "nav": 11729,
+   "ret3m": -8.827,
+   "volume": 7361638,
+   "amount": 84821,
+   "marketSum": 3997
+  },
+  {
+   "rank": 14,
+   "code": "0183J0",
+   "name": "TIGER 미국우주테크",
+   "theme": "방산",
+   "price": 10085,
+   "changeRate": 4.13,
+   "nav": 10318,
+   "ret3m": null,
+   "volume": 6981221,
+   "amount": 71399,
+   "marketSum": 19000
+  },
+  {
+   "rank": 15,
+   "code": "102110",
+   "name": "TIGER 200",
+   "theme": "코스피·대형",
+   "price": 134875,
+   "changeRate": 1.12,
+   "nav": 134616,
+   "ret3m": 65.2627,
+   "volume": 6778824,
+   "amount": 924795,
+   "marketSum": 115925
+  },
+  {
+   "rank": 16,
+   "code": "379810",
+   "name": "KODEX 미국나스닥100",
+   "theme": "미국·해외",
+   "price": 30085,
+   "changeRate": -0.95,
+   "nav": 29976,
+   "ret3m": 27.4559,
+   "volume": 6553061,
+   "amount": 196903,
+   "marketSum": 89473
+  },
+  {
+   "rank": 17,
+   "code": "395270",
+   "name": "HANARO Fn K-반도체",
+   "theme": "반도체",
+   "price": 77905,
+   "changeRate": -1.96,
+   "nav": 77849,
+   "ret3m": 137.5071,
+   "volume": 6514330,
+   "amount": 518135,
+   "marketSum": 47249
+  },
+  {
+   "rank": 18,
+   "code": "472150",
+   "name": "TIGER 배당커버드콜액티브",
+   "theme": "배당·커버드콜",
+   "price": 26600,
+   "changeRate": -1.12,
+   "nav": 26544,
+   "ret3m": 67.6617,
+   "volume": 6290612,
+   "amount": 168937,
+   "marketSum": 21796
+  },
+  {
+   "rank": 19,
+   "code": "487240",
+   "name": "KODEX AI전력핵심설비",
+   "theme": "AI·전력",
+   "price": 40515,
+   "changeRate": -3.51,
+   "nav": 40597,
+   "ret3m": 30.9649,
+   "volume": 5769168,
+   "amount": 236615,
+   "marketSum": 34073
+  },
+  {
+   "rank": 20,
+   "code": "091160",
+   "name": "KODEX 반도체",
+   "theme": "반도체",
+   "price": 165510,
+   "changeRate": -0.76,
+   "nav": 165471,
+   "ret3m": 71.2043,
+   "volume": 5720102,
+   "amount": 966386,
+   "marketSum": 66949
+  },
+  {
+   "rank": 21,
+   "code": "462010",
+   "name": "TIGER 2차전지소재Fn",
+   "theme": "2차전지",
+   "price": 5475,
+   "changeRate": 2.24,
+   "nav": 5482,
+   "ret3m": -11.7412,
+   "volume": 4721863,
+   "amount": 25529,
+   "marketSum": 5787
+  },
+  {
+   "rank": 22,
+   "code": "462900",
+   "name": "KoAct 바이오헬스케어액티브",
+   "theme": "바이오",
+   "price": 16380,
+   "changeRate": 6.71,
+   "nav": 16407,
+   "ret3m": -32.5275,
+   "volume": 4511111,
+   "amount": 73003,
+   "marketSum": 4595
+  },
+  {
+   "rank": 23,
+   "code": "0177R0",
+   "name": "TIGER 반도체TOP10커버드콜액티브",
+   "theme": "반도체",
+   "price": 15935,
+   "changeRate": -1.27,
+   "nav": 15891,
+   "ret3m": null,
+   "volume": 4486119,
+   "amount": 72728,
+   "marketSum": 8270
+  },
+  {
+   "rank": 24,
+   "code": "305720",
+   "name": "KODEX 2차전지산업",
+   "theme": "2차전지",
+   "price": 15265,
+   "changeRate": 1.09,
+   "nav": 15269,
+   "ret3m": -2.5757,
+   "volume": 4400394,
+   "amount": 66415,
+   "marketSum": 17036
+  },
+  {
+   "rank": 25,
+   "code": "0117V0",
+   "name": "TIGER 코리아AI전력기기TOP3플러스",
+   "theme": "AI·전력",
+   "price": 21330,
+   "changeRate": -3.92,
+   "nav": 21385,
+   "ret3m": 28.2866,
+   "volume": 4324827,
+   "amount": 93695,
+   "marketSum": 10740
+  },
+  {
+   "rank": 26,
+   "code": "292150",
+   "name": "TIGER 코리아TOP10",
+   "theme": "코스피·대형",
+   "price": 46810,
+   "changeRate": -0.72,
+   "nav": 46766,
+   "ret3m": 62.0739,
+   "volume": 4227409,
+   "amount": 201073,
+   "marketSum": 23756
+  },
+  {
+   "rank": 27,
+   "code": "466920",
+   "name": "SOL 조선TOP3플러스",
+   "theme": "조선",
+   "price": 32725,
+   "changeRate": 0.69,
+   "nav": 32786,
+   "ret3m": -1.8142,
+   "volume": 3756905,
+   "amount": 122865,
+   "marketSum": 16821
+  },
+  {
+   "rank": 28,
+   "code": "0204D0",
+   "name": "KODEX 현대차로보틱스밸류체인TOP3플러스",
+   "theme": "기타",
+   "price": 7165,
+   "changeRate": -0.35,
+   "nav": 7170,
+   "ret3m": null,
+   "volume": 3731800,
+   "amount": 26898,
+   "marketSum": 1723
+  },
+  {
+   "rank": 29,
+   "code": "364970",
+   "name": "TIGER 바이오TOP10",
+   "theme": "바이오",
+   "price": 7185,
+   "changeRate": 7.72,
+   "nav": 7193,
+   "ret3m": -14.7833,
+   "volume": 3718158,
+   "amount": 26219,
+   "marketSum": 2867
+  },
+  {
+   "rank": 30,
+   "code": "381180",
+   "name": "TIGER 미국필라델피아반도체나스닥",
+   "theme": "반도체",
+   "price": 54690,
+   "changeRate": -3.11,
+   "nav": 54232,
+   "ret3m": 88.1412,
+   "volume": 3383572,
+   "amount": 185637,
+   "marketSum": 71261
+  }
+ ],
+ "themes": [
+  {
+   "theme": "반도체",
+   "count": 8,
+   "amount": 4726604,
+   "avgRet": 103.4,
+   "etfs": [
+    "SOL AI반도체TOP2플러스",
+    "TIGER 반도체TOP10",
+    "KODEX AI반도체TOP2플러스",
+    "ACE K반도체TOP2+",
+    "HANARO Fn K-반도체",
+    "KODEX 반도체",
+    "TIGER 반도체TOP10커버드콜액티브",
+    "TIGER 미국필라델피아반도체나스닥"
+   ]
+  },
+  {
+   "theme": "코스피·대형",
+   "count": 3,
+   "amount": 4457055,
+   "avgRet": 64,
+   "etfs": [
+    "KODEX 200",
+    "TIGER 200",
+    "TIGER 코리아TOP10"
+   ]
+  },
+  {
+   "theme": "미국·해외",
+   "count": 3,
+   "amount": 873025,
+   "avgRet": 20,
+   "etfs": [
+    "TIGER 미국S&P500",
+    "KODEX 미국S&P500",
+    "KODEX 미국나스닥100"
+   ]
+  },
+  {
+   "theme": "채권·혼합",
+   "count": 2,
+   "amount": 498670,
+   "avgRet": 53,
+   "etfs": [
+    "RISE 삼성전자SK하이닉스채권혼합50",
+    "KODEX 삼성전자SK하이닉스채권혼합50"
+   ]
+  },
+  {
+   "theme": "코스닥",
+   "count": 1,
+   "amount": 426882,
+   "avgRet": -16.1,
+   "etfs": [
+    "KODEX 코스닥150"
+   ]
+  },
+  {
+   "theme": "배당·커버드콜",
+   "count": 2,
+   "amount": 399198,
+   "avgRet": 63.3,
+   "etfs": [
+    "KODEX 200타겟위클리커버드콜",
+    "TIGER 배당커버드콜액티브"
+   ]
+  },
+  {
+   "theme": "AI·전력",
+   "count": 2,
+   "amount": 330310,
+   "avgRet": 29.6,
+   "etfs": [
+    "KODEX AI전력핵심설비",
+    "TIGER 코리아AI전력기기TOP3플러스"
+   ]
+  },
+  {
+   "theme": "방산",
+   "count": 2,
+   "amount": 156220,
+   "avgRet": -8.8,
+   "etfs": [
+    "KODEX 방산TOP10",
+    "TIGER 미국우주테크"
+   ]
+  },
+  {
+   "theme": "조선",
+   "count": 1,
+   "amount": 122865,
+   "avgRet": -1.8,
+   "etfs": [
+    "SOL 조선TOP3플러스"
+   ]
+  },
+  {
+   "theme": "로봇",
+   "count": 1,
+   "amount": 100986,
+   "avgRet": -9,
+   "etfs": [
+    "TIGER 코리아휴머노이드로봇산업"
+   ]
+  },
+  {
+   "theme": "바이오",
+   "count": 2,
+   "amount": 99222,
+   "avgRet": -23.7,
+   "etfs": [
+    "KoAct 바이오헬스케어액티브",
+    "TIGER 바이오TOP10"
+   ]
+  },
+  {
+   "theme": "2차전지",
+   "count": 2,
+   "amount": 91944,
+   "avgRet": -7.2,
+   "etfs": [
+    "TIGER 2차전지소재Fn",
+    "KODEX 2차전지산업"
+   ]
+  },
+  {
+   "theme": "기타",
+   "count": 1,
+   "amount": 26898,
+   "avgRet": null,
+   "etfs": [
+    "KODEX 현대차로보틱스밸류체인TOP3플러스"
+   ]
+  }
+ ]
+}

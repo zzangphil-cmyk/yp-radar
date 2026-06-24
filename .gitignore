@@ -1,0 +1,21 @@
+# dependencies / build
+/node_modules
+/.next
+/out
+/build
+next-env.d.ts
+
+# secrets / env (DART 키 등 — 절대 커밋 금지)
+.env
+.env.local
+.env*.local
+
+# vercel
+.vercel
+
+# 데이터 생성 원본·임시 (대용량/재생성 가능 — 사이트는 src/data/*.json만 사용)
+/data/
+
+# misc
+*.log
+.DS_Store

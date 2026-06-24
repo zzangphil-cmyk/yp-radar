@@ -1,0 +1,33 @@
+import EtfScatter from "@/components/EtfScatter";
+import EtfTable from "@/components/EtfTable";
+import { etf } from "@/lib/etfData";
+
+export default function EtfMapPage() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">ETF 포지션 맵</h1>
+          <p className="mt-1.5 max-w-2xl text-sm text-white/55">
+            거래량 상위 30개 ETF를 <strong>자금(거래대금)</strong> × <strong>3개월 수익률</strong>
+            평면에 배치. 점 크기는 순자산. 점에 마우스를 올리면 이름이 표시됩니다.
+          </p>
+        </div>
+        <span className="pill bg-amber-500/15 text-amber-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+          실시간 · {etf.asOf}
+        </span>
+      </div>
+
+      <EtfScatter rows={etf.etfs} />
+
+      <div className="card border-amber-500/15 bg-amber-500/[0.05] p-4 text-sm text-white/75">
+        <strong className="text-amber-400">읽는 법.</strong> 오른쪽(자금 많음) + 위쪽(수익 높음)
+        = 돈도 몰리고 성과도 좋은 ETF. 오른쪽 아래(자금 많은데 수익 부진)는 과열/되돌림 주의 구간.
+      </div>
+
+      <h2 className="section-title">상위 30 목록</h2>
+      <EtfTable rows={etf.etfs} />
+    </div>
+  );
+}
