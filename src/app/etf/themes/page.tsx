@@ -1,8 +1,16 @@
 import Link from "next/link";
-import { etf, etfStocks, fmtAmt, fmtEok } from "@/lib/etfData";
+import Heatmap, { type HeatTile } from "@/components/Heatmap";
+import { etf, etfStocks, fmtAmt, fmtEok, heatColor } from "@/lib/etfData";
 
 export default function EtfThemesPage() {
   const maxAmt = Math.max(...etf.themes.map((t) => t.amount), 1);
+  const heatTiles: HeatTile[] = etf.themes.map((t) => ({
+    key: t.theme,
+    label: t.theme,
+    sub: t.avgRet != null ? `${t.avgRet >= 0 ? "+" : ""}${t.avgRet}%` : fmtAmt(t.amount),
+    value: t.amount,
+    color: heatColor(t.avgRet, 60),
+  }));
 
   // 테마별 상위 구성종목 (노출 기준)
   const stocksByTheme = (theme: string) =>
@@ -25,6 +33,11 @@ export default function EtfThemesPage() {
           실시간 · {etf.asOf}
         </span>
       </div>
+
+      <section className="space-y-2">
+        <h2 className="section-title">테마 히트맵 <span className="ml-1 align-middle text-xs font-normal text-white/45">크기=자금 · 색=평균수익</span></h2>
+        <Heatmap tiles={heatTiles} height={230} />
+      </section>
 
       <div className="space-y-3">
         {etf.themes.map((t) => (

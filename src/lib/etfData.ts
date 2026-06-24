@@ -71,6 +71,16 @@ export function fmtAmt(baekman: number | null): string {
   if (baekman == null) return "-";
   return fmtEok(baekman / 100);
 }
+/** 히트맵 타일 색: v(지표)를 ref 기준으로 -1~1 정규화 → 유입(녹)/유출(적) 농도 */
+export function heatColor(v: number | null, ref: number): string {
+  const t = v == null || ref <= 0 ? 0 : Math.max(-1, Math.min(1, v / ref));
+  const base = [30, 35, 50];
+  const tgt = t >= 0 ? [22, 199, 154] : [240, 97, 109];
+  const a = Math.abs(t);
+  const m = base.map((c, i) => Math.round(c + (tgt[i] - c) * (0.22 + 0.62 * a)));
+  return `rgb(${m[0]},${m[1]},${m[2]})`;
+}
+
 /** 거래량(주) → "44.4M" / "1,234주" */
 export function fmtVol(v: number | null): string {
   if (v == null) return "-";
