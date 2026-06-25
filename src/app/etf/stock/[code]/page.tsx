@@ -28,7 +28,7 @@ export default async function EtfStockPage({
           <span className="text-base font-normal text-white/40">{s.code}</span>
         </h1>
         <p className="mt-1 text-sm text-white/55">
-          상위 30개 ETF 중 <strong className="text-amber-400">{s.etfCount}개</strong>가 보유 ·{" "}
+          상위 50개 ETF 중 <strong className="text-amber-400">{s.etfCount}개</strong>가 보유 ·{" "}
           {s.themes.map((t) => <span key={t} className="chip mr-1">{t}</span>)}
         </p>
       </div>

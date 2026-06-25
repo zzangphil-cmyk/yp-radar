@@ -40,7 +40,7 @@ export default function EtfDashboard() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">ETF 레이더</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
-            거래량 상위 30개 ETF (인버스·2X 제외)의 실시간 수급·구성종목·테마.
+            거래량 상위 50개 ETF (인버스·2X 제외)의 실시간 수급·구성종목·테마.
           </p>
         </div>
         <span className="pill bg-amber-500/15 text-amber-400">

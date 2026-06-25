@@ -1,10 +1,10 @@
 // ETF 데이터 (네이버 금융) → src/data/etf.json
-// 거래량 상위 30 (인버스·레버리지2X 제외) + 테마 태깅 + 테마 집계
+// 거래량 상위 50 (인버스·레버리지2X 제외) + 테마 태깅 + 테마 집계
 import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const TOP_N = 30;
+const TOP_N = 50;
 
 async function loadRaw() {
   const p = path.join(ROOT, "data/_naveretf.json");

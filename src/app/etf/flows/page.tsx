@@ -15,7 +15,7 @@ export default function EtfFlowsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">자금 흐름</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
-            상위 30개 ETF의 <strong>3개월 순유입</strong>을 구성종목 단위로 합산. 어떤 종목으로 ETF
+            상위 50개 ETF의 <strong>3개월 순유입</strong>을 구성종목 단위로 합산. 어떤 종목으로 ETF
             자금이 들어오고 빠지는지 봅니다.
           </p>
         </div>

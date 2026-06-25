@@ -51,7 +51,7 @@ export default function Hub() {
           <Link href="/etf/stocks" className="text-sm text-amber-400 hover:text-amber-300">크게 보기 →</Link>
         </div>
         <p className="-mt-1 text-sm text-white/55">
-          상위 30개 ETF가 담은 종목을 <strong className="text-white/80">ETF 노출 규모</strong> ×{" "}
+          상위 50개 ETF가 담은 종목을 <strong className="text-white/80">ETF 노출 규모</strong> ×{" "}
           <strong className="text-white/80">자금 유입률</strong>로 배치. 분면을 클릭하면 종목이 나열됩니다.
         </p>
         <EtfStockMap stocks={etfStocks.stocks} compact />

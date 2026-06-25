@@ -17,7 +17,7 @@ export default function EtfThemesPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">테마</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
-            상위 30개 ETF를 테마로 묶어 자금(거래대금)·수익률·주요 종목을 봅니다.
+            상위 50개 ETF를 테마로 묶어 자금(거래대금)·수익률·주요 종목을 봅니다.
           </p>
         </div>
         <span className="pill bg-amber-500/15 text-amber-400">
