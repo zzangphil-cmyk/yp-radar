@@ -13,7 +13,7 @@ export default function EtfStocksPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">ETF 구성종목 9분면</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
-            상위 50개 ETF의 <strong>주요 구성종목(상위 10)</strong>을 종목 단위로 합쳐,{" "}
+            상위 50개 ETF의 <strong>전체 구성종목(KRX)</strong>을 종목 단위로 합쳐,{" "}
             <strong>ETF 노출 규모</strong> × <strong>ETF 자금 유입률</strong>로 배치합니다.
             분면을 클릭하면 종목이 나열됩니다.
           </p>
