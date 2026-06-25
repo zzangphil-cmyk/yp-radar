@@ -1,5 +1,7 @@
 import SymbolBox from "./SymbolBox";
+import Sparkline from "./Sparkline";
 import { fmtVol, fmtAmt, fmtEok, type Etf } from "@/lib/etfData";
+import { getSpark } from "@/lib/tossData";
 
 function Ret({ v }: { v: number | null }) {
   if (v == null) return <span className="text-white/35">-</span>;
@@ -10,12 +12,13 @@ function Ret({ v }: { v: number | null }) {
 export default function EtfTable({ rows }: { rows: Etf[] }) {
   return (
     <div className="card overflow-x-auto scroll-x">
-      <table className="w-full min-w-[680px] border-collapse">
+      <table className="w-full min-w-[760px] border-collapse">
         <thead>
           <tr className="border-b border-white/[0.07]">
             <th className="th w-8 text-right">#</th>
             <th className="th">ETF</th>
             <th className="th">테마</th>
+            <th className="th text-right">추세 3M</th>
             <th className="th text-right">거래량</th>
             <th className="th text-right">3개월 수익</th>
             <th className="th text-right">거래대금</th>
@@ -40,6 +43,11 @@ export default function EtfTable({ rows }: { rows: Etf[] }) {
                 </span>
               </td>
               <td className="td"><span className="chip">{e.theme}</span></td>
+              <td className="td text-right">
+                <span className="inline-flex justify-end">
+                  <Sparkline data={getSpark(e.code)?.spark ?? []} width={64} height={20} />
+                </span>
+              </td>
               <td className="td text-right tabular-nums">{fmtVol(e.volume)}</td>
               <td className="td text-right tabular-nums font-semibold"><Ret v={e.ret3m} /></td>
               <td className="td text-right tabular-nums text-white/70">{fmtAmt(e.amount)}</td>

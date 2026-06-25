@@ -51,7 +51,27 @@ const num = (v) => (Number.isFinite(v) ? v : null);
 const raw = await loadRaw();
 const all = raw.result.etfItemList;
 const eligible = all.filter((e) => !EXCLUDE.test(e.itemname));
-const top = [...eligible].sort((a, b) => b.quant - a.quant).slice(0, TOP_N);
+let ranked = [...eligible].sort((a, b) => b.quant - a.quant);
+
+// 토스 leverageFactor로 인버스·레버리지 정밀 제외 (종목명 정규식 누락 보완). 키 없으면 폴백.
+try {
+  const { hasToss, stocksBatch } = await import("./toss.mjs");
+  if (hasToss) {
+    const cand = ranked.slice(0, TOP_N + 30);
+    const master = await stocksBatch(cand.map((e) => e.itemcode));
+    const before = ranked.length;
+    ranked = ranked.filter((e) => {
+      const m = master[e.itemcode];
+      if (!m) return true; // 토스 미확인은 정규식 결과 유지
+      return (m.leverageFactor === null || m.leverageFactor === "1") && m.securityType === "ETF";
+    });
+    console.log(`토스 검증: ${before - ranked.length}개 추가 제외(레버리지/인버스/비ETF)`);
+  }
+} catch (e) {
+  console.log("토스 검증 스킵:", e.message);
+}
+
+const top = ranked.slice(0, TOP_N);
 
 const etfs = top.map((e, i) => ({
   rank: i + 1,

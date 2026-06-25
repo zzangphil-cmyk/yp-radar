@@ -4,6 +4,7 @@ import EtfTable from "@/components/EtfTable";
 import EtfStockMap from "@/components/EtfStockMap";
 import IndexCard from "@/components/IndexCard";
 import { etf, etfStocks, fmtAmt, fmtEok } from "@/lib/etfData";
+import { getSpark } from "@/lib/tossData";
 
 function FlowList({ title, tone, rows }: { title: string; tone: string; rows: { code: string; name: string; flow: number }[] }) {
   return (
@@ -52,7 +53,7 @@ export default function EtfDashboard() {
       {/* 주요 ETF (지수형 요약) */}
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {etf.etfs.slice(0, 4).map((e) => (
-          <IndexCard key={e.code} name={e.name} value={e.price?.toLocaleString("ko-KR") ?? "-"} changePct={e.changeRate} />
+          <IndexCard key={e.code} name={e.name} value={e.price?.toLocaleString("ko-KR") ?? "-"} changePct={e.changeRate} trend={getSpark(e.code)?.spark} />
         ))}
       </section>
 

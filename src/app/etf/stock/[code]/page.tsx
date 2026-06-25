@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Kpi from "@/components/Kpi";
+import Sparkline from "@/components/Sparkline";
 import { getEtfStock, allEtfStockCodes, etfStocks, fmtEok } from "@/lib/etfData";
+import { getSpark, tossAsOf } from "@/lib/tossData";
 
 export function generateStaticParams() {
   return allEtfStockCodes().map((code) => ({ code }));
@@ -18,6 +20,7 @@ export default async function EtfStockPage({
   if (!s) notFound();
 
   const rate = s.exposure > 0 ? (s.flow / s.exposure) * 100 : 0;
+  const t = getSpark(s.code);
 
   return (
     <div className="space-y-6">
@@ -32,6 +35,26 @@ export default async function EtfStockPage({
           {s.themes.map((t) => <span key={t} className="chip mr-1">{t}</span>)}
         </p>
       </div>
+
+      {t && (
+        <div className="card flex flex-wrap items-center justify-between gap-4 p-4">
+          <div>
+            <div className="text-xs text-white/40">최근 종가 · 토스 {tossAsOf}</div>
+            <div className="mt-0.5 flex items-baseline gap-2">
+              <span className="text-2xl font-bold tabular-nums text-white">{t.last.toLocaleString("ko-KR")}원</span>
+              {t.change != null && (
+                <span className={`text-sm font-semibold tabular-nums ${t.change > 0 ? "text-up" : t.change < 0 ? "text-down" : "text-white/50"}`}>
+                  {t.change > 0 ? "+" : ""}{t.change}%
+                </span>
+              )}
+              {t.ret3m != null && (
+                <span className="text-xs text-white/45">3개월 {t.ret3m > 0 ? "+" : ""}{t.ret3m}%</span>
+              )}
+            </div>
+          </div>
+          <Sparkline data={t.spark} width={220} height={52} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Kpi label="ETF 노출 규모" value={fmtEok(s.exposure)} accent="radar" sub="Σ 비중×순자산" />
