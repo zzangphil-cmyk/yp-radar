@@ -48,45 +48,36 @@ const themeOf = stocks.map((s) => s.theme);
 const dateLabels = per[0].bars.slice(per[0].bars.length - nFrames).map((b) => b.timestamp.slice(5, 10).replace("-", "/"));
 const lastDate = per[0].bars[per[0].bars.length - 1].timestamp.slice(0, 10);
 
-// 2) 종목별 1차 신호: vSig=log(RVOL, 직전20일 중앙값 대비), pSig=일중수익률(시가→종가)
+// 2) 종목별 robust-z (자기 평소 대비) — 색·위치가 같은 기준이 되도록 섹터차감/집단표준화 제거
+//    X=거래량 이탈(자기 거래량 분포 대비), Y=일중수익률 이탈(자기 수익률 분포 대비). Y부호=실제 방향.
 const series = per.map((p) => {
   const b = p.bars;
   const off = b.length - nFrames;
+  const logV = b.map((x) => Math.log(Number(x.volume) + 1));
+  const rets = b.map((x) => { const o = Number(x.openPrice), c = Number(x.closePrice); return o ? (c - o) / o : 0; });
+  const mLV = median(logV), sLV = mad(logV, mLV);
+  const sR = mad(rets, median(rets)); // 척도만(중앙값 차감 X) → y부호=실제 등락방향
   const pts = [];
   for (let f = 0; f < nFrames; f++) {
     const idx = off + f;
-    const day = b[idx];
-    const trail = b.slice(Math.max(0, idx - BASE_WIN), idx).map((x) => Number(x.volume));
-    const baseVol = median(trail) || Number(day.volume) || 1;
-    const open = Number(day.openPrice), close = Number(day.closePrice);
-    pts.push({
-      vSig: Math.log((Number(day.volume) + 1) / (baseVol + 1)),
-      pSig: open ? (close - open) / open : 0, // 일중수익률(시가→종가)
-      mom: open ? ((close - open) / open) * 100 : 0,
-    });
+    pts.push({ zVol: (logV[idx] - mLV) / sLV, zRet: rets[idx] / sR, mom: rets[idx] * 100 });
   }
   return { pts };
 });
 
-// 3) 프레임(거래일)별 집단 대비 robust-z → 좌표·이상점수
+// 3) 좌표·이상점수 (자기 대비 σ → 중심=정상, 거리=이상). 색은 컴포넌트에서 y부호로.
 const prevXY = stocks.map(() => ({ x: 0, y: 0 }));
 const frames = [];
 for (let f = 0; f < nFrames; f++) {
-  const byTheme = {};
-  for (let i = 0; i < series.length; i++) (byTheme[themeOf[i]] ??= []).push(series[i].pts[f].pSig);
-  const tMean = {}; for (const t in byTheme) tMean[t] = byTheme[t].reduce((a, b) => a + b, 0) / byTheme[t].length;
-  const vArr = series.map((s) => s.pts[f].vSig);
-  const pArr = series.map((s, i) => s.pts[f].pSig - tMean[themeOf[i]]);
-  const mV = median(vArr), sV = mad(vArr, mV), mP = median(pArr), sP = mad(pArr, mP);
   const b = [];
   for (let i = 0; i < series.length; i++) {
-    const zxF = (vArr[i] - mV) / sV, zyF = (pArr[i] - mP) / sP;
-    const x = clamp(zxF / SIG, -1, 1), y = clamp(zyF / SIG, -1, 1);
-    const r = Math.hypot(zxF, zyF);
+    const p = series[i].pts[f];
+    const x = clamp(p.zVol / SIG, -1, 1), y = clamp(p.zRet / SIG, -1, 1);
+    const r = Math.hypot(p.zVol, p.zRet);
     const speed = Math.hypot(x - prevXY[i].x, y - prevXY[i].y);
     const anomaly = clamp((r - DEAD) / (5 - DEAD) + W_SPD * Math.min(speed / 0.5, 1), 0, 1);
     prevXY[i] = { x, y };
-    b.push([i, r3(x), r3(y), r2(anomaly), r2(zxF), r2(series[i].pts[f].mom)]);
+    b.push([i, r3(x), r3(y), r2(anomaly), r2(p.zVol), r2(p.mom)]);
   }
   frames.push({ t: dateLabels[f] ?? "", b });
 }
@@ -106,8 +97,8 @@ const out = {
   asOf: lastDate,
   source: "토스인베스트 일봉 · 최근 거래일 robust-z 이상탐지(EMA 평활)",
   interval: "1d", window: `최근 ${nFrames}거래일 (${dateLabels[0]}~${dateLabels[nFrames - 1]})`, lastTs: lastDate,
-  axes: { x: "거래량 이탈(집단 대비 σ)", y: "일중수익률 이탈(시가→종가, 집단·섹터 대비 σ)" },
-  model: { deadZone: DEAD, sigmaEdge: SIG, ema: ALPHA, note: "거래일별 50종목 집단 대비 robust-z" },
+  axes: { x: "거래량 이탈(자기 평소 대비 σ)", y: "일중수익률 이탈(시가→종가, 자기 평소 대비 σ)" },
+  model: { deadZone: DEAD, sigmaEdge: SIG, ema: ALPHA, note: "종목별 자기 분포 대비 robust-z (색·위치 동일 기준)" },
   stocks, frameCount: nFrames, frames,
 };
 fs.writeFileSync(path.join(ROOT, "src/data/radar-frames.json"), JSON.stringify(out));

@@ -57,7 +57,9 @@ export default function StockRadar() {
         s.sweep += dt * 0.85 * s.speed;
       }
       const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 20;
-      const i0 = Math.floor(s.frameF) % frameCount, i1 = (i0 + 1) % frameCount, fr = s.frameF - Math.floor(s.frameF);
+      const i0 = Math.floor(s.frameF) % frameCount, i1 = (i0 + 1) % frameCount, frRaw = s.frameF - Math.floor(s.frameF);
+      const fr = frRaw < 0.5 ? 2 * frRaw * frRaw : 1 - Math.pow(-2 * frRaw + 2, 2) / 2; // ease-in-out: 거래일에 안착
+      const dateI = Math.round(s.frameF) % frameCount; // 표시 날짜=가장 가까운 거래일(움직임과 동기화)
       const f0 = frames[i0].b, f1 = frames[i1].b;
       const mapX = (x: number) => cx + x * R * 0.92, mapY = (y: number) => cy - y * R * 0.92;
       const sel = selRef.current;
@@ -84,7 +86,7 @@ export default function StockRadar() {
       ctx.fillText("거래량 이탈 → (집단 대비)", cx, cy + R + 14);
       ctx.save(); ctx.translate(cx - R - 7, cy); ctx.rotate(-Math.PI / 2); ctx.fillText("일중수익률 이탈 ↑상승 / 하락↓", 0, 0); ctx.restore();
       ctx.textAlign = "left"; ctx.fillStyle = "rgba(31,214,154,0.32)"; ctx.font = "10px monospace";
-      ctx.fillText(`▶ ${frames[i0].t} · 안쪽 원=정상권`, 12, 18);
+      ctx.fillText(`▶ ${frames[dateI].t} · 안쪽 원=정상권`, 12, 18);
 
       const swA = ((s.sweep % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       // 이상치/선택을 위에 그리려 2패스: 평범 → 강조
@@ -95,7 +97,8 @@ export default function StockRadar() {
         const anomaly = a0[3], mom = a0[5];
         const isSel = sel === i, hot = anomaly >= HOT;
         const px = mapX(x), py = mapY(y); posRef.current[i] = { x: px, y: py };
-        const col = isSel ? SELECT : hot ? (mom >= 0 ? UP : DOWN) : NEUTRAL;
+        // 색=세로 위치 부호(위=상승 빨강 / 아래=하락 파랑) → 색과 위치 항상 일치
+        const col = isSel ? SELECT : hot ? (y >= 0 ? UP : DOWN) : NEUTRAL;
         const dim = sel != null && !isSel && !hot ? 0.4 : 1;
         // 트레일: 강조 종목만
         const tr = trailRef.current[i]; tr.push({ x: px, y: py }); if (tr.length > 9) tr.shift();
@@ -119,7 +122,7 @@ export default function StockRadar() {
         }
         ctx.globalAlpha = 1;
       }
-      setFrameI(i0);
+      setFrameI(dateI);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
