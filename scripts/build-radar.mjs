@@ -94,8 +94,20 @@ for (let j = 0; j < F; j++) {
   frames.push({ t: tLabels[j] ?? "", b });
 }
 
+// 5) 시간축 EMA 평활 — 프레임별 집단 기준이 흔들려 좌표가 튀는 것을 잡아 부드럽게 글라이드
+const ALPHA = 0.32;
+const sm = stocks.map(() => null);
+for (let f = 0; f < F; f++) {
+  for (let i = 0; i < stocks.length; i++) {
+    const b = frames[f].b[i]; // [i,x,y,anomaly,zVol,mom]
+    if (sm[i] === null) sm[i] = { x: b[1], y: b[2], a: b[3] };
+    else { sm[i].x += ALPHA * (b[1] - sm[i].x); sm[i].y += ALPHA * (b[2] - sm[i].y); sm[i].a += ALPHA * (b[3] - sm[i].a); }
+    b[1] = r3(sm[i].x); b[2] = r3(sm[i].y); b[3] = r2(sm[i].a);
+  }
+}
+
 const out = {
-  asOf, source: "토스인베스트 1분봉(최근 ~200분) · robust-z 이상탐지",
+  asOf, source: "토스인베스트 1분봉(최근 ~200분) · robust-z 이상탐지(EMA 평활)",
   interval: "5m", window: `최근 ${F * BIN}분 리플레이`, lastTs,
   axes: { x: "거래량 이탈(집단 대비 σ)", y: "가격 이탈(집단·섹터 대비 σ)" },
   model: { deadZone: DEAD, speedWeight: W_SPD, sigmaEdge: SIG, note: "프레임별 50종목 집단 대비 robust-z" },
