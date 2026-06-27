@@ -20,21 +20,25 @@ const ETF_NAV = [
   { href: "/etf/map", label: "포지션 맵" },
   { href: "/etf/themes", label: "테마" },
 ];
+const RADAR_NAV = [
+  { href: "/radar", label: "관제 스코프", exact: true },
+];
 
 function isActive(pathname: string, href: string, exact?: boolean) {
   if (exact) {
     if (href === "/nps") return pathname === "/nps" || pathname.startsWith("/nps/stock");
+    if (href === "/radar") return pathname === "/radar" || pathname.startsWith("/radar/");
     return pathname === href;
   }
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-export default function TopBar({ etfAsOf, npsAsOf }: { etfAsOf: string; npsAsOf: string }) {
+export default function TopBar({ etfAsOf, npsAsOf, radarAsOf }: { etfAsOf: string; npsAsOf: string; radarAsOf: string }) {
   const pathname = usePathname();
-  const product = pathname.startsWith("/etf") ? "etf" : pathname.startsWith("/nps") ? "nps" : "hub";
-  const nav = product === "etf" ? ETF_NAV : product === "nps" ? NPS_NAV : [];
-  const accentText = product === "etf" ? "text-amber-400" : "text-radar";
-  const accentBg = product === "etf" ? "bg-amber-500/15 text-amber-400" : "bg-radar/15 text-radar";
+  const product = pathname.startsWith("/radar") ? "radar" : pathname.startsWith("/etf") ? "etf" : pathname.startsWith("/nps") ? "nps" : "hub";
+  const nav = product === "etf" ? ETF_NAV : product === "nps" ? NPS_NAV : product === "radar" ? RADAR_NAV : [];
+  const accentText = product === "etf" ? "text-amber-400" : product === "radar" ? "text-[#3182f6]" : "text-radar";
+  const accentBg = product === "etf" ? "bg-amber-500/15 text-amber-400" : product === "radar" ? "bg-[#3182f6]/15 text-[#3182f6]" : "bg-radar/15 text-radar";
 
   const SwitchBtn = ({ href, label, on }: { href: string; label: string; on: boolean }) => (
     <Link
@@ -55,6 +59,7 @@ export default function TopBar({ etfAsOf, npsAsOf }: { etfAsOf: string; npsAsOf:
         </Link>
         {/* 제품 스위처 */}
         <div className="flex items-center gap-1 rounded-xl bg-white/[0.04] p-1">
+          <SwitchBtn href="/radar" label="주식" on={product === "radar"} />
           <SwitchBtn href="/etf" label="ETF" on={product === "etf"} />
           <SwitchBtn href="/nps" label="국민연금" on={product === "nps"} />
         </div>
@@ -77,7 +82,7 @@ export default function TopBar({ etfAsOf, npsAsOf }: { etfAsOf: string; npsAsOf:
         </nav>
         <div className="ml-auto hidden shrink-0 items-center sm:flex">
           <span className="chip">
-            {product === "etf" ? `ETF 실시간 ${etfAsOf}` : product === "nps" ? `국민연금 ${npsAsOf}` : `ETF ${etfAsOf} · 연금 ${npsAsOf}`}
+            {product === "etf" ? `ETF 실시간 ${etfAsOf}` : product === "nps" ? `국민연금 ${npsAsOf}` : product === "radar" ? `주식 ${radarAsOf}` : `ETF ${etfAsOf} · 연금 ${npsAsOf}`}
           </span>
         </div>
       </div>

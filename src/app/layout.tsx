@@ -4,6 +4,7 @@ import TopBar from "@/components/TopBar";
 import Footer from "@/components/Footer";
 import { panel } from "@/lib/npsData";
 import { etf } from "@/lib/etfData";
+import { radarData } from "@/lib/radarData";
 
 export const metadata: Metadata = {
   title: "Y&P 레이더 — ETF·국민연금 수급 추적",
@@ -19,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="min-h-screen antialiased">
-        <TopBar etfAsOf={etf.asOf} npsAsOf={`${panel.curYear}년 말`} />
+        <TopBar etfAsOf={etf.asOf} npsAsOf={`${panel.curYear}년 말`} radarAsOf={radarData.asOf} />
         <main className="container-page py-8">{children}</main>
         <Footer />
       </body>

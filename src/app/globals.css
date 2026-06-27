@@ -1,3 +1,4 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,15 +9,8 @@
 
 html,
 body {
-  background: #060a12;
-  color: #e7eef7;
-}
-
-body {
-  background-image:
-    radial-gradient(1200px 500px at 80% -10%, rgba(22, 199, 154, 0.08), transparent 60%),
-    radial-gradient(900px 500px at 0% 0%, rgba(76, 141, 255, 0.06), transparent 55%);
-  background-attachment: fixed;
+  background: #16171c;
+  color: #e8ebf0;
 }
 
 @layer components {
@@ -24,13 +18,16 @@ body {
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
   }
   .card {
-    @apply rounded-2xl border border-white/[0.07] bg-base-800/70 shadow-card backdrop-blur;
+    @apply rounded-2xl border border-white/[0.06] bg-base-800 shadow-card;
   }
   .pill {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
   }
   .chip {
-    @apply inline-flex items-center rounded-md bg-white/[0.06] px-2 py-0.5 text-xs text-white/60;
+    @apply inline-flex items-center rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-white/65;
+  }
+  .btn-toss {
+    @apply rounded-full bg-toss px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-toss-dim;
   }
   .th {
     @apply px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-white/40;
