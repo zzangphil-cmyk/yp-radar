@@ -24,10 +24,10 @@ export default function RadarPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">종목 관제 레이더</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
-            상위 50종목을 <strong className="text-white/80">상대거래량</strong> ×{" "}
-            <strong className="text-white/80">일중수익률(시가→종가)</strong> 평면에 띄워,{" "}
-            <strong className="text-white/80">평소와 다르게 움직인</strong> 종목을 포착합니다.
-            <strong className="text-white/80"> 거래일이 흐르며</strong> 점이 이동합니다. 중심=정상, 가장자리=이상.
+            상위 50종목을 <strong className="text-white/80">거래량(평소의 몇 배)</strong> ×{" "}
+            <strong className="text-white/80">등락률(%)</strong> 평면에 띄웁니다. 중심=평소·보합,
+            가장자리=이상. <strong className="text-white/80">날짜를 옮기면 그날 스냅샷으로 고정</strong>되고,
+            재생하면 거래일이 넘어가며 점이 이동합니다.
           </p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#3182f6]/15 px-3 py-1 text-sm font-medium text-[#3182f6]">
@@ -46,9 +46,9 @@ export default function RadarPage() {
       <StockRadar />
 
       <div className="rounded-2xl border border-[#3182f6]/15 bg-[#3182f6]/[0.05] p-4 text-sm text-white/75">
-        <strong className="text-[#3182f6]">읽는 법.</strong> 가로 = 그날 거래량이 평소보다 얼마나 터졌나(오른쪽=급증),
-        세로 = 그날 시가→종가 움직임(위=상승/아래=하락). 둘 다 <strong>그 거래일 50종목 집단 대비</strong>로 재서
-        <strong> 중심에서 멀수록 이상</strong>입니다. 거래일이 흐르며 점이 움직이고, 이상치만 색·경보로 뜹니다.
+        <strong className="text-[#3182f6]">읽는 법.</strong> 가로 = 그날 거래량이 <strong>평소의 몇 배</strong>인가(오른쪽=많음, 중앙=1배),
+        세로 = 그날 <strong>등락률</strong>(위=상승/아래=하락, 중앙=보합). 가운데 원(정상권) 밖으로 멀수록 이상이고,
+        그때만 색(빨강 급등/파랑 급락)·경보로 뜹니다. <strong>날짜 슬라이더로 원하는 날</strong>을 보고, 재생으로 흐름을 봅니다.
       </div>
 
       <p className="text-xs text-white/40">

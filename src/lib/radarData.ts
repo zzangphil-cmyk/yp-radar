@@ -1,7 +1,7 @@
 import radar from "@/data/radar-frames.json";
 
 export interface RadarStock { code: string; name: string; theme?: string }
-// [stockIndex, x, y, anomaly, volZ(집단대비σ), mom%]
+// [stockIndex, x, y, anomaly, relVol(평소의 ×배), retPct(등락률 %)]
 export type Blip = [number, number, number, number, number, number];
 export interface RadarFrame { t: string; b: Blip[] }
 export interface RadarData {
@@ -19,10 +19,11 @@ export interface RadarData {
 
 export const radarData = radar as unknown as RadarData;
 
-/** 경보 패널용 한 줄 근거 */
-export function blipReasons(volZ: number, mom: number): string[] {
+/** 경보 패널용 한 줄 근거 — relVol(평소의 ×배), retPct(등락률 %) */
+export function blipReasons(relVol: number, retPct: number): string[] {
   const r: string[] = [];
-  if (Math.abs(volZ) >= 2) r.push(`거래량 ${volZ >= 0 ? "+" : ""}${volZ.toFixed(1)}σ`);
-  if (Math.abs(mom) >= 0.15) r.push(`${mom >= 0 ? "+" : ""}${mom.toFixed(2)}%`);
-  return r.length ? r : ["정상 범위"];
+  if (relVol >= 1.5) r.push(`거래량 ${relVol.toFixed(1)}배`);
+  else if (relVol <= 0.6) r.push(`거래량 ${relVol.toFixed(1)}배`);
+  if (Math.abs(retPct) >= 2) r.push(`${retPct >= 0 ? "+" : ""}${retPct.toFixed(1)}%`);
+  return r.length ? r : ["평소 수준"];
 }

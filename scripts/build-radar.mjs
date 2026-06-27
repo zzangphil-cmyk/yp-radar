@@ -48,62 +48,44 @@ const themeOf = stocks.map((s) => s.theme);
 const dateLabels = per[0].bars.slice(per[0].bars.length - nFrames).map((b) => b.timestamp.slice(5, 10).replace("-", "/"));
 const lastDate = per[0].bars[per[0].bars.length - 1].timestamp.slice(0, 10);
 
-// 2) 종목별 robust-z (자기 평소 대비) — 색·위치가 같은 기준이 되도록 섹터차감/집단표준화 제거
-//    X=거래량 이탈(자기 거래량 분포 대비), Y=일중수익률 이탈(자기 수익률 분포 대비). Y부호=실제 방향.
-const series = per.map((p) => {
+// 2) 직관적 단위: X=상대거래량(평소의 ×배), Y=등락률(%, 시가→종가). 각 날짜=실제 그날 값(EMA 없음).
+//    좌표 매핑: x=log2(배수)/3 (1배=중앙, 8배=가장자리), y=등락%/8 (±8%=가장자리)
+const VOL_EDGE = 3.2; // log2 배수: 2^3.2≈9배 → 가장자리
+const RET_EDGE = 14;  // ±14% → 가장자리 (이 데이터는 일변동이 큼)
+const DZ = 0.5;       // 정상권(이상점수 0) 반경 — 밖이면 색칠
+const frames = [];
+for (let f = 0; f < nFrames; f++) frames.push({ t: dateLabels[f] ?? "", b: [] });
+per.forEach((p, i) => {
   const b = p.bars;
   const off = b.length - nFrames;
-  const logV = b.map((x) => Math.log(Number(x.volume) + 1));
-  const rets = b.map((x) => { const o = Number(x.openPrice), c = Number(x.closePrice); return o ? (c - o) / o : 0; });
-  const mLV = median(logV), sLV = mad(logV, mLV);
-  const sR = mad(rets, median(rets)); // 척도만(중앙값 차감 X) → y부호=실제 등락방향
-  const pts = [];
   for (let f = 0; f < nFrames; f++) {
     const idx = off + f;
-    pts.push({ zVol: (logV[idx] - mLV) / sLV, zRet: rets[idx] / sR, mom: rets[idx] * 100 });
+    const day = b[idx];
+    const trail = b.slice(Math.max(0, idx - BASE_WIN), idx).map((x) => Number(x.volume));
+    const baseVol = median(trail) || Number(day.volume) || 1;
+    const relVol = (Number(day.volume) + 1) / (baseVol + 1);          // 평소의 ×배
+    const o = Number(day.openPrice), c = Number(day.closePrice);
+    const retPct = o ? ((c - o) / o) * 100 : 0;                       // 등락률(%)
+    const x = clamp(Math.log2(relVol) / VOL_EDGE, -1, 1);
+    const y = clamp(retPct / RET_EDGE, -1, 1);
+    const r = Math.hypot(x, y);
+    const anomaly = clamp((r - DZ) / (1.0 - DZ), 0, 1);                // 정상권 밖일수록↑
+    frames[f].b[i] = [i, r3(x), r3(y), r2(anomaly), r2(relVol), r2(retPct)];
   }
-  return { pts };
 });
-
-// 3) 좌표·이상점수 (자기 대비 σ → 중심=정상, 거리=이상). 색은 컴포넌트에서 y부호로.
-const prevXY = stocks.map(() => ({ x: 0, y: 0 }));
-const frames = [];
-for (let f = 0; f < nFrames; f++) {
-  const b = [];
-  for (let i = 0; i < series.length; i++) {
-    const p = series[i].pts[f];
-    const x = clamp(p.zVol / SIG, -1, 1), y = clamp(p.zRet / SIG, -1, 1);
-    const r = Math.hypot(p.zVol, p.zRet);
-    const speed = Math.hypot(x - prevXY[i].x, y - prevXY[i].y);
-    const anomaly = clamp((r - DEAD) / (5 - DEAD) + W_SPD * Math.min(speed / 0.5, 1), 0, 1);
-    prevXY[i] = { x, y };
-    b.push([i, r3(x), r3(y), r2(anomaly), r2(p.zVol), r2(p.mom)]);
-  }
-  frames.push({ t: dateLabels[f] ?? "", b });
-}
-
-// 4) 시간축 EMA 평활 — 부드러운 글라이드
-const sm = stocks.map(() => null);
-for (let f = 0; f < nFrames; f++) {
-  for (let i = 0; i < stocks.length; i++) {
-    const b = frames[f].b[i];
-    if (sm[i] === null) sm[i] = { x: b[1], y: b[2], a: b[3] };
-    else { sm[i].x += ALPHA * (b[1] - sm[i].x); sm[i].y += ALPHA * (b[2] - sm[i].y); sm[i].a += ALPHA * (b[3] - sm[i].a); }
-    b[1] = r3(sm[i].x); b[2] = r3(sm[i].y); b[3] = r2(sm[i].a);
-  }
-}
 
 const out = {
   asOf: lastDate,
   source: "토스인베스트 일봉 · 최근 거래일 robust-z 이상탐지(EMA 평활)",
   interval: "1d", window: `최근 ${nFrames}거래일 (${dateLabels[0]}~${dateLabels[nFrames - 1]})`, lastTs: lastDate,
-  axes: { x: "거래량 이탈(자기 평소 대비 σ)", y: "일중수익률 이탈(시가→종가, 자기 평소 대비 σ)" },
-  model: { deadZone: DEAD, sigmaEdge: SIG, ema: ALPHA, note: "종목별 자기 분포 대비 robust-z (색·위치 동일 기준)" },
+  axes: { x: "상대거래량(평소의 ×배)", y: "등락률(%, 시가→종가)" },
+  blip: "[i, x, y, anomaly, relVol(배), retPct(%)]",
+  model: { volEdge: "8배=가장자리", retEdge: "±8%=가장자리", note: "각 날짜=실제 그날 스냅샷(EMA 없음), 직관 단위" },
   stocks, frameCount: nFrames, frames,
 };
 fs.writeFileSync(path.join(ROOT, "src/data/radar-frames.json"), JSON.stringify(out));
 const last = frames[frames.length - 1].b.slice().sort((a, c) => c[3] - a[3]).slice(0, 5);
 console.log(`종목 ${stocks.length} · 거래일 ${nFrames} (${dateLabels[0]}~${dateLabels[nFrames - 1]})`);
-console.log("최신일 이상 TOP5:", last.map((x) => `${stocks[x[0]].name}(이상${x[3]}/볼Z${x[4]}/${x[5]}%)`).join(", "));
+console.log("최신일 이상 TOP5:", last.map((x) => `${stocks[x[0]].name}(이상${x[3]}/거래량${x[4]}배/${x[5]}%)`).join(", "));
 const counts = frames.map((f) => f.b.filter((x) => x[3] >= 0.45).length).sort((a, b) => a - b);
 console.log(`프레임당 이상(≥0.45) — 최소 ${counts[0]} · 중앙 ${counts[Math.floor(counts.length / 2)]} · 최대 ${counts[counts.length - 1]}`);
