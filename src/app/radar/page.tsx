@@ -25,14 +25,14 @@ export default function RadarPage() {
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">종목 관제 레이더</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
             상위 50종목을 <strong className="text-white/80">상대거래량</strong> ×{" "}
-            <strong className="text-white/80">변동성 모멘텀</strong> 평면에 띄워,{" "}
-            <strong className="text-white/80">평소와 다르게 움직이는</strong> 종목을 포착합니다.
-            중심=정상, 가장자리=이상.
+            <strong className="text-white/80">일중수익률(시가→종가)</strong> 평면에 띄워,{" "}
+            <strong className="text-white/80">평소와 다르게 움직인</strong> 종목을 포착합니다.
+            <strong className="text-white/80"> 거래일이 흐르며</strong> 점이 이동합니다. 중심=정상, 가장자리=이상.
           </p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#3182f6]/15 px-3 py-1 text-sm font-medium text-[#3182f6]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#3182f6]" />
-          리플레이 · {radarData.asOf}
+          일봉 · {radarData.window}
         </span>
       </div>
 
@@ -46,14 +46,15 @@ export default function RadarPage() {
       <StockRadar />
 
       <div className="rounded-2xl border border-[#3182f6]/15 bg-[#3182f6]/[0.05] p-4 text-sm text-white/75">
-        <strong className="text-[#3182f6]">읽는 법.</strong> 가로 = 평소 대비 거래량(오른쪽=급증),
-        세로 = 자기 변동성 대비 가격 움직임(위=급등/아래=급락). <strong>중심에서 멀수록 이상</strong>이고,
-        점수가 높을수록 크고 밝게 + 경보에 뜹니다. 정상 장에선 대부분 중앙에 모입니다.
+        <strong className="text-[#3182f6]">읽는 법.</strong> 가로 = 그날 거래량이 평소보다 얼마나 터졌나(오른쪽=급증),
+        세로 = 그날 시가→종가 움직임(위=상승/아래=하락). 둘 다 <strong>그 거래일 50종목 집단 대비</strong>로 재서
+        <strong> 중심에서 멀수록 이상</strong>입니다. 거래일이 흐르며 점이 움직이고, 이상치만 색·경보로 뜹니다.
       </div>
 
       <p className="text-xs text-white/40">
-        ※ 출처: {radarData.source}. {radarData.window}(5분 프레임). 토스 1분봉은 최근 ~200분만 제공돼
-        지난 구간 리플레이입니다(테스트). <strong className="text-white/55">이상 탐지는 매매 신호가 아닙니다.</strong>
+        ※ 출처: {radarData.source}. {radarData.window}. 토스가 과거 분(分) 시세를 제공하지 않아
+        <strong className="text-white/55"> 일봉(거래일 단위)</strong>으로 구성했습니다. 25일도 이 구간에 포함됩니다.
+        <strong className="text-white/55"> 이상 탐지는 매매 신호가 아닙니다.</strong>
       </p>
     </div>
   );

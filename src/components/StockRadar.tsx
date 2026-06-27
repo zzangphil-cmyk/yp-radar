@@ -82,7 +82,7 @@ export default function StockRadar() {
       // 축 라벨
       ctx.fillStyle = "rgba(255,255,255,0.32)"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
       ctx.fillText("거래량 이탈 → (집단 대비)", cx, cy + R + 14);
-      ctx.save(); ctx.translate(cx - R - 7, cy); ctx.rotate(-Math.PI / 2); ctx.fillText("가격 이탈 ↑급등 / 급락↓", 0, 0); ctx.restore();
+      ctx.save(); ctx.translate(cx - R - 7, cy); ctx.rotate(-Math.PI / 2); ctx.fillText("일중수익률 이탈 ↑상승 / 하락↓", 0, 0); ctx.restore();
       ctx.textAlign = "left"; ctx.fillStyle = "rgba(31,214,154,0.32)"; ctx.font = "10px monospace";
       ctx.fillText(`▶ ${frames[i0].t} · 안쪽 원=정상권`, 12, 18);
 
@@ -213,7 +213,7 @@ export default function StockRadar() {
             })}
           </ul>
           <p className="mt-1.5 px-1.5 text-[11px] leading-relaxed text-white/35">
-            집단(50종목) 대비 거래량·가격 이탈 + 속도. <strong className="text-white/50">이상 ≠ 매매신호</strong> —
+            집단(50종목) 대비 거래량·일중수익률 이탈 + 속도. <strong className="text-white/50">이상 ≠ 매매신호</strong> —
             급증은 호재·악재·유동성·착시 모두 가능. 행을 누르면 스코프에서 <span className="text-[#22c55e]">초록</span>으로 표시됩니다.
           </p>
         </div>
