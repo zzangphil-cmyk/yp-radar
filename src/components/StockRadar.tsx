@@ -59,7 +59,7 @@ export default function StockRadar() {
         if (s.frameF >= s.end) { s.frameF = s.end; s.playing = false; setPlaying(false); }
         const di = Math.round(s.frameF); if (di !== s.play) { s.play = di; setPlayIdx(di); }
       } else s.frameF = s.play;
-      s.sweep += dt * 0.7;
+      if (s.playing) s.sweep += dt * 0.7; // 정지 중엔 스윕도 멈춤(완전 정적)
 
       const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 22;
       const i0 = Math.floor(s.frameF) % frameCount, i1 = Math.min(i0 + 1, frameCount - 1);
@@ -81,12 +81,14 @@ export default function StockRadar() {
       for (const tk of xTicks) ctx.fillText(tk.l, mapX(Math.log2(tk.m) / VOL_EDGE), cy + 13);
       ctx.textAlign = "left";
       for (const tk of yTicks) ctx.fillText(tk.l, cx + 5, mapY(tk.p / RET_EDGE) + 3);
-      const g = ctx.createConicGradient(s.sweep, cx, cy);
-      g.addColorStop(0, "rgba(31,214,154,0)"); g.addColorStop(0.9, "rgba(31,214,154,0)");
-      g.addColorStop(0.99, "rgba(31,214,154,0.12)"); g.addColorStop(1, "rgba(31,214,154,0.22)");
-      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, 0, 7); ctx.fill();
-      ctx.save(); ctx.translate(cx, cy); ctx.rotate(s.sweep); ctx.strokeStyle = "rgba(31,214,154,0.4)"; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(R, 0); ctx.stroke(); ctx.restore();
+      if (s.playing) { // 스윕 빔은 재생 중에만
+        const g = ctx.createConicGradient(s.sweep, cx, cy);
+        g.addColorStop(0, "rgba(31,214,154,0)"); g.addColorStop(0.9, "rgba(31,214,154,0)");
+        g.addColorStop(0.99, "rgba(31,214,154,0.12)"); g.addColorStop(1, "rgba(31,214,154,0.22)");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, 0, 7); ctx.fill();
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(s.sweep); ctx.strokeStyle = "rgba(31,214,154,0.4)"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(R, 0); ctx.stroke(); ctx.restore();
+      }
       ctx.fillStyle = "rgba(255,255,255,0.34)"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
       ctx.fillText("거래량 (평소의 몇 배) →", cx, cy + R + 14);
       ctx.save(); ctx.translate(cx - R - 8, cy); ctx.rotate(-Math.PI / 2); ctx.fillText("등락률 (%) ↑상승 / 하락↓", 0, 0); ctx.restore();
@@ -105,12 +107,12 @@ export default function StockRadar() {
         const dim = sel != null && !isSel && !hot ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        const lit = d < 0.5 ? 1 - d / 0.5 : 0;
+        const lit = s.playing && d < 0.5 ? 1 - d / 0.5 : 0; // 반짝은 재생 중에만
         const r = isSel ? 4 + anomaly * 4 : 2.3 + anomaly * 5;
         if (isSel || hot) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
         ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : 0.4 + 0.2 * lit) * dim;
         ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fill();
-        if (isSel) { ctx.globalAlpha = 0.6 + 0.4 * Math.abs(Math.sin(t / 350)); ctx.strokeStyle = SELECT; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(px, py, r + 5, 0, 7); ctx.stroke(); }
+        if (isSel) { ctx.globalAlpha = s.playing ? 0.6 + 0.4 * Math.abs(Math.sin(t / 350)) : 0.9; ctx.strokeStyle = SELECT; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(px, py, r + 5, 0, 7); ctx.stroke(); }
         else if (hot) { ctx.globalAlpha = 0.5 * Math.max(anomaly, lit) * dim; ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, r + 4, 0, 7); ctx.stroke(); }
         if (isSel) {
           ctx.globalAlpha = 1; ctx.strokeStyle = "rgba(34,197,94,0.5)"; ctx.lineWidth = 1;
