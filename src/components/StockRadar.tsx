@@ -25,7 +25,7 @@ export default function StockRadar() {
   const { stocks, frames, frameCount } = radarData;
   const cvRef = useRef<HTMLCanvasElement | null>(null);
   // animF=현재 표시 위치(목표로 이징), target=보여줄 날짜. 날짜가 바뀌면 점이 그쪽으로 이동.
-  const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0, start: 0, end: frameCount - 1 });
+  const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, shown: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0, start: 0, end: frameCount - 1 });
   const selRef = useRef<number | null>(null);
   const posRef = useRef<{ x: number; y: number }[]>(stocks.map(() => ({ x: 0, y: 0 })));
   const [startIdx, setStartIdx] = useState(Math.max(0, frameCount - 5));
@@ -38,7 +38,6 @@ export default function StockRadar() {
   useEffect(() => { selRef.current = selected; }, [selected]);
   useEffect(() => { stRef.current.start = startIdx; }, [startIdx]);
   useEffect(() => { stRef.current.end = endIdx; }, [endIdx]);
-  useEffect(() => { stRef.current.target = playIdx; }, [playIdx]); // 날짜 변경 → 점이 그쪽으로 이징
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSelected(null); };
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
@@ -63,17 +62,19 @@ export default function StockRadar() {
         if (!moving) { // 현재 날짜에 안착 → 잠깐 머문 뒤 다음 날짜로
           s.dwell += dt;
           if (s.dwell >= 0.6) {
-            if (s.target < s.end) { s.target += 1; setPlayIdx(s.target); s.dwell = 0; }
+            if (s.target < s.end) { s.target += 1; s.dwell = 0; }
             else { s.playing = false; setPlaying(false); s.dwell = 0; }
           }
         }
+        // 표시 날짜(라벨·리스트·슬라이더)를 점의 현재 위치에 맞춤 → 얼라인
+        const di = Math.round(s.animF); if (di !== s.shown) { s.shown = di; setPlayIdx(di); }
       } else s.dwell = 0;
       if (s.playing || moving) s.sweep += dt * 0.7; // 이동/재생 중에만 스윕 회전
 
       const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 22;
       const i0 = Math.floor(s.animF), i1 = Math.min(i0 + 1, frameCount - 1);
       const fr = s.animF - i0;
-      const dateI = s.target;
+      const dateI = Math.round(s.animF); // 라벨 = 점의 현재 위치
       const f0 = frames[i0].b, f1 = frames[i1].b;
       const mapX = (x: number) => cx + x * R * 0.92, mapY = (y: number) => cy - y * R * 0.92;
       const sel = selRef.current;
@@ -156,13 +157,15 @@ export default function StockRadar() {
   }, [playIdx, frames, stocks]);
 
   const dateOpts = frames.map((f, i) => <option key={i} value={i}>{f.t}</option>);
-  const onStart = (v: number) => { setPlaying(false); setStartIdx(v); if (v > endIdx) setEndIdx(v); if (playIdx < v) setPlayIdx(v); };
-  const onEnd = (v: number) => { setPlaying(false); setEndIdx(v); if (v < startIdx) setStartIdx(v); if (playIdx > v) setPlayIdx(v); };
+  const goTo = (v: number) => { const s = stRef.current; s.playing = false; s.target = v; s.shown = v; setPlaying(false); setPlayIdx(v); }; // 그 날짜로(점은 이징)
+  const onStart = (v: number) => { setStartIdx(v); if (v > endIdx) setEndIdx(v); goTo(Math.max(v, playIdx)); };
+  const onEnd = (v: number) => { setEndIdx(v); if (v < startIdx) setStartIdx(v); goTo(Math.min(v, playIdx)); };
   const togglePlay = () => {
     const s = stRef.current;
-    if (!playing && s.target >= endIdx) { s.animF = startIdx; s.target = startIdx; setPlayIdx(startIdx); } // 끝이면 처음부터 다시
-    if (!playing) s.dwell = 0;
-    setPlaying((p) => !p);
+    if (!playing) { // 재생 시작
+      if (s.target >= endIdx) { s.animF = startIdx; s.target = startIdx; s.shown = startIdx; setPlayIdx(startIdx); } // 끝이면 처음부터
+      s.dwell = 0; s.playing = true; setPlaying(true);
+    } else { s.playing = false; setPlaying(false); }
   };
 
   const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "up" | "down" | "vol" }) => (
@@ -210,7 +213,7 @@ export default function StockRadar() {
       </div>
       <div className="mx-auto flex max-w-xl items-center gap-3">
         <input type="range" min={startIdx} max={endIdx} step={1} value={playIdx}
-          onChange={(e) => { setPlaying(false); setPlayIdx(+e.target.value); }} className="flex-1" />
+          onChange={(e) => goTo(+e.target.value)} className="flex-1" />
         <span className="w-28 shrink-0 text-right text-sm font-bold tabular-nums text-white/80">{frames[playIdx]?.t} {playing ? "재생중" : "고정"}</span>
       </div>
 
