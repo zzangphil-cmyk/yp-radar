@@ -64,8 +64,9 @@ per.forEach((p, i) => {
     const trail = b.slice(Math.max(0, idx - BASE_WIN), idx).map((x) => Number(x.volume));
     const baseVol = median(trail) || Number(day.volume) || 1;
     const relVol = (Number(day.volume) + 1) / (baseVol + 1);          // 평소의 ×배
-    const o = Number(day.openPrice), c = Number(day.closePrice);
-    const retPct = o ? ((c - o) / o) * 100 : 0;                       // 등락률(%)
+    const c = Number(day.closePrice);
+    const prevC = Number(b[idx - 1]?.closePrice) || c;
+    const retPct = prevC ? ((c - prevC) / prevC) * 100 : 0;           // 등락률(%, 전일 종가 대비)
     const x = clamp(Math.log2(relVol) / VOL_EDGE, -1, 1);
     const y = clamp(retPct / RET_EDGE, -1, 1);
     const r = Math.hypot(x, y);
@@ -78,7 +79,7 @@ const out = {
   asOf: lastDate,
   source: "토스인베스트 일봉 · 최근 거래일 robust-z 이상탐지(EMA 평활)",
   interval: "1d", window: `최근 ${nFrames}거래일 (${dateLabels[0]}~${dateLabels[nFrames - 1]})`, lastTs: lastDate,
-  axes: { x: "상대거래량(평소의 ×배)", y: "등락률(%, 시가→종가)" },
+  axes: { x: "상대거래량(평소의 ×배)", y: "등락률(%, 종가 기준)" },
   blip: "[i, x, y, anomaly, relVol(배), retPct(%)]",
   model: { volEdge: "8배=가장자리", retEdge: "±8%=가장자리", note: "각 날짜=실제 그날 스냅샷(EMA 없음), 직관 단위" },
   stocks, frameCount: nFrames, frames,
