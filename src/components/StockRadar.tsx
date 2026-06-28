@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData } from "@/lib/radarData";
 
-const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
+const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623", SYS = "#6b7585";
 const HOT = 0.45, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
 const xTicks = [{ m: 1, l: "1배" }, { m: 2, l: "2배" }, { m: 4, l: "4배" }];
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -42,14 +42,30 @@ export default function StockRadar() {
       const anomaly = clamp((Math.hypot(x, y) - DZ) / (1 - DZ), 0, 1);
       return [x, y, anomaly];
     };
+    // [SBV-A] 시장·섹터 통제 후 고유 잔차 분해. ledBy: 0 고유 / 1 섹터 / 2 시장
+    const themeOf = stocks.map((s) => s.theme ?? "기타");
+    const ledOf = (mkt: number, secDev: number, spec: number) => {
+      const am = Math.abs(mkt), as = Math.abs(secDev), ap = Math.abs(spec);
+      const share = ap / (am + as + ap || 1e-9);
+      const led = share >= 0.5 ? 0 : as >= am ? 1 : 2; // 고유는 점유율 50%+ 일 때만(엄격)
+      return [led, spec, share];
+    };
+    const dMkt: Record<number, number> = {}, dSec: Record<number, Record<string, number>> = {};
+    for (let d = startIdx; d <= endIdx; d++) {
+      let m = 0; const ss: Record<string, number> = {}, sn: Record<string, number> = {};
+      for (let i = 0; i < N; i++) { const r = frames[d].b[i][5]; m += r; const t = themeOf[i]; ss[t] = (ss[t] || 0) + r; sn[t] = (sn[t] || 0) + 1; }
+      dMkt[d] = m / N; const sm: Record<string, number> = {}; for (const t in ss) sm[t] = ss[t] / sn[t]; dSec[d] = sm;
+    }
     if (mode === "daily") {
       const f: { t: string; b: number[][] }[] = [];
       for (let d = startIdx; d <= endIdx; d++) {
         const b: number[][] = [];
         for (let i = 0; i < N; i++) {
-          const rel = frames[d].b[i][4], ret = frames[d].b[i][5];
+          const rel = frames[d].b[i][4], ret = frames[d].b[i][5], th = themeOf[i];
           const [x, y, a] = calc(rel, ret, RET_DAILY);
-          b[i] = [i, x, y, a, rel, ret];
+          const mkt = dMkt[d], secDev = dSec[d][th] - mkt, spec = ret - dSec[d][th];
+          const [led, sp, share] = ledOf(mkt, secDev, spec);
+          b[i] = [i, x, y, a, rel, ret, led, sp, share];
         }
         f[d] = { t: frames[d].t, b };
       }
@@ -57,17 +73,22 @@ export default function StockRadar() {
     }
     // 누적: 시작일 종가 대비 복리 누적 + 구간 평균 거래량 배수
     const cumP = new Array(N).fill(1), volS = new Array(N).fill(0);
-    const raw: { cr: number; av: number }[][] = [];
+    let cumMkt = 1; const cumSec: Record<string, number> = {};
+    const raw: { cr: number; av: number; mkt: number; secDev: number; spec: number }[][] = [];
     let maxAbs = 0, cnt = 0;
     for (let d = startIdx; d <= endIdx; d++) {
       cnt++;
-      const row: { cr: number; av: number }[] = [];
+      if (d > startIdx) cumMkt *= 1 + dMkt[d] / 100;
+      for (const t in dSec[d]) { if (!(t in cumSec)) cumSec[t] = 1; else if (d > startIdx) cumSec[t] *= 1 + dSec[d][t] / 100; }
+      const mktR = (cumMkt - 1) * 100;
+      const row: { cr: number; av: number; mkt: number; secDev: number; spec: number }[] = [];
       for (let i = 0; i < N; i++) {
         if (d > startIdx) cumP[i] *= 1 + frames[d].b[i][5] / 100;
         volS[i] += frames[d].b[i][4];
         const cr = (cumP[i] - 1) * 100, av = volS[i] / cnt;
+        const secR = ((cumSec[themeOf[i]] ?? 1) - 1) * 100;
         if (Math.abs(cr) > maxAbs) maxAbs = Math.abs(cr);
-        row[i] = { cr, av };
+        row[i] = { cr, av, mkt: mktR, secDev: secR - mktR, spec: cr - secR };
       }
       raw[d] = row;
     }
@@ -76,9 +97,10 @@ export default function StockRadar() {
     for (let d = startIdx; d <= endIdx; d++) {
       const b: number[][] = [];
       for (let i = 0; i < N; i++) {
-        const { cr, av } = raw[d][i];
+        const { cr, av, mkt, secDev, spec } = raw[d][i];
         const [x, y, a] = calc(av, cr, retEdge);
-        b[i] = [i, x, y, a, av, cr];
+        const [led, sp, share] = ledOf(mkt, secDev, spec);
+        b[i] = [i, x, y, a, av, cr, led, sp, share];
       }
       f[d] = { t: frames[d].t, b };
     }
@@ -153,20 +175,21 @@ export default function StockRadar() {
       for (const i of orderList) {
         const a0 = f0[i], a1 = f1[i];
         const x = a0[1] + (a1[1] - a0[1]) * fr, y = a0[2] + (a1[2] - a0[2]) * fr;
-        const anomaly = a0[3], ret = a0[5];
-        const isSel = sel === i, hot = anomaly >= HOT;
+        const anomaly = a0[3], ret = a0[5], ledBy = a0[6] ?? 0, spec = a0[7] ?? ret;
+        const isSel = sel === i, hot = anomaly >= HOT, hotOwn = hot && ledBy === 0; // 고유 이상만 강조
         const px = mapX(x), py = mapY(y); posRef.current[i] = { x: px, y: py };
-        const col = isSel ? SELECT : hot ? (y >= 0 ? UP : DOWN) : NEUTRAL;
-        const dim = sel != null && !isSel && !hot ? 0.4 : 1;
+        // 색=왜 떴나: 고유→풀채도(빨강/파랑), 시장·섹터 동반→회색(이상이나 테마 노이즈), 평범→중립
+        const col = isSel ? SELECT : hotOwn ? (spec >= 0 ? UP : DOWN) : hot ? SYS : NEUTRAL;
+        const dim = sel != null && !isSel && !hotOwn ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         const lit = (s.playing || moving) && d < 0.5 ? 1 - d / 0.5 : 0;
         const r = isSel ? 4 + anomaly * 4 : 2.3 + anomaly * 5;
-        if (isSel || hot) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
-        ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : 0.4 + 0.2 * lit) * dim;
+        if (isSel || hotOwn) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
+        ctx.globalAlpha = (hotOwn || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : hot ? 0.5 : 0.4 + 0.2 * lit) * dim;
         ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fill();
         if (isSel) { ctx.globalAlpha = s.playing ? 0.6 + 0.4 * Math.abs(Math.sin(t / 350)) : 0.9; ctx.strokeStyle = SELECT; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(px, py, r + 5, 0, 7); ctx.stroke(); }
-        else if (hot) { ctx.globalAlpha = 0.5 * Math.max(anomaly, lit) * dim; ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, r + 4, 0, 7); ctx.stroke(); }
+        else if (hotOwn) { ctx.globalAlpha = 0.5 * Math.max(anomaly, lit) * dim; ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, r + 4, 0, 7); ctx.stroke(); }
         if (isSel) {
           ctx.globalAlpha = 1; ctx.strokeStyle = "rgba(34,197,94,0.5)"; ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(px + r, py - r); ctx.lineTo(px + r + 7, py - r - 7); ctx.lineTo(px + r + 44, py - r - 7); ctx.stroke();
@@ -268,9 +291,10 @@ export default function StockRadar() {
       </div>
 
       <p className="text-center text-[11px] text-white/35">
-        {mode === "cum" ? "누적: 시작일 대비 점이 궤적을 그리며 이동" : "일일: 그날 하루 값(매일 독립 스냅샷)"} ·
-        회색=평범 · <span style={{ color: UP }}>빨강 상승</span> · <span style={{ color: DOWN }}>파랑 하락</span> ·
-        <span style={{ color: SELECT }}> 초록 선택</span>. <strong className="text-white/50">이상 ≠ 매매신호.</strong>
+        색 = <strong className="text-white/55">왜 떴나</strong> ·{" "}
+        <span style={{ color: UP }}>빨강 고유 급등</span> / <span style={{ color: DOWN }}>파랑 고유 급락</span>(시장·섹터 제거 후 진짜 종목 신호) ·{" "}
+        <span style={{ color: SYS }}>회색 시장·섹터 동반</span>(테마가 같이 뜬 것) · <span style={{ color: SELECT }}>초록 선택</span>.
+        <strong className="text-white/50"> 이상 ≠ 매매신호.</strong>
       </p>
     </div>
   );
