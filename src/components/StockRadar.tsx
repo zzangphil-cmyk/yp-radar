@@ -24,7 +24,8 @@ function CircleLogo({ name, on, size = 8 }: { name: string; on?: boolean; size?:
 export default function StockRadar() {
   const { stocks, frames, frameCount } = radarData;
   const cvRef = useRef<HTMLCanvasElement | null>(null);
-  const stRef = useRef({ frameF: frameCount - 1, sweep: -Math.PI / 2, playing: false, last: 0, start: 0, end: frameCount - 1, play: frameCount - 1 });
+  // animF=현재 표시 위치(목표로 이징), target=보여줄 날짜. 날짜가 바뀌면 점이 그쪽으로 이동.
+  const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0, start: 0, end: frameCount - 1 });
   const selRef = useRef<number | null>(null);
   const posRef = useRef<{ x: number; y: number }[]>(stocks.map(() => ({ x: 0, y: 0 })));
   const [startIdx, setStartIdx] = useState(Math.max(0, frameCount - 5));
@@ -37,7 +38,7 @@ export default function StockRadar() {
   useEffect(() => { selRef.current = selected; }, [selected]);
   useEffect(() => { stRef.current.start = startIdx; }, [startIdx]);
   useEffect(() => { stRef.current.end = endIdx; }, [endIdx]);
-  useEffect(() => { stRef.current.play = playIdx; if (!stRef.current.playing) stRef.current.frameF = playIdx; }, [playIdx]);
+  useEffect(() => { stRef.current.target = playIdx; }, [playIdx]); // 날짜 변경 → 점이 그쪽으로 이징
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSelected(null); };
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
@@ -54,18 +55,25 @@ export default function StockRadar() {
     const loop = (t: number) => {
       const s = stRef.current;
       const dt = Math.min(60, t - s.last) / 1000; s.last = t;
+      // 현재 위치를 목표 날짜로 부드럽게 이징(날짜 같으면 정지)
+      s.animF += (s.target - s.animF) * (1 - Math.exp(-dt * 7));
+      if (Math.abs(s.target - s.animF) < 0.003) s.animF = s.target;
+      const moving = s.animF !== s.target;
       if (s.playing) {
-        s.frameF += dt * 0.6;
-        if (s.frameF >= s.end) { s.frameF = s.end; s.playing = false; setPlaying(false); }
-        const di = Math.round(s.frameF); if (di !== s.play) { s.play = di; setPlayIdx(di); }
-      } else s.frameF = s.play;
-      if (s.playing) s.sweep += dt * 0.7; // 정지 중엔 스윕도 멈춤(완전 정적)
+        if (!moving) { // 현재 날짜에 안착 → 잠깐 머문 뒤 다음 날짜로
+          s.dwell += dt;
+          if (s.dwell >= 0.6) {
+            if (s.target < s.end) { s.target += 1; setPlayIdx(s.target); s.dwell = 0; }
+            else { s.playing = false; setPlaying(false); s.dwell = 0; }
+          }
+        }
+      } else s.dwell = 0;
+      if (s.playing || moving) s.sweep += dt * 0.7; // 이동/재생 중에만 스윕 회전
 
       const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 22;
-      const i0 = Math.floor(s.frameF) % frameCount, i1 = Math.min(i0 + 1, frameCount - 1);
-      const frRaw = s.frameF - Math.floor(s.frameF);
-      const fr = frRaw < 0.5 ? 2 * frRaw * frRaw : 1 - Math.pow(-2 * frRaw + 2, 2) / 2;
-      const dateI = Math.round(s.frameF) % frameCount;
+      const i0 = Math.floor(s.animF), i1 = Math.min(i0 + 1, frameCount - 1);
+      const fr = s.animF - i0;
+      const dateI = s.target;
       const f0 = frames[i0].b, f1 = frames[i1].b;
       const mapX = (x: number) => cx + x * R * 0.92, mapY = (y: number) => cy - y * R * 0.92;
       const sel = selRef.current;
@@ -81,7 +89,7 @@ export default function StockRadar() {
       for (const tk of xTicks) ctx.fillText(tk.l, mapX(Math.log2(tk.m) / VOL_EDGE), cy + 13);
       ctx.textAlign = "left";
       for (const tk of yTicks) ctx.fillText(tk.l, cx + 5, mapY(tk.p / RET_EDGE) + 3);
-      if (s.playing) { // 스윕 빔은 재생 중에만
+      if (s.playing || moving) { // 스윕 빔은 이동/재생 중에만
         const g = ctx.createConicGradient(s.sweep, cx, cy);
         g.addColorStop(0, "rgba(31,214,154,0)"); g.addColorStop(0.9, "rgba(31,214,154,0)");
         g.addColorStop(0.99, "rgba(31,214,154,0.12)"); g.addColorStop(1, "rgba(31,214,154,0.22)");
@@ -107,7 +115,7 @@ export default function StockRadar() {
         const dim = sel != null && !isSel && !hot ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        const lit = s.playing && d < 0.5 ? 1 - d / 0.5 : 0; // 반짝은 재생 중에만
+        const lit = (s.playing || moving) && d < 0.5 ? 1 - d / 0.5 : 0; // 반짝은 이동/재생 중에만
         const r = isSel ? 4 + anomaly * 4 : 2.3 + anomaly * 5;
         if (isSel || hot) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
         ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : 0.4 + 0.2 * lit) * dim;
@@ -150,7 +158,12 @@ export default function StockRadar() {
   const dateOpts = frames.map((f, i) => <option key={i} value={i}>{f.t}</option>);
   const onStart = (v: number) => { setPlaying(false); setStartIdx(v); if (v > endIdx) setEndIdx(v); if (playIdx < v) setPlayIdx(v); };
   const onEnd = (v: number) => { setPlaying(false); setEndIdx(v); if (v < startIdx) setStartIdx(v); if (playIdx > v) setPlayIdx(v); };
-  const togglePlay = () => { if (!playing && playIdx >= endIdx) { setPlayIdx(startIdx); stRef.current.frameF = startIdx; } setPlaying((p) => !p); };
+  const togglePlay = () => {
+    const s = stRef.current;
+    if (!playing && s.target >= endIdx) { s.animF = startIdx; s.target = startIdx; setPlayIdx(startIdx); } // 끝이면 처음부터 다시
+    if (!playing) s.dwell = 0;
+    setPlaying((p) => !p);
+  };
 
   const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "up" | "down" | "vol" }) => (
     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-2.5">
