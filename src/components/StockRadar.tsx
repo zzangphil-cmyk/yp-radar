@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData } from "@/lib/radarData";
 
-const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623", SYS = "#6b7585";
+const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
+const MUTED_UP = "#a06a73", MUTED_DOWN = "#6a73a0"; // 시장·섹터 동반: 옅은 방향 색조
 const HOT = 0.45, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
 const xTicks = [{ m: 1, l: "1배" }, { m: 2, l: "2배" }, { m: 4, l: "4배" }];
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -26,7 +27,7 @@ export default function StockRadar() {
   const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, shown: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0 });
   const selRef = useRef<number | null>(null);
   const posRef = useRef<{ x: number; y: number }[]>(stocks.map(() => ({ x: 0, y: 0 })));
-  const [mode, setMode] = useState<"cum" | "daily">("cum");
+  const [mode, setMode] = useState<"cum" | "daily">("daily");
   const [startIdx, setStartIdx] = useState(Math.max(0, frameCount - 5));
   const [endIdx, setEndIdx] = useState(frameCount - 1);
   const [playIdx, setPlayIdx] = useState(frameCount - 1);
@@ -175,11 +176,12 @@ export default function StockRadar() {
       for (const i of orderList) {
         const a0 = f0[i], a1 = f1[i];
         const x = a0[1] + (a1[1] - a0[1]) * fr, y = a0[2] + (a1[2] - a0[2]) * fr;
-        const anomaly = a0[3], ret = a0[5], ledBy = a0[6] ?? 0, spec = a0[7] ?? ret;
-        const isSel = sel === i, hot = anomaly >= HOT, hotOwn = hot && ledBy === 0; // 고유 이상만 강조
+        const anomaly = a0[3], ret = a0[5], ledBy = a0[6] ?? 0;
+        const isSel = sel === i, hot = anomaly >= HOT, hotOwn = hot && ledBy === 0; // 고유 이상만 풀채도
         const px = mapX(x), py = mapY(y); posRef.current[i] = { x: px, y: py };
-        // 색=왜 떴나: 고유→풀채도(빨강/파랑), 시장·섹터 동반→회색(이상이나 테마 노이즈), 평범→중립
-        const col = isSel ? SELECT : hotOwn ? (spec >= 0 ? UP : DOWN) : hot ? SYS : NEUTRAL;
+        // 색=왜 떴나: 고유→진한 빨강/파랑, 시장·섹터 동반→옅은 빨강/파랑, 평범→회색 (채도=고유 강도)
+        const up = y >= 0;
+        const col = isSel ? SELECT : hotOwn ? (up ? UP : DOWN) : hot ? (up ? MUTED_UP : MUTED_DOWN) : NEUTRAL;
         const dim = sel != null && !isSel && !hotOwn ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
@@ -292,8 +294,8 @@ export default function StockRadar() {
 
       <p className="text-center text-[11px] text-white/35">
         색 = <strong className="text-white/55">왜 떴나</strong> ·{" "}
-        <span style={{ color: UP }}>빨강 고유 급등</span> / <span style={{ color: DOWN }}>파랑 고유 급락</span>(시장·섹터 제거 후 진짜 종목 신호) ·{" "}
-        <span style={{ color: SYS }}>회색 시장·섹터 동반</span>(테마가 같이 뜬 것) · <span style={{ color: SELECT }}>초록 선택</span>.
+        <span style={{ color: UP }}>진한 빨강</span>/<span style={{ color: DOWN }}>파랑</span> = <strong className="text-white/50">고유</strong>(시장·섹터 제거 후 진짜 종목 신호) ·{" "}
+        <span style={{ color: MUTED_UP }}>옅은 빨강</span>/<span style={{ color: MUTED_DOWN }}>파랑</span> = 시장·섹터 동반(테마가 같이 뜬 것) · <span style={{ color: SELECT }}>초록 선택</span>.
         <strong className="text-white/50"> 이상 ≠ 매매신호.</strong>
       </p>
     </div>
