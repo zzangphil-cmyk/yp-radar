@@ -4,17 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData } from "@/lib/radarData";
 
 const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
-const HOT = 0.45;
-const VOL_EDGE = 3.2, RET_EDGE = 14;
+const HOT = 0.45, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
 const xTicks = [{ m: 1, l: "1배" }, { m: 2, l: "2배" }, { m: 4, l: "4배" }];
-const yTicks = [{ p: 14, l: "+14%" }, { p: 7, l: "+7%" }, { p: -7, l: "−7%" }, { p: -14, l: "−14%" }];
+const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
 const LOGO_BG = ["#3182f6", "#f04452", "#f5a623", "#8b5cf6", "#06b6d4", "#ec4899", "#64748b", "#0ea5e9"];
 function CircleLogo({ name, on, size = 8 }: { name: string; on?: boolean; size?: number }) {
   let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   const ko = name.replace(/^[A-Z]+\s*/, "").charAt(0);
   return (
-    <span className={`flex shrink-0 items-center justify-center rounded-full font-bold text-white`}
+    <span className="flex shrink-0 items-center justify-center rounded-full font-bold text-white"
       style={{ width: size * 4, height: size * 4, fontSize: 12, background: on ? SELECT : LOGO_BG[h % LOGO_BG.length] }}>
       {ko || name.charAt(0)}
     </span>
@@ -24,20 +23,71 @@ function CircleLogo({ name, on, size = 8 }: { name: string; on?: boolean; size?:
 export default function StockRadar() {
   const { stocks, frames, frameCount } = radarData;
   const cvRef = useRef<HTMLCanvasElement | null>(null);
-  // animF=현재 표시 위치(목표로 이징), target=보여줄 날짜. 날짜가 바뀌면 점이 그쪽으로 이동.
-  const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, shown: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0, start: 0, end: frameCount - 1 });
+  const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, shown: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0 });
   const selRef = useRef<number | null>(null);
   const posRef = useRef<{ x: number; y: number }[]>(stocks.map(() => ({ x: 0, y: 0 })));
+  const [mode, setMode] = useState<"cum" | "daily">("cum");
   const [startIdx, setStartIdx] = useState(Math.max(0, frameCount - 5));
   const [endIdx, setEndIdx] = useState(frameCount - 1);
   const [playIdx, setPlayIdx] = useState(frameCount - 1);
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
 
+  // 보기 데이터: 누적(시작일 대비) 또는 일일. 좌표·이상점수 산출.
+  const view = useMemo(() => {
+    const N = stocks.length;
+    const calc = (avgVol: number, ret: number, retEdge: number) => {
+      const x = clamp(Math.log2(Math.max(avgVol, 1e-6)) / VOL_EDGE, -1, 1);
+      const y = clamp(ret / retEdge, -1, 1);
+      const anomaly = clamp((Math.hypot(x, y) - DZ) / (1 - DZ), 0, 1);
+      return [x, y, anomaly];
+    };
+    if (mode === "daily") {
+      const f: { t: string; b: number[][] }[] = [];
+      for (let d = startIdx; d <= endIdx; d++) {
+        const b: number[][] = [];
+        for (let i = 0; i < N; i++) {
+          const rel = frames[d].b[i][4], ret = frames[d].b[i][5];
+          const [x, y, a] = calc(rel, ret, RET_DAILY);
+          b[i] = [i, x, y, a, rel, ret];
+        }
+        f[d] = { t: frames[d].t, b };
+      }
+      return { f, retEdge: RET_DAILY, lo: startIdx, hi: endIdx, yTitle: "등락률 (%) ↑상승 / 하락↓" };
+    }
+    // 누적: 시작일 종가 대비 복리 누적 + 구간 평균 거래량 배수
+    const cumP = new Array(N).fill(1), volS = new Array(N).fill(0);
+    const raw: { cr: number; av: number }[][] = [];
+    let maxAbs = 0, cnt = 0;
+    for (let d = startIdx; d <= endIdx; d++) {
+      cnt++;
+      const row: { cr: number; av: number }[] = [];
+      for (let i = 0; i < N; i++) {
+        if (d > startIdx) cumP[i] *= 1 + frames[d].b[i][5] / 100;
+        volS[i] += frames[d].b[i][4];
+        const cr = (cumP[i] - 1) * 100, av = volS[i] / cnt;
+        if (Math.abs(cr) > maxAbs) maxAbs = Math.abs(cr);
+        row[i] = { cr, av };
+      }
+      raw[d] = row;
+    }
+    const retEdge = Math.max(8, Math.ceil((maxAbs * 1.05) / 5) * 5);
+    const f: { t: string; b: number[][] }[] = [];
+    for (let d = startIdx; d <= endIdx; d++) {
+      const b: number[][] = [];
+      for (let i = 0; i < N; i++) {
+        const { cr, av } = raw[d][i];
+        const [x, y, a] = calc(av, cr, retEdge);
+        b[i] = [i, x, y, a, av, cr];
+      }
+      f[d] = { t: frames[d].t, b };
+    }
+    return { f, retEdge, lo: startIdx, hi: endIdx, yTitle: "누적 등락률 (%, 시작일 대비) ↑/↓" };
+  }, [mode, startIdx, endIdx, frames, stocks]);
+  const viewRef = useRef(view); useEffect(() => { viewRef.current = view; }, [view]);
+
   useEffect(() => { stRef.current.playing = playing; }, [playing]);
   useEffect(() => { selRef.current = selected; }, [selected]);
-  useEffect(() => { stRef.current.start = startIdx; }, [startIdx]);
-  useEffect(() => { stRef.current.end = endIdx; }, [endIdx]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSelected(null); };
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
@@ -52,30 +102,22 @@ export default function StockRadar() {
     resize(); window.addEventListener("resize", resize);
     let raf = 0;
     const loop = (t: number) => {
-      const s = stRef.current;
+      const s = stRef.current, V = viewRef.current;
       const dt = Math.min(60, t - s.last) / 1000; s.last = t;
-      // 현재 위치를 목표 날짜로 부드럽게 이징(날짜 같으면 정지)
       s.animF += (s.target - s.animF) * (1 - Math.exp(-dt * 7));
       if (Math.abs(s.target - s.animF) < 0.003) s.animF = s.target;
       const moving = s.animF !== s.target;
       if (s.playing) {
-        if (!moving) { // 현재 날짜에 안착 → 잠깐 머문 뒤 다음 날짜로
-          s.dwell += dt;
-          if (s.dwell >= 0.6) {
-            if (s.target < s.end) { s.target += 1; s.dwell = 0; }
-            else { s.playing = false; setPlaying(false); s.dwell = 0; }
-          }
-        }
-        // 표시 날짜(라벨·리스트·슬라이더)를 점의 현재 위치에 맞춤 → 얼라인
+        if (!moving) { s.dwell += dt; if (s.dwell >= 0.6) { if (s.target < V.hi) { s.target += 1; s.dwell = 0; } else { s.playing = false; setPlaying(false); s.dwell = 0; } } }
         const di = Math.round(s.animF); if (di !== s.shown) { s.shown = di; setPlayIdx(di); }
       } else s.dwell = 0;
-      if (s.playing || moving) s.sweep += dt * 0.7; // 이동/재생 중에만 스윕 회전
+      if (s.playing || moving) s.sweep += dt * 0.7;
 
       const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 22;
-      const i0 = Math.floor(s.animF), i1 = Math.min(i0 + 1, frameCount - 1);
-      const fr = s.animF - i0;
-      const dateI = Math.round(s.animF); // 라벨 = 점의 현재 위치
-      const f0 = frames[i0].b, f1 = frames[i1].b;
+      let i0 = clamp(Math.floor(s.animF), V.lo, V.hi); const i1 = Math.min(i0 + 1, V.hi);
+      const fr = clamp(s.animF - i0, 0, 1);
+      const f0 = V.f[i0]?.b, f1 = V.f[i1]?.b; const E = V.retEdge;
+      if (!f0 || !f1) { raf = requestAnimationFrame(loop); return; }
       const mapX = (x: number) => cx + x * R * 0.92, mapY = (y: number) => cy - y * R * 0.92;
       const sel = selRef.current;
 
@@ -89,8 +131,10 @@ export default function StockRadar() {
       ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "10px sans-serif"; ctx.textAlign = "center";
       for (const tk of xTicks) ctx.fillText(tk.l, mapX(Math.log2(tk.m) / VOL_EDGE), cy + 13);
       ctx.textAlign = "left";
-      for (const tk of yTicks) ctx.fillText(tk.l, cx + 5, mapY(tk.p / RET_EDGE) + 3);
-      if (s.playing || moving) { // 스윕 빔은 이동/재생 중에만
+      const half = Math.round(E / 2);
+      for (const tk of [{ p: E, l: `+${E}%` }, { p: half, l: `+${half}%` }, { p: -half, l: `−${half}%` }, { p: -E, l: `−${E}%` }])
+        ctx.fillText(tk.l, cx + 5, mapY(tk.p / E) + 3);
+      if (s.playing || moving) {
         const g = ctx.createConicGradient(s.sweep, cx, cy);
         g.addColorStop(0, "rgba(31,214,154,0)"); g.addColorStop(0.9, "rgba(31,214,154,0)");
         g.addColorStop(0.99, "rgba(31,214,154,0.12)"); g.addColorStop(1, "rgba(31,214,154,0.22)");
@@ -100,13 +144,13 @@ export default function StockRadar() {
       }
       ctx.fillStyle = "rgba(255,255,255,0.34)"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
       ctx.fillText("거래량 (평소의 몇 배) →", cx, cy + R + 14);
-      ctx.save(); ctx.translate(cx - R - 8, cy); ctx.rotate(-Math.PI / 2); ctx.fillText("등락률 (%) ↑상승 / 하락↓", 0, 0); ctx.restore();
+      ctx.save(); ctx.translate(cx - R - 8, cy); ctx.rotate(-Math.PI / 2); ctx.fillText(V.yTitle, 0, 0); ctx.restore();
       ctx.textAlign = "left"; ctx.fillStyle = "rgba(31,214,154,0.45)"; ctx.font = "12px monospace";
-      ctx.fillText(`${frames[dateI].t}${s.playing ? " ▶" : " ⏸"}`, 12, 19);
+      ctx.fillText(`${V.f[Math.round(clamp(s.animF, V.lo, V.hi))]?.t ?? ""}${s.playing ? " ▶" : " ⏸"}`, 12, 19);
 
       const swA = ((s.sweep % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-      const order = [...stocks.keys()].sort((a, c) => f0[a][3] - f0[c][3]);
-      for (const i of order) {
+      const orderList = [...stocks.keys()].sort((a, c) => f0[a][3] - f0[c][3]);
+      for (const i of orderList) {
         const a0 = f0[i], a1 = f1[i];
         const x = a0[1] + (a1[1] - a0[1]) * fr, y = a0[2] + (a1[2] - a0[2]) * fr;
         const anomaly = a0[3], ret = a0[5];
@@ -116,7 +160,7 @@ export default function StockRadar() {
         const dim = sel != null && !isSel && !hot ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        const lit = (s.playing || moving) && d < 0.5 ? 1 - d / 0.5 : 0; // 반짝은 이동/재생 중에만
+        const lit = (s.playing || moving) && d < 0.5 ? 1 - d / 0.5 : 0;
         const r = isSel ? 4 + anomaly * 4 : 2.3 + anomaly * 5;
         if (isSel || hot) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
         ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : 0.4 + 0.2 * lit) * dim;
@@ -145,28 +189,26 @@ export default function StockRadar() {
     setSelected((cur) => (best === -1 ? null : best === cur ? null : best));
   };
 
-  // 현재 날짜의 상승/하락/거래량 상위 5
   const lists = useMemo(() => {
-    const b = frames[playIdx]?.b ?? [];
+    const b = view.f[playIdx]?.b ?? [];
     const rows = b.map((x) => ({ idx: x[0], name: stocks[x[0]].name, relVol: x[4], retPct: x[5] }));
     return {
       up: [...rows].filter((r) => r.retPct > 0).sort((a, c) => c.retPct - a.retPct).slice(0, 5),
       down: [...rows].filter((r) => r.retPct < 0).sort((a, c) => a.retPct - c.retPct).slice(0, 5),
       vol: [...rows].sort((a, c) => c.relVol - a.relVol).slice(0, 5),
     };
-  }, [playIdx, frames, stocks]);
+  }, [view, playIdx, stocks]);
 
   const dateOpts = frames.map((f, i) => <option key={i} value={i}>{f.t}</option>);
-  const goTo = (v: number) => { const s = stRef.current; s.playing = false; s.target = v; s.shown = v; setPlaying(false); setPlayIdx(v); }; // 그 날짜로(점은 이징)
+  const goTo = (v: number) => { const s = stRef.current; s.playing = false; s.target = v; s.shown = v; setPlaying(false); setPlayIdx(v); };
   const onStart = (v: number) => { setStartIdx(v); if (v > endIdx) setEndIdx(v); goTo(Math.max(v, playIdx)); };
   const onEnd = (v: number) => { setEndIdx(v); if (v < startIdx) setStartIdx(v); goTo(Math.min(v, playIdx)); };
   const togglePlay = () => {
     const s = stRef.current;
-    if (!playing) { // 재생 시작
-      if (s.target >= endIdx) { s.animF = startIdx; s.target = startIdx; s.shown = startIdx; setPlayIdx(startIdx); } // 끝이면 처음부터
-      s.dwell = 0; s.playing = true; setPlaying(true);
-    } else { s.playing = false; setPlaying(false); }
+    if (!playing) { if (s.target >= endIdx) { s.animF = startIdx; s.target = startIdx; s.shown = startIdx; setPlayIdx(startIdx); } s.dwell = 0; s.playing = true; setPlaying(true); }
+    else { s.playing = false; setPlaying(false); }
   };
+  const switchMode = (m: "cum" | "daily") => { setMode(m); goTo(m === "cum" ? startIdx : endIdx); };
 
   const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "up" | "down" | "vol" }) => (
     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-2.5">
@@ -192,41 +234,43 @@ export default function StockRadar() {
       </ul>
     </div>
   );
+  const TabBtn = ({ m, label }: { m: "cum" | "daily"; label: string }) => (
+    <button onClick={() => switchMode(m)} className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${mode === m ? "bg-[#3182f6] text-white" : "bg-white/[0.06] text-white/55 hover:text-white"}`}>{label}</button>
+  );
 
   return (
     <div className="space-y-4">
       <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
         <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-[#060a08]" style={{ aspectRatio: "1 / 1" }}>
-          <canvas ref={cvRef} onClick={onCanvasClick} className="absolute inset-0 h-full w-full cursor-pointer" role="img" aria-label="종목 관제 레이더 — 거래량 배수×등락률(종가 기준), 날짜 범위 스냅샷" />
+          <canvas ref={cvRef} onClick={onCanvasClick} className="absolute inset-0 h-full w-full cursor-pointer" role="img" aria-label="종목 관제 레이더 — 거래량 배수×등락률, 날짜 범위 스냅샷/누적" />
         </div>
       </div>
 
-      {/* 날짜 범위 + 재생 */}
       <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-        <button onClick={togglePlay} className="rounded-full bg-[#3182f6] px-4 py-1.5 font-semibold text-white transition-colors hover:bg-[#2670e8]">
-          {playing ? "⏸ 정지" : "▶ 재생"}
-        </button>
+        <div className="flex items-center gap-1 rounded-full bg-white/[0.04] p-1">
+          <TabBtn m="cum" label="누적" /><TabBtn m="daily" label="일일" />
+        </div>
+        <button onClick={togglePlay} className="rounded-full bg-[#3182f6] px-4 py-1.5 font-semibold text-white transition-colors hover:bg-[#2670e8]">{playing ? "⏸ 정지" : "▶ 재생"}</button>
         <span className="text-white/45">기간</span>
         <select value={startIdx} onChange={(e) => onStart(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
         <span className="text-white/35">~</span>
         <select value={endIdx} onChange={(e) => onEnd(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
       </div>
       <div className="mx-auto flex max-w-xl items-center gap-3">
-        <input type="range" min={startIdx} max={endIdx} step={1} value={playIdx}
-          onChange={(e) => goTo(+e.target.value)} className="flex-1" />
+        <input type="range" min={startIdx} max={endIdx} step={1} value={playIdx} onChange={(e) => goTo(+e.target.value)} className="flex-1" />
         <span className="w-28 shrink-0 text-right text-sm font-bold tabular-nums text-white/80">{frames[playIdx]?.t} {playing ? "재생중" : "고정"}</span>
       </div>
 
-      {/* 상승/하락/거래량 상위 5 */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <List title="상승률 상위" accent={UP} rows={lists.up} kind="up" />
-        <List title="하락률 상위" accent={DOWN} rows={lists.down} kind="down" />
+        <List title={mode === "cum" ? "누적 상승 상위" : "상승률 상위"} accent={UP} rows={lists.up} kind="up" />
+        <List title={mode === "cum" ? "누적 하락 상위" : "하락률 상위"} accent={DOWN} rows={lists.down} kind="down" />
         <List title="거래량 상위 (평소 대비)" accent={AMBER} rows={lists.vol} kind="vol" />
       </div>
 
       <p className="text-center text-[11px] text-white/35">
-        회색=평범 · <span style={{ color: UP }}>빨강=이상 급등</span> · <span style={{ color: DOWN }}>파랑=이상 급락</span> ·
-        <span style={{ color: SELECT }}> 초록=선택</span> · 점 클릭/리스트로 선택. <strong className="text-white/50">이상 ≠ 매매신호.</strong>
+        {mode === "cum" ? "누적: 시작일 대비 점이 궤적을 그리며 이동" : "일일: 그날 하루 값(매일 독립 스냅샷)"} ·
+        회색=평범 · <span style={{ color: UP }}>빨강 상승</span> · <span style={{ color: DOWN }}>파랑 하락</span> ·
+        <span style={{ color: SELECT }}> 초록 선택</span>. <strong className="text-white/50">이상 ≠ 매매신호.</strong>
       </p>
     </div>
   );
