@@ -24,10 +24,10 @@ export default function RadarPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">종목 관제 레이더</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
-            상위 50종목을 <strong className="text-white/80">거래량(평소의 몇 배)</strong> ×{" "}
-            <strong className="text-white/80">등락률(%)</strong> 평면에 띄웁니다. 중심=평소·보합,
-            가장자리=이상. <strong className="text-white/80">날짜를 옮기면 그날 스냅샷으로 고정</strong>되고,
-            재생하면 거래일이 넘어가며 점이 이동합니다.
+            상위 50종목의 <strong className="text-white/80">온도</strong>(지금 평소와 얼마나 다른가)를 보여주는
+            관측 도구입니다. 온도는 거래량·고유수익·변동성·자금유입 5축의 동시 이탈을
+            <strong className="text-white/80"> 마할라노비스 D²</strong>로 합친 강도 —{" "}
+            <strong className="text-white/80">방향(오를지·내릴지)이 아니라 &ldquo;크게 움직이는 중&rdquo;을 측정</strong>합니다.
           </p>
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#3182f6]/15 px-3 py-1 text-sm font-medium text-[#3182f6]">
@@ -37,18 +37,18 @@ export default function RadarPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-        <Stat label="추적 종목" value={`${radarData.stocks.length}개`} sub="노출 상위" />
-        <Stat label="이상 경보" value={`${alertCount}건`} sub="점수 50+ 종목" />
-        <Stat label="최고 이상치" value={topName} sub={top ? `점수 ${Math.round(top[3] * 100)}` : undefined} />
+        <Stat label="추적 종목" value={`${radarData.stocks.length}개`} sub="D²는 441종목 단면" />
+        <Stat label="고온 종목" value={`${alertCount}건`} sub="온도 50°+ (평소와 크게 다름)" />
+        <Stat label="최고 온도" value={topName} sub={top ? `${Math.round(top[3] * 100)}°` : undefined} />
         <Stat label="기준" value={radarData.asOf} sub={radarData.window} />
       </div>
 
       <StockRadar />
 
       <div className="rounded-2xl border border-[#3182f6]/15 bg-[#3182f6]/[0.05] p-4 text-sm text-white/75">
-        <strong className="text-[#3182f6]">읽는 법.</strong> 가로 = 그날 거래량이 <strong>평소의 몇 배</strong>인가(오른쪽=많음, 중앙=1배),
-        세로 = 그날 <strong>등락률</strong>(위=상승/아래=하락, 중앙=보합). 가운데 원(정상권) 밖으로 멀수록 이상이고,
-        그때만 색(빨강 급등/파랑 급락)·경보로 뜹니다. <strong>날짜 슬라이더로 원하는 날</strong>을 보고, 재생으로 흐름을 봅니다.
+        <strong className="text-[#3182f6]">읽는 법.</strong> 점의 <strong>크기·밝기 = 온도</strong>(D², 평소와 다른 정도) — 뜨거울수록 거래량·고유수익·변동성·자금유입이
+        <strong> 동시에</strong> 평소를 벗어난 것. 위치는 가로 = 거래량(평소의 몇 배), 세로 = 등락률(위 상승/아래 하락)로 맥락만 표시합니다.
+        색조는 <strong>왜 떴나</strong>(빨강·파랑=수익률 주도 / 호박색=거래량·변동성·자금 주도). <strong>날짜 슬라이더·재생</strong>으로 온도 변화를 봅니다.
       </div>
 
       <p className="text-xs text-white/40">

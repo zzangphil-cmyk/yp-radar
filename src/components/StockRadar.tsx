@@ -5,7 +5,8 @@ import { radarData } from "@/lib/radarData";
 
 const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
 const MUTED_UP = "#a06a73", MUTED_DOWN = "#6a73a0"; // 시장·섹터 동반: 옅은 방향 색조
-const HOT = 0.45, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
+const GROUP_LABELS = ["거래량", "고유수익", "변동성", "자금유입"]; // 온도(D²)를 띄운 주 원인
+const HOT = 0.4, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
 const xTicks = [{ m: 1, l: "1배" }, { m: 2, l: "2배" }, { m: 4, l: "4배" }];
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
@@ -58,15 +59,17 @@ export default function StockRadar() {
       dMkt[d] = m / N; const sm: Record<string, number> = {}; for (const t in ss) sm[t] = ss[t] / sn[t]; dSec[d] = sm;
     }
     if (mode === "daily") {
+      // 온도계: 빌드의 D² 온도(b[3])·주원인(b[7])을 그대로 사용. 색조는 고유 분해(led)로 보강.
       const f: { t: string; b: number[][] }[] = [];
       for (let d = startIdx; d <= endIdx; d++) {
         const b: number[][] = [];
         for (let i = 0; i < N; i++) {
-          const rel = frames[d].b[i][4], ret = frames[d].b[i][5], th = themeOf[i];
-          const [x, y, a] = calc(rel, ret, RET_DAILY);
+          const bl = frames[d].b[i];
+          const x = bl[1], y = bl[2], a = bl[3], rel = bl[4], ret = bl[5], d2 = bl[6], grp = bl[7];
+          const th = themeOf[i];
           const mkt = dMkt[d], secDev = dSec[d][th] - mkt, spec = ret - dSec[d][th];
           const [led, sp, share] = ledOf(mkt, secDev, spec);
-          b[i] = [i, x, y, a, rel, ret, led, sp, share];
+          b[i] = [i, x, y, a, rel, ret, led, sp, share, d2, grp];
         }
         f[d] = { t: frames[d].t, b };
       }
@@ -101,7 +104,7 @@ export default function StockRadar() {
         const { cr, av, mkt, secDev, spec } = raw[d][i];
         const [x, y, a] = calc(av, cr, retEdge);
         const [led, sp, share] = ledOf(mkt, secDev, spec);
-        b[i] = [i, x, y, a, av, cr, led, sp, share];
+        b[i] = [i, x, y, a, av, cr, led, sp, share, 0, -1]; // 누적: D²·주원인 없음(방향 분해 기반)
       }
       f[d] = { t: frames[d].t, b };
     }
@@ -176,27 +179,32 @@ export default function StockRadar() {
       for (const i of orderList) {
         const a0 = f0[i], a1 = f1[i];
         const x = a0[1] + (a1[1] - a0[1]) * fr, y = a0[2] + (a1[2] - a0[2]) * fr;
-        const anomaly = a0[3], ret = a0[5], ledBy = a0[6] ?? 0;
-        const isSel = sel === i, hot = anomaly >= HOT, hotOwn = hot && ledBy === 0; // 고유 이상만 풀채도
+        const anomaly = a0[3], ret = a0[5], ledBy = a0[6] ?? 0, grp = a0[10] ?? -1;
+        const isSel = sel === i, hot = anomaly >= HOT;
+        // 색조=왜 떴나: 수익률 주도(grp 1, 누적 -1)→빨강/파랑(고유는 진하게, 시장·섹터 동반은 옅게),
+        //              거래량·변동성·자금 주도→호박색(수익률이 아닌 이유로 뜬 것), 평범→회색.
+        const retDriven = grp === 1 || grp === -1;
         const px = mapX(x), py = mapY(y); posRef.current[i] = { x: px, y: py };
-        // 색=왜 떴나: 고유→진한 빨강/파랑, 시장·섹터 동반→옅은 빨강/파랑, 평범→회색 (채도=고유 강도)
         const up = y >= 0;
-        const col = isSel ? SELECT : hotOwn ? (up ? UP : DOWN) : hot ? (up ? MUTED_UP : MUTED_DOWN) : NEUTRAL;
-        const dim = sel != null && !isSel && !hotOwn ? 0.4 : 1;
+        const col = isSel ? SELECT : !hot ? NEUTRAL
+          : retDriven ? (ledBy === 0 ? (up ? UP : DOWN) : (up ? MUTED_UP : MUTED_DOWN)) : AMBER;
+        const dim = sel != null && !isSel && !hot ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         const lit = (s.playing || moving) && d < 0.5 ? 1 - d / 0.5 : 0;
         const r = isSel ? 4 + anomaly * 4 : 2.3 + anomaly * 5;
-        if (isSel || hotOwn) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
-        ctx.globalAlpha = (hotOwn || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : hot ? 0.5 : 0.4 + 0.2 * lit) * dim;
+        // 발광: 뜨거울수록(온도 D²) 크고 밝게 — 원인 색과 무관하게 강도 표현
+        if (isSel || hot) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
+        ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : 0.4 + 0.2 * lit) * dim;
         ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fill();
         if (isSel) { ctx.globalAlpha = s.playing ? 0.6 + 0.4 * Math.abs(Math.sin(t / 350)) : 0.9; ctx.strokeStyle = SELECT; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(px, py, r + 5, 0, 7); ctx.stroke(); }
-        else if (hotOwn) { ctx.globalAlpha = 0.5 * Math.max(anomaly, lit) * dim; ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, r + 4, 0, 7); ctx.stroke(); }
+        else if (hot) { ctx.globalAlpha = 0.5 * Math.max(anomaly, lit) * dim; ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, r + 4, 0, 7); ctx.stroke(); }
         if (isSel) {
+          const why = grp >= 0 ? GROUP_LABELS[grp] : "수익률";
           ctx.globalAlpha = 1; ctx.strokeStyle = "rgba(34,197,94,0.5)"; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(px + r, py - r); ctx.lineTo(px + r + 7, py - r - 7); ctx.lineTo(px + r + 44, py - r - 7); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(px + r, py - r); ctx.lineTo(px + r + 7, py - r - 7); ctx.lineTo(px + r + 92, py - r - 7); ctx.stroke();
           ctx.fillStyle = col; ctx.font = "11px monospace"; ctx.textAlign = "left";
-          ctx.fillText(`${stocks[i].name} ${ret >= 0 ? "+" : ""}${ret.toFixed(1)}%`, px + r + 9, py - r - 10);
+          ctx.fillText(`${stocks[i].name} ${ret >= 0 ? "+" : ""}${ret.toFixed(1)}% · ${why}`, px + r + 9, py - r - 10);
         }
         ctx.globalAlpha = 1;
       }
@@ -216,11 +224,11 @@ export default function StockRadar() {
 
   const lists = useMemo(() => {
     const b = view.f[playIdx]?.b ?? [];
-    const rows = b.map((x) => ({ idx: x[0], name: stocks[x[0]].name, relVol: x[4], retPct: x[5] }));
+    const rows = b.map((x) => ({ idx: x[0], name: stocks[x[0]].name, temp: x[3], relVol: x[4], retPct: x[5], grp: (x[10] ?? -1) as number }));
     return {
+      hot: [...rows].filter((r) => r.temp > 0.05).sort((a, c) => c.temp - a.temp).slice(0, 5),
       up: [...rows].filter((r) => r.retPct > 0).sort((a, c) => c.retPct - a.retPct).slice(0, 5),
       down: [...rows].filter((r) => r.retPct < 0).sort((a, c) => a.retPct - c.retPct).slice(0, 5),
-      vol: [...rows].sort((a, c) => c.relVol - a.relVol).slice(0, 5),
     };
   }, [view, playIdx, stocks]);
 
@@ -235,7 +243,7 @@ export default function StockRadar() {
   };
   const switchMode = (m: "cum" | "daily") => { setMode(m); goTo(m === "cum" ? startIdx : endIdx); };
 
-  const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "up" | "down" | "vol" }) => (
+  const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "hot" | "up" | "down" }) => (
     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-2.5">
       <div className="mb-1 px-1 text-[13px] font-bold" style={{ color: accent }}>{title}</div>
       <ul className="space-y-0.5">
@@ -248,8 +256,11 @@ export default function StockRadar() {
                 <span className="w-3 text-center text-[12px] font-bold tabular-nums text-white/30">{k + 1}</span>
                 <CircleLogo name={r.name} on={on} size={7} />
                 <span className={`min-w-0 flex-1 truncate text-[13px] ${on ? "text-[#22c55e]" : "text-white/90"}`}>{r.name}</span>
-                <span className="shrink-0 text-[13px] font-semibold tabular-nums" style={{ color: kind === "vol" ? "#e8ebf0" : kind === "up" ? UP : DOWN }}>
-                  {kind === "vol" ? `${r.relVol.toFixed(1)}배` : `${r.retPct >= 0 ? "+" : ""}${r.retPct.toFixed(1)}%`}
+                {kind === "hot" && r.grp >= 0 && (
+                  <span className="shrink-0 rounded-full bg-white/[0.06] px-1.5 py-px text-[10px] text-white/50">{GROUP_LABELS[r.grp]}</span>
+                )}
+                <span className="shrink-0 text-[13px] font-semibold tabular-nums" style={{ color: kind === "hot" ? AMBER : kind === "up" ? UP : DOWN }}>
+                  {kind === "hot" ? `${Math.round(r.temp * 100)}°` : `${r.retPct >= 0 ? "+" : ""}${r.retPct.toFixed(1)}%`}
                 </span>
               </button>
             </li>
@@ -287,17 +298,22 @@ export default function StockRadar() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <List title="온도 상위 (평소와 다른 정도)" accent={AMBER} rows={lists.hot} kind="hot" />
         <List title={mode === "cum" ? "누적 상승 상위" : "상승률 상위"} accent={UP} rows={lists.up} kind="up" />
         <List title={mode === "cum" ? "누적 하락 상위" : "하락률 상위"} accent={DOWN} rows={lists.down} kind="down" />
-        <List title="거래량 상위 (평소 대비)" accent={AMBER} rows={lists.vol} kind="vol" />
       </div>
 
-      <p className="text-center text-[11px] text-white/35">
-        색 = <strong className="text-white/55">왜 떴나</strong> ·{" "}
-        <span style={{ color: UP }}>진한 빨강</span>/<span style={{ color: DOWN }}>파랑</span> = <strong className="text-white/50">고유</strong>(시장·섹터 제거 후 진짜 종목 신호) ·{" "}
-        <span style={{ color: MUTED_UP }}>옅은 빨강</span>/<span style={{ color: MUTED_DOWN }}>파랑</span> = 시장·섹터 동반(테마가 같이 뜬 것) · <span style={{ color: SELECT }}>초록 선택</span>.
-        <strong className="text-white/50"> 이상 ≠ 매매신호.</strong>
-      </p>
+      <div className="space-y-1 text-center text-[11px] text-white/35">
+        <p>
+          <strong className="text-white/55">크기·밝기 = 온도</strong>(D², 지금 평소와 얼마나 다른가) — 거래량·고유수익·변동성·자금유입 5축의 동시 이탈 강도.
+        </p>
+        <p>
+          색조 = <strong className="text-white/50">왜 떴나</strong> ·{" "}
+          <span style={{ color: UP }}>빨강</span>/<span style={{ color: DOWN }}>파랑</span> = 수익률 주도(<span style={{ color: MUTED_UP }}>옅으면</span> 시장·섹터 동반) ·{" "}
+          <span style={{ color: AMBER }}>호박색</span> = 거래량·변동성·자금 주도(수익률 아님) · <span style={{ color: SELECT }}>초록 선택</span>.
+        </p>
+        <p className="text-white/45"><strong>온도는 &ldquo;크게 움직이는 중&rdquo;을 뜻할 뿐, 방향(오를지/내릴지)·매매신호가 아닙니다. 투자자문 아님.</strong></p>
+      </div>
     </div>
   );
 }
