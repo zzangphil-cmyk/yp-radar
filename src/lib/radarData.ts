@@ -1,9 +1,11 @@
 import radar from "@/data/radar-frames.json";
+import taLatest from "@/data/ta-latest.json";
 
 export interface RadarStock { code: string; name: string; theme?: string; market?: string }
-// [stockIndex, x, y, temp(D²온도 0~1), relVol(평소의 ×배), retPct(등락률 %), d2, topGroup]
+// [stockIndex, x, y, temp(D²온도 0~1), relVol(평소의 ×배), retPct(등락률 %), d2, topGroup, pct5]
 //  topGroup: 0 거래량 / 1 고유수익 / 2 변동성 / 3 자금유입 — "무엇이 띄웠나"(최대 기여 피처)
-export type Blip = [number, number, number, number, number, number, number, number];
+//  pct5: [거래량,고유수익,변동성,당일폭,자금유입] 시장 내 백분위(0~100)
+export type Blip = [number, number, number, number, number, number, number, number, number[]];
 export interface RadarFrame { t: string; b: Blip[] }
 export interface RadarData {
   asOf: string;
@@ -25,6 +27,16 @@ export const radarData = radar as unknown as RadarData;
 export const FEAT_GROUPS = ["거래량", "고유수익", "변동성", "자금유입"];
 export function groupLabel(g: number): string {
   return FEAT_GROUPS[g] ?? "복합";
+}
+
+// 카드 "무엇이 특이" 5축 라벨 (blip pct5 순서)
+export const AXIS5 = ["거래량", "고유수익", "변동성", "당일폭", "자금유입"];
+
+// 통념 지표(최신일) — 11번 검증: 예측력 0, 친숙한 맥락일 뿐
+export interface TaState { rsi: number; macdHist: number; macdCross: number; bbPctB: number; stochK: number; maArr: number; adx: number; trend: number; disp20: number }
+const taMap = (taLatest as { byCode: Record<string, TaState> }).byCode;
+export function getTa(code: string): TaState | undefined {
+  return taMap[code];
 }
 
 /** 경보 패널용 한 줄 근거 — 주 원인 + 거래량/등락 */

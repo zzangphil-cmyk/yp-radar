@@ -31,6 +31,13 @@ function madZByGroup(arr, grp) {
   for (const g in groups) { const m = median(groups[g]); med[g] = m; sc[g] = (median(groups[g].map((x) => Math.abs(x - m))) * 1.4826) || 1e-9; }
   return arr.map((v, i) => (v - med[grp[i]]) / sc[grp[i]]);
 }
+// 시장 내 백분위(0~100, 높을수록 극단/이례) — "동종 대비 상위 X%"
+function pctRankByGroup(arr, grp) {
+  const groups = {};
+  arr.forEach((v, i) => { (groups[grp[i]] ??= []).push(v); });
+  const sorted = {}; for (const g in groups) sorted[g] = [...groups[g]].sort((a, b) => a - b);
+  return arr.map((v, i) => { const s = sorted[grp[i]]; let lo = 0, hi = s.length; while (lo < hi) { const m = (lo + hi) >> 1; if (s[m] <= v) lo = m + 1; else hi = m; } return Math.round(lo / s.length * 100); });
+}
 // 5×5 역행렬(가우스-조던)
 function inv(A) {
   const n = A.length, M = A.map((r, i) => [...r, ...Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))]);
@@ -98,7 +105,10 @@ for (let fi = 0; fi < FRAMES; fi++) {
   const alpha = clamp(0.1 + (p / N), 0.1, 0.5);
   const S = C.map((row, a) => row.map((v, b) => (a === b ? v : (1 - alpha) * v)));
   const Si = inv(S);
-  // D² + 온도 + 최대기여
+  // 5축 시장 내 백분위 — 카드 "무엇이 특이": [거래량,고유수익,변동성,당일폭,자금유입]
+  const pcRel = pctRankByGroup(relVol, market), pcSpec = pctRankByGroup(specRet.map(Math.abs), market),
+    pcVol = pctRankByGroup(vol20, market), pcRange = pctRankByGroup(range, market), pcFlow = pctRankByGroup(flow.map(Math.abs), market);
+  // D² + 온도 + 최대기여 + 분해(시장/섹터/고유) + 5축 백분위
   const b = [];
   for (let i = 0; i < N; i++) {
     let q = 0; for (let a = 0; a < p; a++) for (let bb = 0; bb < p; bb++) q += Z[a][i] * Si[a][bb] * Z[bb][i];
@@ -107,7 +117,8 @@ for (let fi = 0; fi < FRAMES; fi++) {
     let mg = -1, mgi = 0; for (let a = 0; a < p; a++) { const az = Math.abs(Z[a][i]); if (az > mg) { mg = az; mgi = a; } }
     const x = clamp(Math.log2(Math.max(relVol[i], 1e-6)) / VOL_EDGE, -1, 1);
     const y = clamp(ret1[i] / RET_DAILY, -1, 1);
-    b[i] = [i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi]];
+    b[i] = [i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi],
+      [pcRel[i], pcSpec[i], pcVol[i], pcRange[i], pcFlow[i]]];
   }
   frames.push({ t: dates[d].slice(5).replace("-", "/"), b });
 }
@@ -121,7 +132,7 @@ const out = {
   lastTs: lastDate,
   universe: `코스피 ${nK} · 코스닥 ${nQ}`,
   axes: { x: "상대거래량(평소의 ×배)", y: "등락률(%, 종가 기준)" },
-  blip: "[i, x, y, temp(D²온도 0~1), relVol(배), retPct(%), d2, topGroup(0거래량/1고유수익/2변동성/3자금유입)]",
+  blip: "[i, x, y, temp(D²온도 0~1), relVol(배), retPct(%), d2, topGroup(0거래량/1고유수익/2변동성/3자금유입), pct[거래량,고유수익,변동성,당일폭,자금유입](시장내 백분위 0~100)]",
   model: { score: "Mahalanobis D² (5피처, Ledoit-Wolf 수축, 시장 내 표준화)", features: ["거래량", "고유수익", "변동성", "당일폭", "자금유입"], temp: `log(D²/${DF})/log(${TEMP_CEIL}/${DF}) 클램프 (로그 압축)`, note: "온도=평소와 다른 정도(강도). 방향=수익률(표시용), 예측 아님" },
   featGroups: ["거래량", "고유수익", "변동성", "자금유입"],
   stocks, frameCount: frames.length, frames,
