@@ -24,9 +24,9 @@ export default function RadarPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">종목 관제 레이더</h1>
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
-            상위 50종목의 <strong className="text-white/80">온도</strong>(지금 평소와 얼마나 다른가)를 보여주는
-            관측 도구입니다. 온도는 거래량·고유수익·변동성·자금유입 5축의 동시 이탈을
-            <strong className="text-white/80"> 마할라노비스 D²</strong>로 합친 강도 —{" "}
+            <strong className="text-white/80">코스피 200 · 코스닥 50</strong>의 <strong className="text-white/80">온도</strong>(지금 평소와 얼마나 다른가)를
+            보여주는 관측 도구입니다. 온도는 거래량·고유수익·변동성·자금유입 5축의 동시 이탈을
+            <strong className="text-white/80"> 마할라노비스 D²</strong>(시장 내 표준화)로 합친 강도 —{" "}
             <strong className="text-white/80">방향(오를지·내릴지)이 아니라 &ldquo;크게 움직이는 중&rdquo;을 측정</strong>합니다.
           </p>
         </div>
@@ -37,7 +37,7 @@ export default function RadarPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-        <Stat label="추적 종목" value={`${radarData.stocks.length}개`} sub="D²는 441종목 단면" />
+        <Stat label="추적 종목" value={`${radarData.stocks.length}개`} sub={(radarData as { universe?: string }).universe ?? "코스피200·코스닥50"} />
         <Stat label="고온 종목" value={`${alertCount}건`} sub="온도 50°+ (평소와 크게 다름)" />
         <Stat label="최고 온도" value={topName} sub={top ? `${Math.round(top[3] * 100)}°` : undefined} />
         <Stat label="기준" value={radarData.asOf} sub={radarData.window} />

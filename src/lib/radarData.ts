@@ -1,6 +1,6 @@
 import radar from "@/data/radar-frames.json";
 
-export interface RadarStock { code: string; name: string; theme?: string }
+export interface RadarStock { code: string; name: string; theme?: string; market?: string }
 // [stockIndex, x, y, temp(D²온도 0~1), relVol(평소의 ×배), retPct(등락률 %), d2, topGroup]
 //  topGroup: 0 거래량 / 1 고유수익 / 2 변동성 / 3 자금유입 — "무엇이 띄웠나"(최대 기여 피처)
 export type Blip = [number, number, number, number, number, number, number, number];
