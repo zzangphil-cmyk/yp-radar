@@ -17,7 +17,7 @@ const ci = (k) => COLS.indexOf(k);
 const KOSPI_N = 200, KOSDAQ_N = 50; // 표시·D² universe
 const FRAMES = 30;
 const VOL_EDGE = 3.2, RET_DAILY = 14;
-const DF = 5, CHI99 = 15.09;
+const DF = 5, TEMP_CEIL = 100; // 온도 눈금: D²=DF→0°, D²=TEMP_CEIL→100° (로그 압축 — D² 두꺼운 꼬리를 펼쳐 상위 포화 방지)
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const r3 = (v) => Math.round(v * 1000) / 1000;
 const r2 = (v) => Math.round(v * 100) / 100;
@@ -103,7 +103,7 @@ for (let fi = 0; fi < FRAMES; fi++) {
   for (let i = 0; i < N; i++) {
     let q = 0; for (let a = 0; a < p; a++) for (let bb = 0; bb < p; bb++) q += Z[a][i] * Si[a][bb] * Z[bb][i];
     const d2 = Math.max(0, q);
-    const temp = clamp((d2 - DF) / (CHI99 - DF), 0, 1);
+    const temp = clamp(Math.log(Math.max(d2, DF) / DF) / Math.log(TEMP_CEIL / DF), 0, 1);
     let mg = -1, mgi = 0; for (let a = 0; a < p; a++) { const az = Math.abs(Z[a][i]); if (az > mg) { mg = az; mgi = a; } }
     const x = clamp(Math.log2(Math.max(relVol[i], 1e-6)) / VOL_EDGE, -1, 1);
     const y = clamp(ret1[i] / RET_DAILY, -1, 1);
@@ -122,7 +122,7 @@ const out = {
   universe: `코스피 ${nK} · 코스닥 ${nQ}`,
   axes: { x: "상대거래량(평소의 ×배)", y: "등락률(%, 종가 기준)" },
   blip: "[i, x, y, temp(D²온도 0~1), relVol(배), retPct(%), d2, topGroup(0거래량/1고유수익/2변동성/3자금유입)]",
-  model: { score: "Mahalanobis D² (5피처, Ledoit-Wolf 수축, 시장 내 표준화)", features: ["거래량", "고유수익", "변동성", "당일폭", "자금유입"], temp: `(D²−${DF})/(${CHI99}−${DF}) 클램프`, note: "온도=평소와 다른 정도(강도). 방향=수익률(표시용), 예측 아님" },
+  model: { score: "Mahalanobis D² (5피처, Ledoit-Wolf 수축, 시장 내 표준화)", features: ["거래량", "고유수익", "변동성", "당일폭", "자금유입"], temp: `log(D²/${DF})/log(${TEMP_CEIL}/${DF}) 클램프 (로그 압축)`, note: "온도=평소와 다른 정도(강도). 방향=수익률(표시용), 예측 아님" },
   featGroups: ["거래량", "고유수익", "변동성", "자금유입"],
   stocks, frameCount: frames.length, frames,
 };
