@@ -35,7 +35,7 @@ export default function StockRadar() {
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   // 실시간 버퍼: 1분마다 스냅샷을 누적 → 슬라이더·재생으로 장중 움직임 되돌려보기.
-  type LiveFrame = { t: string; open: boolean; map: Record<string, number[]> };
+  type LiveFrame = { t: string; ts: string; open: boolean; map: Record<string, number[]> };
   const [liveBuf, setLiveBuf] = useState<LiveFrame[]>([]);
   const followRef = useRef(true); // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
   const liveLast = liveBuf[liveBuf.length - 1];
@@ -50,17 +50,16 @@ export default function StockRadar() {
         if (!alive || !j.stocks) return;
         const map: Record<string, number[]> = {};
         for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
-        const fr: LiveFrame = { t: j.t, open: j.open, map };
+        const fr: LiveFrame = { t: j.t, ts: j.ts ?? j.t, open: j.open, map };
         setLiveBuf((prev) => {
-          const next = [...prev];
-          if (next.length && next[next.length - 1].t === fr.t) next[next.length - 1] = fr; // 같은 분 → 갱신
-          else next.push(fr);
-          if (next.length > 180) next.shift(); // 약 3시간 분량
+          if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev; // 동일 스냅샷(캐시) → 무시
+          const next = [...prev, fr];
+          if (next.length > 240) next.shift(); // 약 2시간 분량(30초 간격)
           return next;
         });
       } catch { /* 폴링 실패 시 직전 버퍼 유지 */ }
     };
-    pull(); const id = setInterval(pull, 60000);
+    pull(); const id = setInterval(pull, 30000);
     return () => { alive = false; clearInterval(id); };
   }, [mode]);
 
@@ -190,11 +189,12 @@ export default function StockRadar() {
       s.animF += (s.target - s.animF) * (1 - Math.exp(-dt * 7));
       if (Math.abs(s.target - s.animF) < 0.003) s.animF = s.target;
       const moving = s.animF !== s.target;
+      const liveOn = !!(V as { live?: boolean }).live; // 실시간: 스윕 계속 회전(살아있게)
       if (s.playing) {
         if (!moving) { s.dwell += dt; if (s.dwell >= 0.6) { if (s.target < V.hi) { s.target += 1; s.dwell = 0; } else { s.playing = false; setPlaying(false); s.dwell = 0; } } }
         const di = Math.round(s.animF); if (di !== s.shown) { s.shown = di; setPlayIdx(di); }
       } else s.dwell = 0;
-      if (s.playing || moving) s.sweep += dt * 0.7;
+      if (s.playing || moving || liveOn) s.sweep += dt * 0.7;
 
       const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 22;
       let i0 = clamp(Math.floor(s.animF), V.lo, V.hi); const i1 = Math.min(i0 + 1, V.hi);
@@ -217,7 +217,7 @@ export default function StockRadar() {
       const half = Math.round(E / 2);
       for (const tk of [{ p: E, l: `+${E}%` }, { p: half, l: `+${half}%` }, { p: -half, l: `−${half}%` }, { p: -E, l: `−${E}%` }])
         ctx.fillText(tk.l, cx + 5, mapY(tk.p / E) + 3);
-      if (s.playing || moving) {
+      if (s.playing || moving || liveOn) {
         const g = ctx.createConicGradient(s.sweep, cx, cy);
         g.addColorStop(0, "rgba(31,214,154,0)"); g.addColorStop(0.9, "rgba(31,214,154,0)");
         g.addColorStop(0.99, "rgba(31,214,154,0.12)"); g.addColorStop(1, "rgba(31,214,154,0.22)");
@@ -248,7 +248,7 @@ export default function StockRadar() {
         const dim = sel != null && !isSel && !hot ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-        const lit = (s.playing || moving) && d < 0.5 ? 1 - d / 0.5 : 0;
+        const lit = (s.playing || moving || liveOn) && d < 0.5 ? 1 - d / 0.5 : 0;
         const r = isSel ? 4 + anomaly * 4 : 2.3 + anomaly * 5;
         // 발광: 뜨거울수록(온도 D²) 크고 밝게 — 원인 색과 무관하게 강도 표현
         if (isSel || hot) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }

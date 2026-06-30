@@ -57,7 +57,7 @@ export async function GET() {
   const live = await naverBatch(codes);
 
   // 장중 경과 비율(09:00~15:30=390분) — 누적거래량 페이스 보정
-  const hm = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+  const hm = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).formatToParts(new Date());
   const hh = Number(hm.find((p) => p.type === "hour")?.value ?? 12), mm = Number(hm.find((p) => p.type === "minute")?.value ?? 0);
   const elapsed = clamp(hh * 60 + mm - 540, 10, 390); const frac = elapsed / 390;
 
@@ -107,8 +107,10 @@ export async function GET() {
   }
 
   const open = sel.some((c) => String(live[c].marketStatus) === "OPEN");
+  const ss = Number(hm.find((p) => p.type === "second")?.value ?? 0);
   const label = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
-  return new Response(JSON.stringify({ asOf: (baseline as { asOf: string }).asOf, t: label, open, frac: r2(frac), count: N, stocks, frame: { t: label, b } }), {
-    headers: { "Content-Type": "application/json", "Cache-Control": "s-maxage=45, stale-while-revalidate=30" },
+  const ts = `${label}:${String(ss).padStart(2, "0")}`;
+  return new Response(JSON.stringify({ asOf: (baseline as { asOf: string }).asOf, t: label, ts, open, frac: r2(frac), count: N, stocks, frame: { t: label, b } }), {
+    headers: { "Content-Type": "application/json", "Cache-Control": "s-maxage=20, stale-while-revalidate=20" },
   });
 }
