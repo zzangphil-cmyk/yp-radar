@@ -51,6 +51,7 @@ export default function StockRadar() {
   const [liveDate, setLiveDate] = useState<string>("");   // 보는 날짜("" 전엔 오늘). 과거=기록 재생
   const [days, setDays] = useState<string[]>([]);          // 기록된 날짜 목록(최신순) + 오늘
   const [serverDays, setServerDays] = useState<string[]>([]); // 서버 기록(public/live, 모두 공유)
+  const [liveClosed, setLiveClosed] = useState(false);     // 오늘 장 마감 → 폴링 중지, 그날 기록만 표시
   const followRef = useRef(true);                          // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
   const liveLast = liveBuf[liveBuf.length - 1];
   const isToday = liveDate === dayKST() || liveDate === "";
@@ -92,33 +93,51 @@ export default function StockRadar() {
     return () => { alive = false; };
   }, [mode, liveDate, isToday, serverDays]);
 
-  // 폴링: 오늘·실시간일 때만(과거 날짜는 기록 재생 전용)
+  // 폴링: 오늘·실시간·장중일 때만. 장 마감(open=false) 감지 시 폴링 완전 중지(그날 기록만 표시).
   useEffect(() => {
     if (mode !== "live" || !isToday) return;
-    let alive = true; let timer: ReturnType<typeof setTimeout>;
+    let alive = true; let timer: ReturnType<typeof setTimeout> | undefined;
+    setLiveClosed(false);
     const pull = async () => {
-      let open = true;
+      let closed = false;
       try {
         const r = await fetch("/api/radar/live", { cache: "no-store" });
         const j = await r.json();
         if (alive && j.stocks) {
-          open = !!j.open;
-          const map: Record<string, number[]> = {};
-          for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
-          const fr: LiveFrame = { t: j.t, ts: j.ts ?? j.t, open: j.open, map };
-          setLiveBuf((prev) => {
-            if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev; // 동일 스냅샷(캐시) → 무시
-            const next = [...prev, fr];
-            if (next.length > 800) next.shift(); // 하루치(30초 간격 ≈ 6.7h)
-            return next;
-          });
+          if (j.open) {
+            const map: Record<string, number[]> = {};
+            for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
+            const fr: LiveFrame = { t: j.t, ts: j.ts ?? j.t, open: true, map };
+            setLiveBuf((prev) => {
+              if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev; // 동일 스냅샷(캐시) → 무시
+              const next = [...prev, fr];
+              if (next.length > 800) next.shift(); // 하루치(30초 간격 ≈ 6.7h)
+              return next;
+            });
+          } else closed = true; // 장 마감
         }
       } catch { /* 폴링 실패 시 직전 버퍼 유지 */ }
-      if (alive) timer = setTimeout(pull, open ? 30000 : 300000); // 장중 30초 · 마감 시 5분 백오프
+      if (!alive) return;
+      if (closed) setLiveClosed(true);                 // 마감 → 폴링 중지(재개는 새로고침/재진입)
+      else timer = setTimeout(pull, 30000);            // 장중 30초
     };
     pull();
-    return () => { alive = false; clearTimeout(timer); };
+    return () => { alive = false; if (timer) clearTimeout(timer); };
   }, [mode, isToday]);
+
+  // 장 마감 후: 서버에 그날 전체 기록이 있으면 그걸로 표시(앱을 안 켜둔 시간까지 완전한 하루)
+  useEffect(() => {
+    if (mode !== "live" || !isToday || !liveClosed) return;
+    const today = dayKST();
+    if (!serverDays.includes(today)) return;
+    let alive = true;
+    fetch(`/live/${today}.json`).then((r) => (r.ok ? r.json() : null)).then((rec: DayRec | null) => {
+      if (!alive || !rec?.c || !rec?.f) return;
+      const codes = rec.c;
+      setLiveBuf(rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; }));
+    }).catch(() => { });
+    return () => { alive = false; };
+  }, [mode, isToday, liveClosed, serverDays]);
 
   // 최신 추종: 오늘·실시간이고 끝을 보고 있을 때만(과거·재생·이전시점이면 가로채지 않음)
   useEffect(() => {
@@ -530,10 +549,14 @@ export default function StockRadar() {
               {days.map((d) => <option key={d} value={d}>{fmtDay(d)}{d === dayKST() ? " (실시간)" : " 기록"}</option>)}
             </select>
             {isToday ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f04452]/12 px-3 py-1.5 font-semibold text-[#f04452]">
-                <span className={`h-1.5 w-1.5 rounded-full bg-[#f04452] ${liveLast?.open ? "animate-pulse" : ""}`} />
-                {liveLast ? (liveLast.open ? `LIVE ${liveLast.t}` : `장 마감 · ${liveLast.t}`) : "연결 중…"}
-              </span>
+              liveClosed ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 font-semibold text-white/60">⏹ 장 마감 · 오늘 기록</span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f04452]/12 px-3 py-1.5 font-semibold text-[#f04452]">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#f04452]" />
+                  {liveLast ? `LIVE ${liveLast.t}` : "연결 중…"}
+                </span>
+              )
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 font-semibold text-white/60">📼 {fmtDay(liveDate)} 기록</span>
             )}
@@ -557,7 +580,7 @@ export default function StockRadar() {
       </div>
       {mode === "live" && (
         <p className="text-center text-[11px] text-white/35">
-          {isToday ? "30초마다 스냅샷이 쌓입니다" : `${fmtDay(liveDate)} 장중 기록`} · 슬라이더·▶ 재생으로 <strong className="text-white/55">움직임</strong>을 보고, <strong className="text-white/55">날짜</strong>를 바꾸면 그날 장중 기록을 봅니다 · <strong className="text-white/55">{liveBuf.length}개</strong> 스냅샷
+          {isToday ? (liveClosed ? "장 마감 — 오늘 기록(폴링 중지)" : "30초마다 스냅샷이 쌓입니다") : `${fmtDay(liveDate)} 장중 기록`} · 슬라이더·▶ 재생으로 <strong className="text-white/55">움직임</strong>을 보고, <strong className="text-white/55">날짜</strong>를 바꾸면 그날 장중 기록을 봅니다 · <strong className="text-white/55">{liveBuf.length}개</strong> 스냅샷
         </p>
       )}
 
