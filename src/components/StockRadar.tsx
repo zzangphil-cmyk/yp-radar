@@ -42,25 +42,29 @@ export default function StockRadar() {
 
   useEffect(() => {
     if (mode !== "live") return;
-    let alive = true;
+    let alive = true; let timer: ReturnType<typeof setTimeout>;
     const pull = async () => {
+      let open = true;
       try {
         const r = await fetch("/api/radar/live", { cache: "no-store" });
         const j = await r.json();
-        if (!alive || !j.stocks) return;
-        const map: Record<string, number[]> = {};
-        for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
-        const fr: LiveFrame = { t: j.t, ts: j.ts ?? j.t, open: j.open, map };
-        setLiveBuf((prev) => {
-          if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev; // 동일 스냅샷(캐시) → 무시
-          const next = [...prev, fr];
-          if (next.length > 240) next.shift(); // 약 2시간 분량(30초 간격)
-          return next;
-        });
+        if (alive && j.stocks) {
+          open = !!j.open;
+          const map: Record<string, number[]> = {};
+          for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
+          const fr: LiveFrame = { t: j.t, ts: j.ts ?? j.t, open: j.open, map };
+          setLiveBuf((prev) => {
+            if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev; // 동일 스냅샷(캐시) → 무시
+            const next = [...prev, fr];
+            if (next.length > 240) next.shift(); // 약 2시간 분량(30초 간격)
+            return next;
+          });
+        }
       } catch { /* 폴링 실패 시 직전 버퍼 유지 */ }
+      if (alive) timer = setTimeout(pull, open ? 30000 : 300000); // 장중 30초 · 마감 시 5분 백오프(다음 장 자동 복귀)
     };
-    pull(); const id = setInterval(pull, 30000);
-    return () => { alive = false; clearInterval(id); };
+    pull();
+    return () => { alive = false; clearTimeout(timer); };
   }, [mode]);
 
   // 최신 추종: 끝을 보고 있으면 새 프레임으로 부드럽게 이동(이전 시점·재생 중이면 가로채지 않음)
