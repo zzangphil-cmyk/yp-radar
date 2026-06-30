@@ -9,6 +9,17 @@ const GROUP_LABELS = ["거래량", "고유수익", "변동성", "자금유입"];
 const HOT = 0.4, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
 const xTicks = [{ m: 1, l: "1배" }, { m: 2, l: "2배" }, { m: 4, l: "4배" }];
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+const dayKST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+
+// 장중 기록 저장소(IndexedDB — localStorage보다 큰 용량). 날짜별 스냅샷 버퍼 저장/조회.
+function idbOpen(): Promise<IDBDatabase> {
+  return new Promise((res, rej) => { const r = indexedDB.open("yp-radar", 1); r.onupgradeneeded = () => r.result.createObjectStore("days"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+}
+async function idbPut(key: string, val: unknown) { const db = await idbOpen(); return new Promise<void>((res, rej) => { const tx = db.transaction("days", "readwrite"); tx.objectStore("days").put(val, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); }
+async function idbGet<T>(key: string): Promise<T | null> { const db = await idbOpen(); return new Promise((res) => { const tx = db.transaction("days", "readonly"); const rq = tx.objectStore("days").get(key); rq.onsuccess = () => res((rq.result as T) ?? null); rq.onerror = () => res(null); }); }
+async function idbKeys(): Promise<string[]> { const db = await idbOpen(); return new Promise((res) => { const tx = db.transaction("days", "readonly"); const rq = tx.objectStore("days").getAllKeys(); rq.onsuccess = () => res((rq.result as string[]) || []); rq.onerror = () => res([]); }); }
+async function idbDel(key: string) { const db = await idbOpen(); return new Promise<void>((res) => { const tx = db.transaction("days", "readwrite"); tx.objectStore("days").delete(key); tx.oncomplete = () => res(); tx.onerror = () => res(); }); }
+type DayRec = { d: string; c: string[]; f: { t: string; ts: string; o: boolean; v: (number[] | null)[] }[] };
 
 const LOGO_BG = ["#3182f6", "#f04452", "#f5a623", "#8b5cf6", "#06b6d4", "#ec4899", "#64748b", "#0ea5e9"];
 function CircleLogo({ name, on, size = 8 }: { name: string; on?: boolean; size?: number }) {
@@ -37,11 +48,42 @@ export default function StockRadar() {
   // 실시간 버퍼: 1분마다 스냅샷을 누적 → 슬라이더·재생으로 장중 움직임 되돌려보기.
   type LiveFrame = { t: string; ts: string; open: boolean; map: Record<string, number[]> };
   const [liveBuf, setLiveBuf] = useState<LiveFrame[]>([]);
-  const followRef = useRef(true); // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
+  const [liveDate, setLiveDate] = useState<string>("");   // 보는 날짜("" 전엔 오늘). 과거=기록 재생
+  const [days, setDays] = useState<string[]>([]);          // 기록된 날짜 목록(최신순) + 오늘
+  const followRef = useRef(true);                          // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
   const liveLast = liveBuf[liveBuf.length - 1];
+  const isToday = liveDate === dayKST() || liveDate === "";
 
+  // 마운트: 기록 날짜 목록 로드 + 오늘로 시작
   useEffect(() => {
-    if (mode !== "live") return;
+    setLiveDate(dayKST());
+    idbKeys().then((ks) => {
+      const today = dayKST();
+      const list = Array.from(new Set([today, ...ks.map((k) => k.replace(/^day-/, ""))])).sort().reverse();
+      setDays(list);
+      // 14일 초과 기록 정리
+      ks.map((k) => k.replace(/^day-/, "")).filter((d) => !list.slice(0, 14).includes(d)).forEach((d) => idbDel(`day-${d}`));
+    }).catch(() => setDays([dayKST()]));
+  }, []);
+
+  // 선택 날짜의 기록 로드(과거든 오늘이든). 오늘이면 이어서 폴링/추종.
+  useEffect(() => {
+    if (mode !== "live" || !liveDate) return;
+    let alive = true;
+    idbGet<DayRec>(`day-${liveDate}`).then((rec) => {
+      if (!alive) return;
+      if (rec && Array.isArray(rec.c) && Array.isArray(rec.f)) {
+        const codes = rec.c;
+        setLiveBuf(rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; }));
+      } else setLiveBuf([]);
+      followRef.current = true; stRef.current.target = 0; stRef.current.animF = 0;
+    });
+    return () => { alive = false; };
+  }, [mode, liveDate]);
+
+  // 폴링: 오늘·실시간일 때만(과거 날짜는 기록 재생 전용)
+  useEffect(() => {
+    if (mode !== "live" || !isToday) return;
     let alive = true; let timer: ReturnType<typeof setTimeout>;
     const pull = async () => {
       let open = true;
@@ -56,49 +98,33 @@ export default function StockRadar() {
           setLiveBuf((prev) => {
             if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev; // 동일 스냅샷(캐시) → 무시
             const next = [...prev, fr];
-            if (next.length > 240) next.shift(); // 약 2시간 분량(30초 간격)
+            if (next.length > 800) next.shift(); // 하루치(30초 간격 ≈ 6.7h)
             return next;
           });
         }
       } catch { /* 폴링 실패 시 직전 버퍼 유지 */ }
-      if (alive) timer = setTimeout(pull, open ? 30000 : 300000); // 장중 30초 · 마감 시 5분 백오프(다음 장 자동 복귀)
+      if (alive) timer = setTimeout(pull, open ? 30000 : 300000); // 장중 30초 · 마감 시 5분 백오프
     };
     pull();
     return () => { alive = false; clearTimeout(timer); };
-  }, [mode]);
+  }, [mode, isToday]);
 
-  // 최신 추종: 끝을 보고 있으면 새 프레임으로 부드럽게 이동(이전 시점·재생 중이면 가로채지 않음)
+  // 최신 추종: 오늘·실시간이고 끝을 보고 있을 때만(과거·재생·이전시점이면 가로채지 않음)
   useEffect(() => {
-    if (mode === "live" && followRef.current && !stRef.current.playing && liveBuf.length) {
+    if (mode === "live" && isToday && followRef.current && !stRef.current.playing && liveBuf.length) {
       const hi = liveBuf.length - 1; stRef.current.target = hi; setPlayIdx(hi);
     }
-  }, [liveBuf.length, mode]);
+  }, [liveBuf.length, mode, isToday]);
 
-  // 로컬 저장/복원: 오늘치 장중 스냅샷을 localStorage에 보관(새로고침해도 움직임 유지).
-  //  용량 절약 — 코드 목록 1회 + 프레임별 blip 배열(코드순 정렬). 오늘 날짜만 유효.
-  const todayKST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+  // 저장: 오늘치 누적을 IndexedDB에 날짜별로 보관(새로고침·다른 날에도 그날 기록 유지)
   useEffect(() => {
-    try {
-      const raw = typeof window !== "undefined" && localStorage.getItem("yp-radar-live");
-      if (!raw) return;
-      const o = JSON.parse(raw);
-      if (o.d !== todayKST() || !Array.isArray(o.c) || !Array.isArray(o.f)) { localStorage.removeItem("yp-radar-live"); return; }
-      const codes = o.c as string[];
-      const buf: LiveFrame[] = o.f.map((fr: { t: string; ts: string; o: boolean; v: (number[] | null)[] }) => {
-        const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; });
-        return { t: fr.t, ts: fr.ts, open: fr.o, map };
-      });
-      if (buf.length) setLiveBuf(buf);
-    } catch { /* 파싱 실패 무시 */ }
-  }, []);
-  useEffect(() => {
-    if (!liveBuf.length || typeof window === "undefined") return;
-    try {
-      const codes = Object.keys(liveBuf[liveBuf.length - 1].map);
-      const f = liveBuf.slice(-160).map((fr) => ({ t: fr.t, ts: fr.ts, o: fr.open, v: codes.map((c) => fr.map[c] ?? null) }));
-      localStorage.setItem("yp-radar-live", JSON.stringify({ d: todayKST(), c: codes, f }));
-    } catch { /* quota 초과 등 무시 */ }
-  }, [liveBuf]);
+    if (mode !== "live" || !isToday || !liveBuf.length) return;
+    const today = dayKST();
+    const codes = Object.keys(liveBuf[liveBuf.length - 1].map);
+    const f = liveBuf.map((fr) => ({ t: fr.t, ts: fr.ts, o: fr.open, v: codes.map((c) => fr.map[c] ?? null) }));
+    idbPut(`day-${today}`, { d: today, c: codes, f } as DayRec).catch(() => {});
+    setDays((prev) => (prev.includes(today) ? prev : [today, ...prev].sort().reverse()));
+  }, [liveBuf, mode, isToday]);
 
   // 보기 데이터: 누적(시작일 대비) 또는 일일. 좌표·이상점수 산출.
   const view = useMemo(() => {
@@ -330,9 +356,11 @@ export default function StockRadar() {
   };
   const switchMode = (m: "cum" | "daily" | "live") => {
     setMode(m);
-    if (m === "live") { followRef.current = true; const s = stRef.current; s.playing = false; setPlaying(false); s.target = 0; s.animF = 0; s.shown = 0; setPlayIdx(0); }
+    if (m === "live") { followRef.current = true; setLiveDate(dayKST()); const s = stRef.current; s.playing = false; setPlaying(false); s.target = 0; s.animF = 0; s.shown = 0; setPlayIdx(0); }
     else goTo(m === "cum" ? startIdx : endIdx);
   };
+  const pickDate = (d: string) => { const s = stRef.current; s.playing = false; setPlaying(false); followRef.current = true; setLiveDate(d); };
+  const fmtDay = (d: string) => (d === dayKST() ? "오늘" : d.slice(5).replace("-", "/"));
 
   const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "hot" | "up" | "down" }) => (
     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-2.5">
@@ -486,10 +514,19 @@ export default function StockRadar() {
           <TabBtn m="live" label="실시간" /><TabBtn m="daily" label="일일" /><TabBtn m="cum" label="누적" />
         </div>
         {mode === "live" && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f04452]/12 px-3 py-1.5 font-semibold text-[#f04452]">
-            <span className={`h-1.5 w-1.5 rounded-full bg-[#f04452] ${liveLast?.open ? "animate-pulse" : ""}`} />
-            {liveLast ? (liveLast.open ? `LIVE ${liveLast.t}` : `장 마감 · ${liveLast.t}`) : "연결 중…"}
-          </span>
+          <>
+            <select value={liveDate || dayKST()} onChange={(e) => pickDate(e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90" title="장중 기록 날짜">
+              {days.map((d) => <option key={d} value={d}>{fmtDay(d)}{d === dayKST() ? " (실시간)" : " 기록"}</option>)}
+            </select>
+            {isToday ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f04452]/12 px-3 py-1.5 font-semibold text-[#f04452]">
+                <span className={`h-1.5 w-1.5 rounded-full bg-[#f04452] ${liveLast?.open ? "animate-pulse" : ""}`} />
+                {liveLast ? (liveLast.open ? `LIVE ${liveLast.t}` : `장 마감 · ${liveLast.t}`) : "연결 중…"}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 font-semibold text-white/60">📼 {fmtDay(liveDate)} 기록</span>
+            )}
+          </>
         )}
         <button onClick={togglePlay} disabled={view.hi <= view.lo} className="rounded-full bg-[#3182f6] px-4 py-1.5 font-semibold text-white transition-colors hover:bg-[#2670e8] disabled:opacity-40">{playing ? "⏸ 정지" : "▶ 재생"}</button>
         {mode !== "live" && (
@@ -504,12 +541,12 @@ export default function StockRadar() {
       <div className="mx-auto flex max-w-xl items-center gap-3">
         <input type="range" min={view.lo} max={Math.max(view.lo, view.hi)} step={1} value={clamp(playIdx, view.lo, view.hi)} onChange={(e) => goTo(+e.target.value)} disabled={view.hi <= view.lo} className="flex-1 disabled:opacity-40" />
         <span className="w-32 shrink-0 text-right text-sm font-bold tabular-nums text-white/80">
-          {view.f[clamp(playIdx, view.lo, view.hi)]?.t ?? (mode === "live" ? "수집 중…" : "")} {playing ? "재생중" : mode === "live" ? (followRef.current ? "LIVE" : "과거") : "고정"}
+          {view.f[clamp(playIdx, view.lo, view.hi)]?.t ?? (mode === "live" ? "수집 중…" : "")} {playing ? "재생중" : mode === "live" ? (!isToday ? "기록" : followRef.current ? "LIVE" : "과거") : "고정"}
         </span>
       </div>
       {mode === "live" && (
         <p className="text-center text-[11px] text-white/35">
-          1분마다 스냅샷이 쌓입니다 · 슬라이더를 뒤로 옮기면 <strong className="text-white/55">장중 이전 시점</strong>, ▶ 재생으로 움직임을 봅니다 · 현재 <strong className="text-white/55">{liveBuf.length}개</strong> 스냅샷
+          {isToday ? "30초마다 스냅샷이 쌓입니다" : `${fmtDay(liveDate)} 장중 기록`} · 슬라이더·▶ 재생으로 <strong className="text-white/55">움직임</strong>을 보고, <strong className="text-white/55">날짜</strong>를 바꾸면 그날 장중 기록을 봅니다 · <strong className="text-white/55">{liveBuf.length}개</strong> 스냅샷
         </p>
       )}
 
