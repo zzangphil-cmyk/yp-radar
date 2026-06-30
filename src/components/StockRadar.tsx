@@ -28,12 +28,32 @@ export default function StockRadar() {
   const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, shown: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0 });
   const selRef = useRef<number | null>(null);
   const posRef = useRef<{ x: number; y: number }[]>(stocks.map(() => ({ x: 0, y: 0 })));
-  const [mode, setMode] = useState<"cum" | "daily">("daily");
+  const [mode, setMode] = useState<"cum" | "daily" | "live">("daily");
   const [startIdx, setStartIdx] = useState(Math.max(0, frameCount - 5));
   const [endIdx, setEndIdx] = useState(frameCount - 1);
   const [playIdx, setPlayIdx] = useState(frameCount - 1);
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+  const [liveMap, setLiveMap] = useState<Record<string, number[]> | null>(null);
+  const [liveInfo, setLiveInfo] = useState<{ t: string; open: boolean } | null>(null);
+
+  // 실시간 모드: /api/radar/live 폴링(60초). 네이버 실시간 → 서버에서 D² 온도 계산.
+  useEffect(() => {
+    if (mode !== "live") return;
+    let alive = true;
+    const pull = async () => {
+      try {
+        const r = await fetch("/api/radar/live", { cache: "no-store" });
+        const j = await r.json();
+        if (!alive || !j.stocks) return;
+        const map: Record<string, number[]> = {};
+        for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
+        setLiveMap(map); setLiveInfo({ t: j.t, open: j.open });
+      } catch { /* 폴링 실패 시 직전 프레임 유지 */ }
+    };
+    pull(); const id = setInterval(pull, 60000);
+    return () => { alive = false; clearInterval(id); };
+  }, [mode]);
 
   // 보기 데이터: 누적(시작일 대비) 또는 일일. 좌표·이상점수 산출.
   const view = useMemo(() => {
@@ -57,6 +77,24 @@ export default function StockRadar() {
       let m = 0; const ss: Record<string, number> = {}, sn: Record<string, number> = {};
       for (let i = 0; i < N; i++) { const r = frames[d].b[i][5]; m += r; const t = themeOf[i]; ss[t] = (ss[t] || 0) + r; sn[t] = (sn[t] || 0) + 1; }
       dMkt[d] = m / N; const sm: Record<string, number> = {}; for (const t in ss) sm[t] = ss[t] / sn[t]; dSec[d] = sm;
+    }
+    if (mode === "live") {
+      // 실시간: /api/radar/live 의 라이브 blip을 코드로 매핑해 표시(인덱스는 정적 stocks 기준).
+      const idx = frameCount - 1;
+      let m = 0, cnt = 0; const ss: Record<string, number> = {}, sn: Record<string, number> = {};
+      if (liveMap) stocks.forEach((s) => { const bl = liveMap[s.code]; if (bl) { const r = bl[5]; m += r; cnt++; const t = s.theme ?? "기타"; ss[t] = (ss[t] || 0) + r; sn[t] = (sn[t] || 0) + 1; } });
+      const mkt = cnt ? m / cnt : 0; const sm: Record<string, number> = {}; for (const t in ss) sm[t] = ss[t] / sn[t];
+      const b: (number | number[])[][] = [];
+      for (let i = 0; i < N; i++) {
+        const s = stocks[i], th = s.theme ?? "기타", bl = liveMap?.[s.code];
+        if (bl) {
+          const secDev = (sm[th] ?? mkt) - mkt, spec = bl[5] - (sm[th] ?? mkt);
+          const [led, sp, share] = ledOf(mkt, secDev, spec);
+          b[i] = [i, bl[1], bl[2], bl[3], bl[4], bl[5], led, sp, share, bl[6], bl[7], mkt, secDev, bl[8]];
+        } else b[i] = [i, 0, 0, 0, 1, 0, 2, 0, 0, 0, -1, mkt, 0, []]; // 데이터 없음=중앙 회색
+      }
+      const f: { t: string; b: (number | number[])[][] }[] = []; f[idx] = { t: liveInfo?.t ?? "LIVE", b };
+      return { f, retEdge: RET_DAILY, lo: idx, hi: idx, yTitle: "등락률 (%) ↑상승 / 하락↓" };
     }
     if (mode === "daily") {
       // 온도계: 빌드의 D² 온도(b[3])·주원인(b[7])을 그대로 사용. 색조는 고유 분해(led)로 보강.
@@ -109,7 +147,7 @@ export default function StockRadar() {
       f[d] = { t: frames[d].t, b };
     }
     return { f, retEdge, lo: startIdx, hi: endIdx, yTitle: "누적 등락률 (%, 시작일 대비) ↑/↓" };
-  }, [mode, startIdx, endIdx, frames, stocks]);
+  }, [mode, startIdx, endIdx, frames, stocks, frameCount, liveMap, liveInfo]);
   const viewRef = useRef(view); useEffect(() => { viewRef.current = view; }, [view]);
 
   useEffect(() => { stRef.current.playing = playing; }, [playing]);
@@ -241,7 +279,7 @@ export default function StockRadar() {
     if (!playing) { if (s.target >= endIdx) { s.animF = startIdx; s.target = startIdx; s.shown = startIdx; setPlayIdx(startIdx); } s.dwell = 0; s.playing = true; setPlaying(true); }
     else { s.playing = false; setPlaying(false); }
   };
-  const switchMode = (m: "cum" | "daily") => { setMode(m); goTo(m === "cum" ? startIdx : endIdx); };
+  const switchMode = (m: "cum" | "daily" | "live") => { setMode(m); goTo(m === "live" ? frameCount - 1 : m === "cum" ? startIdx : endIdx); };
 
   const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "hot" | "up" | "down" }) => (
     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-2.5">
@@ -270,7 +308,7 @@ export default function StockRadar() {
       </ul>
     </div>
   );
-  const TabBtn = ({ m, label }: { m: "cum" | "daily"; label: string }) => (
+  const TabBtn = ({ m, label }: { m: "cum" | "daily" | "live"; label: string }) => (
     <button onClick={() => switchMode(m)} className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${mode === m ? "bg-[#3182f6] text-white" : "bg-white/[0.06] text-white/55 hover:text-white"}`}>{label}</button>
   );
 
@@ -392,18 +430,29 @@ export default function StockRadar() {
 
       <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
         <div className="flex items-center gap-1 rounded-full bg-white/[0.04] p-1">
-          <TabBtn m="cum" label="누적" /><TabBtn m="daily" label="일일" />
+          <TabBtn m="live" label="실시간" /><TabBtn m="daily" label="일일" /><TabBtn m="cum" label="누적" />
         </div>
-        <button onClick={togglePlay} className="rounded-full bg-[#3182f6] px-4 py-1.5 font-semibold text-white transition-colors hover:bg-[#2670e8]">{playing ? "⏸ 정지" : "▶ 재생"}</button>
-        <span className="text-white/45">기간</span>
-        <select value={startIdx} onChange={(e) => onStart(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
-        <span className="text-white/35">~</span>
-        <select value={endIdx} onChange={(e) => onEnd(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
+        {mode === "live" ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f04452]/12 px-3 py-1.5 font-semibold text-[#f04452]">
+            <span className={`h-1.5 w-1.5 rounded-full bg-[#f04452] ${liveInfo?.open ? "animate-pulse" : ""}`} />
+            {liveInfo ? (liveInfo.open ? `LIVE ${liveInfo.t} · 60초 갱신` : `장 마감 · ${liveInfo.t}`) : "연결 중…"}
+          </span>
+        ) : (
+          <>
+            <button onClick={togglePlay} className="rounded-full bg-[#3182f6] px-4 py-1.5 font-semibold text-white transition-colors hover:bg-[#2670e8]">{playing ? "⏸ 정지" : "▶ 재생"}</button>
+            <span className="text-white/45">기간</span>
+            <select value={startIdx} onChange={(e) => onStart(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
+            <span className="text-white/35">~</span>
+            <select value={endIdx} onChange={(e) => onEnd(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
+          </>
+        )}
       </div>
-      <div className="mx-auto flex max-w-xl items-center gap-3">
-        <input type="range" min={startIdx} max={endIdx} step={1} value={playIdx} onChange={(e) => goTo(+e.target.value)} className="flex-1" />
-        <span className="w-28 shrink-0 text-right text-sm font-bold tabular-nums text-white/80">{frames[playIdx]?.t} {playing ? "재생중" : "고정"}</span>
-      </div>
+      {mode !== "live" && (
+        <div className="mx-auto flex max-w-xl items-center gap-3">
+          <input type="range" min={startIdx} max={endIdx} step={1} value={playIdx} onChange={(e) => goTo(+e.target.value)} className="flex-1" />
+          <span className="w-28 shrink-0 text-right text-sm font-bold tabular-nums text-white/80">{frames[playIdx]?.t} {playing ? "재생중" : "고정"}</span>
+        </div>
+      )}
 
       {selected != null && <JudgmentCard />}
 
