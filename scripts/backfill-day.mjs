@@ -84,12 +84,15 @@ for (let mi = 0; mi < SES; mi += RES_MIN) {
   for (let a = 0; a < p; a++) for (let b = 0; b < p; b++) { let s = 0; for (let i = 0; i < N; i++) s += Z[a][i] * Z[b][i]; C[a][b] = s / N; }
   const alpha = clamp(0.1 + p / N, 0.1, 0.5); const S = C.map((rw, a) => rw.map((v, b) => (a === b ? v : (1 - alpha) * v))); const Si = inv(S);
   const pcs = [pctRankByGroup(relVol, market), pctRankByGroup(specRet.map(Math.abs), market), pctRankByGroup(vol20, market), pctRankByGroup(range, market), pctRankByGroup(flow.map(Math.abs), market)];
+  // 축 원점 = 그날 횡단면 평균(중앙값): 점은 '평균 종목 대비' 상대 위치
+  const Larr = relVol.map((vv) => Math.log2(Math.max(vv, 1e-6)));
+  const Lmed = median(Larr), Rmed = median(ret1);
   const v = [];
   for (let i = 0; i < N; i++) {
     let q = 0; for (let a = 0; a < p; a++) for (let bb = 0; bb < p; bb++) q += Z[a][i] * Si[a][bb] * Z[bb][i];
     const d2 = Math.max(0, q); const temp = clamp(Math.log(Math.max(d2, DF) / DF) / Math.log(TEMP_CEIL / DF), 0, 1);
     let mg = -1, mgi = 0; for (let a = 0; a < p; a++) { const az = Math.abs(Z[a][i]); if (az > mg) { mg = az; mgi = a; } }
-    const x = clamp(Math.log2(Math.max(relVol[i], 1e-6)) / VOL_EDGE, -1, 1), y = clamp(ret1[i] / RET_DAILY, -1, 1);
+    const x = clamp((Larr[i] - Lmed) / VOL_EDGE, -1, 1), y = clamp((ret1[i] - Rmed) / RET_DAILY, -1, 1);
     v.push([i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi], [pcs[0][i], pcs[1][i], pcs[2][i], pcs[3][i], pcs[4][i]]]);
   }
   const t = `${String(9 + Math.floor(mi / 60)).padStart(2, "0")}:${String(mi % 60).padStart(2, "0")}`;

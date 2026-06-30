@@ -7,7 +7,7 @@ const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e",
 const MUTED_UP = "#a06a73", MUTED_DOWN = "#6a73a0"; // 시장·섹터 동반: 옅은 방향 색조
 const GROUP_LABELS = ["거래량", "고유수익", "변동성", "자금유입"]; // 온도(D²)를 띄운 주 원인
 const HOT = 0.4, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
-const xTicks = [{ m: 1, l: "1배" }, { m: 2, l: "2배" }, { m: 4, l: "4배" }];
+const xTicks = [{ x: -0.63, l: "÷4" }, { x: -0.31, l: "÷2" }, { x: 0, l: "평균" }, { x: 0.31, l: "×2" }, { x: 0.63, l: "×4" }];
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 const dayKST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 
@@ -159,12 +159,6 @@ export default function StockRadar() {
   // 보기 데이터: 누적(시작일 대비) 또는 일일. 좌표·이상점수 산출.
   const view = useMemo(() => {
     const N = stocks.length;
-    const calc = (avgVol: number, ret: number, retEdge: number) => {
-      const x = clamp(Math.log2(Math.max(avgVol, 1e-6)) / VOL_EDGE, -1, 1);
-      const y = clamp(ret / retEdge, -1, 1);
-      const anomaly = clamp((Math.hypot(x, y) - DZ) / (1 - DZ), 0, 1);
-      return [x, y, anomaly];
-    };
     // [SBV-A] 시장·섹터 통제 후 고유 잔차 분해. ledBy: 0 고유 / 1 섹터 / 2 시장
     const themeOf = stocks.map((s) => s.theme ?? "기타");
     const ledOf = (mkt: number, secDev: number, spec: number) => {
@@ -198,7 +192,7 @@ export default function StockRadar() {
         f[k] = { t: fr.t, b };
       });
       const hi = Math.max(0, liveBuf.length - 1);
-      return { f, retEdge: RET_DAILY, lo: 0, hi, yTitle: "등락률 (%) ↑상승 / 하락↓", live: true };
+      return { f, retEdge: RET_DAILY, lo: 0, hi, yTitle: "등락률 (평균 대비) ↑초과 / 미달↓", live: true };
     }
     if (mode === "daily") {
       // 온도계: 빌드의 D² 온도(b[3])·주원인(b[7])을 그대로 사용. 색조는 고유 분해(led)로 보강.
@@ -215,7 +209,7 @@ export default function StockRadar() {
         }
         f[d] = { t: frames[d].t, b };
       }
-      return { f, retEdge: RET_DAILY, lo: startIdx, hi: endIdx, yTitle: "등락률 (%) ↑상승 / 하락↓" };
+      return { f, retEdge: RET_DAILY, lo: startIdx, hi: endIdx, yTitle: "등락률 (평균 대비) ↑초과 / 미달↓" };
     }
     // 누적: 시작일 종가 대비 복리 누적 + 구간 평균 거래량 배수
     const cumP = new Array(N).fill(1), volS = new Array(N).fill(0);
@@ -239,12 +233,17 @@ export default function StockRadar() {
       raw[d] = row;
     }
     const retEdge = Math.max(8, Math.ceil((maxAbs * 1.05) / 5) * 5);
+    const med = (a: number[]) => { const s = [...a].sort((x, y) => x - y); return s[s.length >> 1]; };
     const f: { t: string; b: (number | number[])[][] }[] = [];
     for (let d = startIdx; d <= endIdx; d++) {
+      // 축 원점 = 구간 횡단면 평균(중앙값)
+      const Lmed = med(raw[d].map((r) => Math.log2(Math.max(r.av, 1e-6)))), Rmed = med(raw[d].map((r) => r.cr));
       const b: (number | number[])[][] = [];
       for (let i = 0; i < N; i++) {
         const { cr, av, mkt, secDev, spec } = raw[d][i];
-        const [x, y, a] = calc(av, cr, retEdge);
+        const x = clamp((Math.log2(Math.max(av, 1e-6)) - Lmed) / VOL_EDGE, -1, 1);
+        const y = clamp((cr - Rmed) / retEdge, -1, 1);
+        const a = clamp((Math.hypot(x, y) - DZ) / (1 - DZ), 0, 1);
         const [led, sp, share] = ledOf(mkt, secDev, spec);
         b[i] = [i, x, y, a, av, cr, led, sp, share, 0, -1, mkt, secDev, []]; // 누적: D²·주원인·백분위 없음(방향 분해 기반)
       }
@@ -298,7 +297,7 @@ export default function StockRadar() {
       ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R); ctx.stroke();
       ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "10px sans-serif"; ctx.textAlign = "center";
-      for (const tk of xTicks) ctx.fillText(tk.l, mapX(Math.log2(tk.m) / VOL_EDGE), cy + 13);
+      for (const tk of xTicks) ctx.fillText(tk.l, mapX(tk.x), cy + 13);
       ctx.textAlign = "left";
       const half = Math.round(E / 2);
       for (const tk of [{ p: E, l: `+${E}%` }, { p: half, l: `+${half}%` }, { p: -half, l: `−${half}%` }, { p: -E, l: `−${E}%` }])
@@ -312,7 +311,7 @@ export default function StockRadar() {
         ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(R, 0); ctx.stroke(); ctx.restore();
       }
       ctx.fillStyle = "rgba(255,255,255,0.34)"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
-      ctx.fillText("거래량 (평소의 몇 배) →", cx, cy + R + 14);
+      ctx.fillText("거래량 (그날 평균 대비) →", cx, cy + R + 14);
       ctx.save(); ctx.translate(cx - R - 8, cy); ctx.rotate(-Math.PI / 2); ctx.fillText(V.yTitle, 0, 0); ctx.restore();
       ctx.textAlign = "left"; ctx.fillStyle = "rgba(31,214,154,0.45)"; ctx.font = "12px monospace";
       ctx.fillText(`${V.f[Math.round(clamp(s.animF, V.lo, V.hi))]?.t ?? ""}${s.playing ? " ▶" : " ⏸"}`, 12, 19);

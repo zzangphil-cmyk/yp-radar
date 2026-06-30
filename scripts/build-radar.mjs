@@ -108,6 +108,9 @@ for (let fi = 0; fi < FRAMES; fi++) {
   // 5축 시장 내 백분위 — 카드 "무엇이 특이": [거래량,고유수익,변동성,당일폭,자금유입]
   const pcRel = pctRankByGroup(relVol, market), pcSpec = pctRankByGroup(specRet.map(Math.abs), market),
     pcVol = pctRankByGroup(vol20, market), pcRange = pctRankByGroup(range, market), pcFlow = pctRankByGroup(flow.map(Math.abs), market);
+  // 축 원점 = 그날 횡단면 평균(중앙값): 점은 '평균 종목 대비' 상대 위치
+  const Larr = relVol.map((v) => Math.log2(Math.max(v, 1e-6)));
+  const Lmed = median(Larr), Rmed = median(ret1);
   // D² + 온도 + 최대기여 + 분해(시장/섹터/고유) + 5축 백분위
   const b = [];
   for (let i = 0; i < N; i++) {
@@ -115,8 +118,8 @@ for (let fi = 0; fi < FRAMES; fi++) {
     const d2 = Math.max(0, q);
     const temp = clamp(Math.log(Math.max(d2, DF) / DF) / Math.log(TEMP_CEIL / DF), 0, 1);
     let mg = -1, mgi = 0; for (let a = 0; a < p; a++) { const az = Math.abs(Z[a][i]); if (az > mg) { mg = az; mgi = a; } }
-    const x = clamp(Math.log2(Math.max(relVol[i], 1e-6)) / VOL_EDGE, -1, 1);
-    const y = clamp(ret1[i] / RET_DAILY, -1, 1);
+    const x = clamp((Larr[i] - Lmed) / VOL_EDGE, -1, 1);
+    const y = clamp((ret1[i] - Rmed) / RET_DAILY, -1, 1);
     b[i] = [i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi],
       [pcRel[i], pcSpec[i], pcVol[i], pcRange[i], pcFlow[i]]];
   }
