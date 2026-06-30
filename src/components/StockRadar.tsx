@@ -70,6 +70,32 @@ export default function StockRadar() {
     }
   }, [liveBuf.length, mode]);
 
+  // 로컬 저장/복원: 오늘치 장중 스냅샷을 localStorage에 보관(새로고침해도 움직임 유지).
+  //  용량 절약 — 코드 목록 1회 + 프레임별 blip 배열(코드순 정렬). 오늘 날짜만 유효.
+  const todayKST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+  useEffect(() => {
+    try {
+      const raw = typeof window !== "undefined" && localStorage.getItem("yp-radar-live");
+      if (!raw) return;
+      const o = JSON.parse(raw);
+      if (o.d !== todayKST() || !Array.isArray(o.c) || !Array.isArray(o.f)) { localStorage.removeItem("yp-radar-live"); return; }
+      const codes = o.c as string[];
+      const buf: LiveFrame[] = o.f.map((fr: { t: string; ts: string; o: boolean; v: (number[] | null)[] }) => {
+        const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; });
+        return { t: fr.t, ts: fr.ts, open: fr.o, map };
+      });
+      if (buf.length) setLiveBuf(buf);
+    } catch { /* 파싱 실패 무시 */ }
+  }, []);
+  useEffect(() => {
+    if (!liveBuf.length || typeof window === "undefined") return;
+    try {
+      const codes = Object.keys(liveBuf[liveBuf.length - 1].map);
+      const f = liveBuf.slice(-160).map((fr) => ({ t: fr.t, ts: fr.ts, o: fr.open, v: codes.map((c) => fr.map[c] ?? null) }));
+      localStorage.setItem("yp-radar-live", JSON.stringify({ d: todayKST(), c: codes, f }));
+    } catch { /* quota 초과 등 무시 */ }
+  }, [liveBuf]);
+
   // 보기 데이터: 누적(시작일 대비) 또는 일일. 좌표·이상점수 산출.
   const view = useMemo(() => {
     const N = stocks.length;
