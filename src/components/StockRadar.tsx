@@ -63,9 +63,9 @@ export default function StockRadar() {
     return () => { alive = false; clearInterval(id); };
   }, [mode]);
 
-  // 최신 추종: 끝을 보고 있으면 새 프레임으로 부드럽게 이동(이전 시점 보는 중이면 유지)
+  // 최신 추종: 끝을 보고 있으면 새 프레임으로 부드럽게 이동(이전 시점·재생 중이면 가로채지 않음)
   useEffect(() => {
-    if (mode === "live" && followRef.current && liveBuf.length) {
+    if (mode === "live" && followRef.current && !stRef.current.playing && liveBuf.length) {
       const hi = liveBuf.length - 1; stRef.current.target = hi; setPlayIdx(hi);
     }
   }, [liveBuf.length, mode]);
@@ -217,7 +217,7 @@ export default function StockRadar() {
       const moving = s.animF !== s.target;
       const liveOn = !!(V as { live?: boolean }).live; // 실시간: 스윕 계속 회전(살아있게)
       if (s.playing) {
-        if (!moving) { s.dwell += dt; if (s.dwell >= 0.6) { if (s.target < V.hi) { s.target += 1; s.dwell = 0; } else { s.playing = false; setPlaying(false); s.dwell = 0; } } }
+        if (!moving) { s.dwell += dt; if (s.dwell >= 0.6) { if (s.target < V.hi) { s.target += 1; s.dwell = 0; } else { s.playing = false; setPlaying(false); s.dwell = 0; followRef.current = true; } } }
         const di = Math.round(s.animF); if (di !== s.shown) { s.shown = di; setPlayIdx(di); }
       } else s.dwell = 0;
       if (s.playing || moving || liveOn) s.sweep += dt * 0.7;
@@ -321,7 +321,7 @@ export default function StockRadar() {
   const onEnd = (v: number) => { setEndIdx(v); if (v < startIdx) setStartIdx(v); goTo(Math.min(v, playIdx)); };
   const togglePlay = () => {
     const s = stRef.current; const lo = view.lo, hi = view.hi;
-    if (!playing) { if (s.target >= hi) { s.animF = lo; s.target = lo; s.shown = lo; setPlayIdx(lo); } s.dwell = 0; s.playing = true; setPlaying(true); }
+    if (!playing) { followRef.current = false; if (s.target >= hi) { s.animF = lo; s.target = lo; s.shown = lo; setPlayIdx(lo); } s.dwell = 0; s.playing = true; setPlaying(true); }
     else { s.playing = false; setPlaying(false); }
   };
   const switchMode = (m: "cum" | "daily" | "live") => {
