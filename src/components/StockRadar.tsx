@@ -50,36 +50,47 @@ export default function StockRadar() {
   const [liveBuf, setLiveBuf] = useState<LiveFrame[]>([]);
   const [liveDate, setLiveDate] = useState<string>("");   // 보는 날짜("" 전엔 오늘). 과거=기록 재생
   const [days, setDays] = useState<string[]>([]);          // 기록된 날짜 목록(최신순) + 오늘
+  const [serverDays, setServerDays] = useState<string[]>([]); // 서버 기록(public/live, 모두 공유)
   const followRef = useRef(true);                          // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
   const liveLast = liveBuf[liveBuf.length - 1];
   const isToday = liveDate === dayKST() || liveDate === "";
 
-  // 마운트: 기록 날짜 목록 로드 + 오늘로 시작
+  // 마운트: 서버 기록(public/live) + 브라우저 기록 날짜 병합 + 오늘로 시작
   useEffect(() => {
     setLiveDate(dayKST());
-    idbKeys().then((ks) => {
+    Promise.all([
+      idbKeys().catch(() => [] as string[]),
+      fetch("/live/index.json").then((r) => (r.ok ? r.json() : { dates: [] })).catch(() => ({ dates: [] })),
+    ]).then(([ks, idx]) => {
       const today = dayKST();
-      const list = Array.from(new Set([today, ...ks.map((k) => k.replace(/^day-/, ""))])).sort().reverse();
+      const sv = (idx.dates || []) as string[];
+      setServerDays(sv);
+      const idbDays = ks.map((k) => k.replace(/^day-/, ""));
+      const list = Array.from(new Set([today, ...sv, ...idbDays])).sort().reverse();
       setDays(list);
-      // 14일 초과 기록 정리
-      ks.map((k) => k.replace(/^day-/, "")).filter((d) => !list.slice(0, 14).includes(d)).forEach((d) => idbDel(`day-${d}`));
-    }).catch(() => setDays([dayKST()]));
+      idbDays.filter((d) => !list.slice(0, 14).includes(d)).forEach((d) => idbDel(`day-${d}`));
+    });
   }, []);
 
-  // 선택 날짜의 기록 로드(과거든 오늘이든). 오늘이면 이어서 폴링/추종.
+  // 선택 날짜의 기록 로드 — 과거: 서버 기록 우선(완전), 없으면 브라우저 기록. 오늘: 브라우저 복원 후 이어서 폴링.
   useEffect(() => {
     if (mode !== "live" || !liveDate) return;
     let alive = true;
-    idbGet<DayRec>(`day-${liveDate}`).then((rec) => {
+    const apply = (rec: DayRec | null) => {
       if (!alive) return;
       if (rec && Array.isArray(rec.c) && Array.isArray(rec.f)) {
         const codes = rec.c;
         setLiveBuf(rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; }));
       } else setLiveBuf([]);
       followRef.current = true; stRef.current.target = 0; stRef.current.animF = 0;
-    });
+    };
+    if (!isToday && serverDays.includes(liveDate)) {
+      fetch(`/live/${liveDate}.json`).then((r) => (r.ok ? r.json() : null)).then(apply).catch(() => apply(null));
+    } else {
+      idbGet<DayRec>(`day-${liveDate}`).then(apply);
+    }
     return () => { alive = false; };
-  }, [mode, liveDate]);
+  }, [mode, liveDate, isToday, serverDays]);
 
   // 폴링: 오늘·실시간일 때만(과거 날짜는 기록 재생 전용)
   useEffect(() => {
