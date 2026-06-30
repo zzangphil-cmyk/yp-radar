@@ -69,7 +69,8 @@ export async function GET() {
 
   const ret1 = sel.map((c) => num(live[c].fluctuationsRatio));
   const relVol = sel.map((c) => (num(live[c].accumulatedTradingVolume) + 1) / (by[c].medVol20 * frac + 1)); // 페이스 보정
-  const range = sel.map((c) => { const pc = by[c].prevClose || 1; return (num(live[c].highPrice) - num(live[c].lowPrice)) / pc * 100; });
+  // 전일종가는 네이버 시세에서 역산(close/(1+등락%)) → 베이스라인 날짜와 무관하게 정확. 실패 시 베이스라인 폴백.
+  const range = sel.map((c, i) => { const close = num(live[c].closePrice); const pc = ret1[i] > -100 && close ? close / (1 + ret1[i] / 100) : (by[c].prevClose || close || 1); return (num(live[c].highPrice) - num(live[c].lowPrice)) / (pc || 1) * 100; });
   const vol20 = sel.map((c) => by[c].vol20 || 0);
   const turnover = sel.map((c) => num(live[c].accumulatedTradingValue) / 100); // 백만→억
 
