@@ -41,12 +41,13 @@ for (const c of codes) {
   const rows = await naverMin(c); await sleep(70); done++;
   if (rows.length) {
     const arr = new Array(SES).fill(null);
-    let rh = -Infinity, rl = Infinity, last = null;
+    let rh = -Infinity, rl = Infinity, cum = 0, last = null;
     for (const x of rows) {
       const hh = String(x.localDateTime).slice(8, 12); const mi = (+hh.slice(0, 2)) * 60 + (+hh.slice(2)) - 540;
       if (mi < 0 || mi >= SES) continue;
       rh = Math.max(rh, num(x.highPrice)); rl = Math.min(rl, num(x.lowPrice));
-      last = { close: num(x.currentPrice), runHigh: rh, runLow: rl, accVol: num(x.accumulatedTradingVolume) };
+      cum += num(x.accumulatedTradingVolume); // 네이버 분봉 값은 '분당 거래량' → 누적 합산
+      last = { close: num(x.currentPrice), runHigh: rh, runLow: rl, accVol: cum };
       arr[mi] = last;
     }
     // forward-fill

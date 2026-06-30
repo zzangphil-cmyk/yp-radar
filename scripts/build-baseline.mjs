@@ -26,27 +26,29 @@ for (const s of stocksData.stocks) {
   if (nK >= KOSPI_N && nQ >= KOSDAQ_N) break;
 }
 console.log(`마스터 수집... (코스피 ${nK} + 코스닥 ${nQ})`);
-const master = await stocksBatch(sel.map((s) => s.code));
+const master = await stocksBatch(sel.map((s) => s.code)); // 시총용 상장주식수
 const todayKST = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Seoul" }); // YYYY-MM-DD
+// 거래량·종가 기준은 네이버 일봉으로(장중 누적거래량과 스케일 일치 — 토스/네이버 불일치 방지)
+const NH = { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://m.stock.naver.com/" } };
+async function naverDay(code) { try { const r = await fetch(`https://api.stock.naver.com/chart/domestic/item/${code}?periodType=dayCandle&count=40`, NH); const a = await r.json(); return Array.isArray(a) ? a : (a.priceInfos || []); } catch { return []; } }
 
 const out = {};
 let done = 0, skip = 0;
 for (const s of sel) {
-  let bars = [];
-  try { const j = await tossGet(`/api/v1/candles?symbol=${s.code}&interval=1d&count=60`); bars = ((j.result && j.result.candles) || []).slice().reverse(); } catch {}
-  await sleep(110); done++;
-  // 장중이면 마지막 봉이 오늘 미완성 → 베이스라인은 '완료된 세션'만 사용
-  if (bars.length && String(bars[bars.length - 1].timestamp).slice(0, 10) === todayKST) bars = bars.slice(0, -1);
-  if (bars.length < 22) { skip++; continue; }
-  const C = bars.map((b) => num(b.closePrice)), V = bars.map((b) => num(b.volume));
+  let rows = await naverDay(s.code);          // 오래된→최신
+  await sleep(80); done++;
+  // 마지막이 오늘(장중 미완성/당일) → 완료된 세션만 사용
+  if (rows.length && String(rows[rows.length - 1].localDate) === todayKST.replace(/-/g, "")) rows = rows.slice(0, -1);
+  if (rows.length < 22) { skip++; continue; }
+  const C = rows.map((b) => num(b.closePrice)), V = rows.map((b) => num(b.accumulatedTradingVolume));
   const n = C.length;
   const rets = C.map((v, i) => (i === 0 ? 0 : (v - C[i - 1]) / (C[i - 1] || 1)));
   const m = master[s.code];
   out[s.code] = {
     code: s.code, name: s.name, theme: s.themes?.[0] ?? "기타", market: marketMap[s.code] || "KOSPI",
-    prevClose: C[n - 1],                                  // 전일 종가(라이브 등락 기준)
-    medVol20: median(V.slice(-20)),                       // 20일 거래량 중앙값
-    vol20: r3(std(rets.slice(-20)) * 100),                // 20일 변동성%(정적)
+    prevClose: C[n - 1],                                  // 전일 종가(네이버)
+    medVol20: median(V.slice(-20)),                       // 20일 거래량 중앙값(네이버 = 장중과 동일 스케일)
+    vol20: r3(std(rets.slice(-20)) * 100),                // 20일 변동성%
     mktCap: m ? r3(C[n - 1] * num(m.sharesOutstanding) / 1e12) : null,
   };
   if (done % 20 === 0 || done === sel.length) process.stdout.write(`\r베이스라인 ${done}/${sel.length}`);
