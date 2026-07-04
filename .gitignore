@@ -22,3 +22,6 @@ next-env.d.ts
 
 # TS incremental build info
 tsconfig.tsbuildinfo
+
+# 자동 갱신 로그
+daily-update.log

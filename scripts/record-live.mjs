@@ -67,6 +67,7 @@ const finalRec = loadDay(today) || rec;
 console.log(`기록 종료 · ${finalRec ? finalRec.d : "-"} 프레임 ${finalRec ? finalRec.f.length : 0} · index ${dates.length}일`);
 if (AUTOCOMMIT && finalRec && finalRec.f.length) {
   try {
+    try { execFileSync("git", ["pull", "--rebase", "origin", "main"], { cwd: ROOT }); } catch { /* 경합 없으면 무시 */ }
     execFileSync("git", ["add", "public/live"], { cwd: ROOT });
     execFileSync("git", ["commit", "-m", `장중 기록 ${finalRec.d} (${finalRec.f.length}프레임)`], { cwd: ROOT });
     execFileSync("git", ["push", "origin", "main"], { cwd: ROOT });

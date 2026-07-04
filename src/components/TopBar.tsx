@@ -38,13 +38,13 @@ export default function TopBar({ etfAsOf, npsAsOf, radarAsOf }: { etfAsOf: strin
   const product = pathname.startsWith("/radar") ? "radar" : pathname.startsWith("/etf") ? "etf" : pathname.startsWith("/nps") ? "nps" : "hub";
   const nav = product === "etf" ? ETF_NAV : product === "nps" ? NPS_NAV : product === "radar" ? RADAR_NAV : [];
   const accentText = product === "etf" ? "text-amber-400" : product === "radar" ? "text-[#3182f6]" : "text-radar";
-  const accentBg = product === "etf" ? "bg-amber-500/15 text-amber-400" : product === "radar" ? "bg-[#3182f6]/15 text-[#3182f6]" : "bg-radar/15 text-radar";
 
+  // 토스식: 활성 탭 = 중립(살짝 밝은 배경 + 흰 글자), 색은 콘텐츠에서만
   const SwitchBtn = ({ href, label, on }: { href: string; label: string; on: boolean }) => (
     <Link
       href={href}
-      className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
-        on ? accentBg : "text-white/50 hover:bg-white/5 hover:text-white"
+      className={`rounded-[10px] px-3.5 py-1.5 text-sm font-bold transition-colors ${
+        on ? "bg-white/[0.10] text-white" : "text-white/45 hover:text-white"
       }`}
     >
       {label}
@@ -52,13 +52,13 @@ export default function TopBar({ etfAsOf, npsAsOf, radarAsOf }: { etfAsOf: strin
   );
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-base/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 bg-base/85 backdrop-blur-md">
       <div className="container-page flex h-16 items-center gap-4">
         <Link href="/" className="shrink-0">
           <Brand />
         </Link>
         {/* 제품 스위처 */}
-        <div className="flex items-center gap-1 rounded-xl bg-white/[0.04] p-1">
+        <div className="flex items-center gap-0.5 rounded-[14px] bg-white/[0.05] p-1">
           <SwitchBtn href="/radar" label="주식" on={product === "radar"} />
           <SwitchBtn href="/etf" label="ETF" on={product === "etf"} />
           <SwitchBtn href="/nps" label="국민연금" on={product === "nps"} />

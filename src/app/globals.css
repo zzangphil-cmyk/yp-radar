@@ -9,22 +9,31 @@
 
 html,
 body {
-  background: #16171c;
+  background: #101013;
   color: #e8ebf0;
+  letter-spacing: -0.01em; /* 토스풍 살짝 좁은 자간 */
+}
+
+/* 숫자는 항상 고정폭(토스식 정렬) */
+.tabular-nums,
+td,
+th {
+  font-variant-numeric: tabular-nums;
 }
 
 @layer components {
   .container-page {
     @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
   }
+  /* 토스식 카드: 경계선 없이 밝기 차 + 큰 라운드 */
   .card {
-    @apply rounded-2xl border border-white/[0.06] bg-base-800 shadow-card;
+    @apply rounded-[20px] bg-base-800;
   }
   .pill {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium;
   }
   .chip {
-    @apply inline-flex items-center rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-white/65;
+    @apply inline-flex items-center rounded-full bg-white/[0.07] px-2.5 py-1 text-xs text-white/60;
   }
   .btn-toss {
     @apply rounded-full bg-toss px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-toss-dim;

@@ -415,7 +415,7 @@ export default function StockRadar() {
   const fmtDay = (d: string) => (d === dayKST() ? "오늘" : d.slice(5).replace("-", "/"));
 
   const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "hot" | "up" | "down" }) => (
-    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-2.5">
+    <div className="rounded-[20px] bg-base-800 p-3">
       <div className="mb-1 px-1 text-[13px] font-bold" style={{ color: accent }}>{title}</div>
       <ul className="space-y-0.5">
         {rows.map((r, k) => {
@@ -477,7 +477,7 @@ export default function StockRadar() {
     })();
 
     return (
-      <div className="rounded-2xl border border-[#22c55e]/25 bg-[#22c55e]/[0.04] p-4">
+      <div className="rounded-[20px] bg-[#22c55e]/[0.07] p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <CircleLogo name={s.name} on size={8} />
@@ -556,7 +556,7 @@ export default function StockRadar() {
   return (
     <div className="space-y-4">
       <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
-        <div className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-[#060a08]" style={{ aspectRatio: "1 / 1" }}>
+        <div className="relative w-full overflow-hidden rounded-[20px] bg-[#0b0e0c]" style={{ aspectRatio: "1 / 1" }}>
           <canvas ref={cvRef} onClick={onCanvasClick} className="absolute inset-0 h-full w-full cursor-pointer" role="img" aria-label="종목 관제 레이더 — 거래량 배수×등락률, 날짜 범위 스냅샷/누적" />
         </div>
       </div>
@@ -567,7 +567,7 @@ export default function StockRadar() {
         </div>
         {mode === "live" && (
           <>
-            <select value={liveDate || dayKST()} onChange={(e) => pickDate(e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90" title="장중 기록 날짜">
+            <select value={liveDate || dayKST()} onChange={(e) => pickDate(e.target.value)} className="rounded-xl bg-base-700 px-2 py-1 text-white/90" title="장중 기록 날짜">
               {days.map((d) => <option key={d} value={d}>{fmtDay(d)}{d === dayKST() ? " (실시간)" : " 기록"}</option>)}
             </select>
             {isToday ? (
@@ -588,9 +588,9 @@ export default function StockRadar() {
         {mode !== "live" && (
           <>
             <span className="text-white/45">기간</span>
-            <select value={startIdx} onChange={(e) => onStart(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
+            <select value={startIdx} onChange={(e) => onStart(+e.target.value)} className="rounded-xl bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
             <span className="text-white/35">~</span>
-            <select value={endIdx} onChange={(e) => onEnd(+e.target.value)} className="rounded-lg border border-white/10 bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
+            <select value={endIdx} onChange={(e) => onEnd(+e.target.value)} className="rounded-xl bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
           </>
         )}
       </div>
