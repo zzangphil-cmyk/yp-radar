@@ -54,12 +54,21 @@ while (true) {
   await sleep(INTERVAL);
 }
 
+// 마감 후 완전성 백필: 장중 절전·중단으로 구멍이 나도 네이버 분봉으로 그날 전체(09:00~15:30) 재구성
+//  ※ 절전으로 다음날 깨어난 경우를 대비해 '기록하던 날짜'(rec.d)를 우선 사용
+const today = (rec && rec.d) || kst().date;
+try {
+  execFileSync(process.execPath, [path.join(ROOT, "scripts", "backfill-day.mjs"), today], { cwd: ROOT, stdio: "inherit", timeout: 10 * 60 * 1000 });
+  console.log("완전성 백필 완료");
+} catch (e) { console.log("백필 실패(라이브 기록 그대로 사용):", String(e).slice(0, 120)); }
+
 const dates = updateIndex();
-console.log(`기록 종료 · ${rec ? rec.d : "-"} 프레임 ${rec ? rec.f.length : 0} · index ${dates.length}일`);
-if (AUTOCOMMIT && rec && rec.f.length) {
+const finalRec = loadDay(today) || rec;
+console.log(`기록 종료 · ${finalRec ? finalRec.d : "-"} 프레임 ${finalRec ? finalRec.f.length : 0} · index ${dates.length}일`);
+if (AUTOCOMMIT && finalRec && finalRec.f.length) {
   try {
     execFileSync("git", ["add", "public/live"], { cwd: ROOT });
-    execFileSync("git", ["commit", "-m", `장중 기록 ${rec.d} (${rec.f.length}프레임)`], { cwd: ROOT });
+    execFileSync("git", ["commit", "-m", `장중 기록 ${finalRec.d} (${finalRec.f.length}프레임)`], { cwd: ROOT });
     execFileSync("git", ["push", "origin", "main"], { cwd: ROOT });
     console.log("자동 커밋·푸시 완료");
   } catch (e) { console.log("자동 커밋 실패(수동 커밋 필요):", String(e).slice(0, 120)); }

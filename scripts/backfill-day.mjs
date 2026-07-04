@@ -31,45 +31,75 @@ async function naverMin(code) {
   try { const r = await fetch(`https://api.stock.naver.com/chart/domestic/item/${code}/minute?count=420`, H); const a = await r.json(); return Array.isArray(a) ? a.filter((x) => String(x.localDateTime).slice(0, 8) === ymd) : []; }
   catch { return []; }
 }
+// fchart(레거시): 며칠 전 분봉까지 보관(약 6거래일). 형식 "YYYYMMDDHHMM|o|h|l|close|분당vol" (o/h/l null 가능)
+async function fchartMin(code) {
+  const H = { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://finance.naver.com/" } };
+  try {
+    const r = await fetch(`https://fchart.stock.naver.com/sise.nhn?symbol=${code}&timeframe=minute&count=2800&requestType=0`, H);
+    const t = await r.text();
+    return [...t.matchAll(/data="(\d{12})\|[^|]*\|[^|]*\|[^|]*\|(\d+)\|(\d+)"/g)]
+      .filter((m) => m[1].slice(0, 8) === ymd)
+      .map((m) => ({ localDateTime: m[1] + "00", currentPrice: +m[2], highPrice: +m[2], lowPrice: +m[2], accumulatedTradingVolume: +m[3] }));
+  } catch { return []; }
+}
+// 그날 기준의 정확한 베이스(전일종가·20일 거래량중앙값·변동성) — dayCandle에서 날짜별 산출
+async function dayBase(code) {
+  const H = { headers: { "User-Agent": "Mozilla/5.0", Referer: "https://m.stock.naver.com/" } };
+  try {
+    const r = await fetch(`https://api.stock.naver.com/chart/domestic/item/${code}?periodType=dayCandle&count=60`, H);
+    const a = await r.json(); const rows = Array.isArray(a) ? a : (a.priceInfos || []);
+    const idx = rows.findIndex((x) => String(x.localDate) === ymd);
+    if (idx < 1) return null;
+    const C = rows.slice(0, idx + 1).map((x) => Number(x.closePrice) || 0);
+    const V = rows.slice(Math.max(0, idx - 20), idx).map((x) => Number(x.accumulatedTradingVolume) || 0);
+    const rets = C.map((v, i) => (i === 0 ? 0 : (v - C[i - 1]) / (C[i - 1] || 1)));
+    const sd = (arr) => { const m = arr.reduce((s, v) => s + v, 0) / (arr.length || 1); return Math.sqrt(arr.reduce((s, v) => s + (v - m) ** 2, 0) / (arr.length || 1)); };
+    return { prevClose: C[C.length - 2], medVol20: median(V), vol20: r3(sd(rets.slice(-20)) * 100) };
+  } catch { return null; }
+}
 
 // 종목별 세션(09:00~15:30, 391분) dense 배열: {close, runHigh, runLow, accVol}
 console.log(`백필 ${DATE} · ${codes.length}종목 분봉 수집...`);
 const SES = 391; // 0=09:00 ... 390=15:30
 const num = (v) => Number(v) || 0;
-const series = {}; let got = 0, done = 0;
+const series = {}, base = {}; let got = 0, done = 0, viaF = 0;
 for (const c of codes) {
-  const rows = await naverMin(c); await sleep(70); done++;
-  if (rows.length) {
+  let rows = await naverMin(c); await sleep(60);
+  if (!rows.length) { rows = await fchartMin(c); await sleep(60); if (rows.length) viaF++; } // 최근 세션이 아니면 fchart
+  const db = await dayBase(c); await sleep(60);
+  done++;
+  if (rows.length && (db || baseline[c])) {
+    base[c] = db || { prevClose: baseline[c].prevClose, medVol20: baseline[c].medVol20, vol20: baseline[c].vol20 };
     const arr = new Array(SES).fill(null);
-    let rh = -Infinity, rl = Infinity, cum = 0, last = null;
+    let rh = -Infinity, rl = Infinity, cum = 0;
     for (const x of rows) {
       const hh = String(x.localDateTime).slice(8, 12); const mi = (+hh.slice(0, 2)) * 60 + (+hh.slice(2)) - 540;
       if (mi < 0 || mi >= SES) continue;
       rh = Math.max(rh, num(x.highPrice)); rl = Math.min(rl, num(x.lowPrice));
       cum += num(x.accumulatedTradingVolume); // 네이버 분봉 값은 '분당 거래량' → 누적 합산
-      last = { close: num(x.currentPrice), runHigh: rh, runLow: rl, accVol: cum };
-      arr[mi] = last;
+      arr[mi] = { close: num(x.currentPrice), runHigh: rh, runLow: rl, accVol: cum };
     }
     // forward-fill
     let prev = null; for (let i = 0; i < SES; i++) { if (arr[i]) prev = arr[i]; else if (prev) arr[i] = prev; }
     series[c] = arr; got++;
   }
-  if (done % 30 === 0 || done === codes.length) process.stdout.write(`\r  수집 ${done}/${codes.length} (유효 ${got})`);
+  if (done % 30 === 0 || done === codes.length) process.stdout.write(`\r  수집 ${done}/${codes.length} (유효 ${got}, fchart ${viaF})`);
 }
 console.log("");
 
 const present = codes.filter((c) => series[c]);
+if (present.length < 30) { console.log(`분봉 데이터 부족(${present.length}종목) — ${DATE}는 휴장이거나 소스에 없음. 종료.`); process.exit(0); }
 const theme = present.map((c) => baseline[c].theme ?? "기타");
 const market = present.map((c) => baseline[c].market || "KOSPI");
 const logMkt = present.map((c) => Math.log((baseline[c].mktCap || 0.01) + 1e-6));
 const frames = [];
 for (let mi = 0; mi < SES; mi += RES_MIN) {
-  const row = present.map((c) => series[c][mi]).map((x, i) => x || { close: baseline[present[i]].prevClose, runHigh: baseline[present[i]].prevClose, runLow: baseline[present[i]].prevClose, accVol: 0 });
+  const row = present.map((c) => series[c][mi]).map((x, i) => x || { close: base[present[i]].prevClose, runHigh: base[present[i]].prevClose, runLow: base[present[i]].prevClose, accVol: 0 });
   const frac = clamp(mi + 1, 10, 390) / 390;
-  const ret1 = row.map((d, i) => { const pc = baseline[present[i]].prevClose || 1; return (d.close - pc) / pc * 100; });
-  const relVol = row.map((d, i) => (d.accVol + 1) / (baseline[present[i]].medVol20 * frac + 1));
-  const range = row.map((d, i) => { const pc = baseline[present[i]].prevClose || 1; return (d.runHigh - d.runLow) / pc * 100; });
-  const vol20 = present.map((c) => baseline[c].vol20 || 0);
+  const ret1 = row.map((d, i) => { const pc = base[present[i]].prevClose || 1; return (d.close - pc) / pc * 100; });
+  const relVol = row.map((d, i) => (d.accVol + 1) / (base[present[i]].medVol20 * frac + 1));
+  const range = row.map((d, i) => { const pc = base[present[i]].prevClose || 1; return (d.runHigh - d.runLow) / pc * 100; });
+  const vol20 = present.map((c) => base[c].vol20 || 0);
   const turnover = row.map((d) => d.close * d.accVol / 1e8);
   const N = present.length;
   // 고유수익(섹터통제)
