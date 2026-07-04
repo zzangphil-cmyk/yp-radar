@@ -85,13 +85,36 @@ export default function StockRadar() {
       } else setLiveBuf([]);
       followRef.current = true; stRef.current.target = 0; stRef.current.animF = 0;
     };
+    // 오늘: 서버 히스토리(네이버 분봉 재구성)로 개장~현재를 시딩 — 몇 시에 접속해도 09:00부터 보임.
+    //  이미 폴링으로 쌓인 프레임 중 히스토리 이후 것만 뒤에 보존(경합 방지). 실패 시 브라우저 기록 폴백.
+    const tmin = (t: string) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+    const mergeToday = (rec: DayRec | null) => {
+      if (!alive || !rec?.c?.length || !rec.f?.length) return false;
+      const codes = rec.c;
+      const hist: LiveFrame[] = rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; });
+      const lastT = tmin(hist[hist.length - 1].t);
+      setLiveBuf((prev) => [...hist, ...prev.filter((f) => tmin(f.t) > lastT)]);
+      followRef.current = true;
+      return true;
+    };
     if (!isToday && serverDays.includes(liveDate)) {
       fetch(`/live/${liveDate}.json`).then((r) => (r.ok ? r.json() : null)).then(apply).catch(() => apply(null));
+    } else if (isToday) {
+      fetch("/api/radar/history").then((r) => (r.ok ? r.json() : null))
+        .then((rec: DayRec | null) => { if (!mergeToday(rec)) idbGet<DayRec>(`day-${liveDate}`).then(apply); })
+        .catch(() => idbGet<DayRec>(`day-${liveDate}`).then(apply));
     } else {
       idbGet<DayRec>(`day-${liveDate}`).then(apply);
     }
     return () => { alive = false; };
   }, [mode, liveDate, isToday, serverDays]);
+
+  // 휴장·주말: 오늘 데이터가 전혀 없으면 최근 기록일로 자동 전환
+  useEffect(() => {
+    if (mode !== "live" || !isToday || !liveClosed || liveBuf.length) return;
+    const prev = days.find((d) => d !== dayKST());
+    if (prev) setLiveDate(prev);
+  }, [mode, isToday, liveClosed, liveBuf.length, days]);
 
   // 폴링: 오늘·실시간·장중일 때만. 장 마감(open=false) 감지 시 폴링 완전 중지(그날 기록만 표시).
   useEffect(() => {
