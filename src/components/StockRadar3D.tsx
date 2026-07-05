@@ -40,12 +40,14 @@ export default function StockRadar3D() {
   })), [frames]);
   const dataRef = useRef(data); useEffect(() => { dataRef.current = data; }, [data]);
 
-  // 테마 = 성좌: 테마별 고유 색(황금각 분산 hue) · 대장주 = 테마 내 ETF 노출 1위(stocks가 노출순이라 첫 등장)
+  // 테마 = 성좌: 테마별 고유 색(수제 고대비 팔레트) · 대장주 = 테마 내 ETF 노출 1위(stocks가 노출순이라 첫 등장)
   const themeMeta = useMemo(() => {
+    // 어두운 배경에서 서로 최대한 구분되는 hue 수제 배열(인접 인덱스끼리도 멀리)
+    const HUES = [355, 45, 190, 275, 110, 20, 220, 320, 75, 165, 250, 300, 140, 205, 30, 345];
     const themeOf = stocks.map((st) => st.theme ?? "기타");
     const themes: string[] = []; const idxOf: Record<string, number> = {};
     themeOf.forEach((t) => { if (!(t in idxOf)) { idxOf[t] = themes.length; themes.push(t); } });
-    const hue = themes.map((_, k) => Math.round((k * 137.5 + 12) % 360));
+    const hue = themes.map((_, k) => HUES[k % HUES.length]);
     const themeIdx = themeOf.map((t) => idxOf[t]);
     const leader = themes.map(() => -1);
     themeIdx.forEach((k, i) => { if (leader[k] === -1) leader[k] = i; });
@@ -53,6 +55,20 @@ export default function StockRadar3D() {
     return { themes, hue, themeIdx, leader, members };
   }, [stocks]);
   const themeRef = useRef(themeMeta); useEffect(() => { themeRef.current = themeMeta; }, [themeMeta]);
+
+  // 아래 리스트: 성좌별 종목(대장주 먼저, 이후 온도순) — 뜨거운 성좌부터 정렬
+  const themeList = useMemo(() => {
+    const f = data[clamp(playIdx, 0, frameCount - 1)];
+    if (!f) return [];
+    return themeMeta.themes.map((t, k) => {
+      const rows = themeMeta.members[k]
+        .map((i) => ({ i, name: stocks[i].name, temp: f[i][3], ret: f[i][4], leader: themeMeta.leader[k] === i }))
+        .sort((a, b) => (b.leader ? 1 : 0) - (a.leader ? 1 : 0) || b.temp - a.temp);
+      const maxTemp = rows.reduce((m, r) => Math.max(m, r.temp), 0);
+      const avgRet = rows.reduce((sum, r) => sum + r.ret, 0) / (rows.length || 1);
+      return { t, k, hue: themeMeta.hue[k], rows, maxTemp, avgRet, n: rows.length };
+    }).sort((a, b) => b.maxTemp - a.maxTemp);
+  }, [data, playIdx, frameCount, themeMeta, stocks]);
   const [constell, setConstell] = useState(true); // 성좌(테마 연결선) 토글
   const constellRef = useRef(true);
   useEffect(() => { constellRef.current = constell; renderRef.current?.(); }, [constell]);
@@ -155,7 +171,7 @@ export default function StockRadar3D() {
           for (let k = 0; k < TM.members.length; k++) {
             const mem = TM.members[k];
             if (mem.length < 2) continue;
-            ctx.strokeStyle = `hsl(${TM.hue[k]} 60% 60%)`; ctx.lineWidth = 1;
+            ctx.strokeStyle = `hsl(${TM.hue[k]} 70% 62%)`; ctx.lineWidth = 1;
             for (const i of mem) {
               const a = pts[i];
               let bj = -1, bd2 = Infinity;
@@ -176,7 +192,7 @@ export default function StockRadar3D() {
         for (const { i, p, temp, ret, grp } of order) {
           const isSel = sel === i, hot = temp >= HOT;
           const k = TM.themeIdx[i], isLeader = TM.leader[k] === i;
-          const col = isSel ? SELECT : `hsl(${TM.hue[k]} ${hot ? 78 : 48}% ${hot ? 67 : 54}%)`; // 색=성좌(테마), 밝기=온도
+          const col = isSel ? SELECT : `hsl(${TM.hue[k]} ${hot ? 88 : 62}% ${hot ? 68 : 56}%)`; // 색=성좌(테마), 밝기=온도
           const fog = clamp((p.depth + 1.1) / 2.2, 0, 1);           // 깊이 안개(뒤=흐림)
           const r = (isSel ? 3.5 : isLeader ? 2.8 : 2) * p.s + temp * 6 * p.s;
           const glowK = Math.max(temp, isLeader ? 0.3 : 0);
@@ -291,13 +307,38 @@ export default function StockRadar3D() {
         <span className="text-white/45">드래그 회전 · 휠/핀치 줌 · 클릭 선택</span>
       </div>
 
-      {/* 성좌(테마) 색상 범례 */}
-      <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
-        {themeMeta.themes.map((t, k) => (
-          <span key={t} className="inline-flex items-center gap-1 text-white/55">
-            <span className="inline-block h-2 w-2 rounded-full" style={{ background: `hsl(${themeMeta.hue[k]} 65% 60%)` }} />
-            {t}
-          </span>
+      {/* 성좌별 종목 리스트 — 뜨거운 성좌부터, ✦=대장주, 클릭=구체에서 선택 */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {themeList.map((g) => (
+          <div key={g.t} className="rounded-[20px] bg-base-800 p-3">
+            <div className="mb-1.5 flex items-center gap-1.5 px-1">
+              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: `hsl(${g.hue} 70% 62%)` }} />
+              <span className="text-[13px] font-bold" style={{ color: `hsl(${g.hue} 70% 68%)` }}>{g.t}</span>
+              <span className="text-[11px] text-white/35">{g.n}종목</span>
+              <span className={`ml-auto text-[12px] font-semibold tabular-nums ${g.avgRet >= 0 ? "text-up" : "text-down"}`}>
+                평균 {g.avgRet >= 0 ? "+" : ""}{g.avgRet.toFixed(1)}%
+              </span>
+            </div>
+            <ul className="space-y-0.5">
+              {g.rows.slice(0, 6).map((r) => {
+                const on = selected === r.i;
+                return (
+                  <li key={r.i}>
+                    <button onClick={() => setSelected((c) => (c === r.i ? null : r.i))}
+                      className={`flex w-full items-center gap-1.5 rounded-lg px-1.5 py-0.5 text-left transition-colors ${on ? "bg-[#22c55e]/10" : "hover:bg-white/[0.04]"}`}>
+                      <span className="w-3 shrink-0 text-center text-[11px]" style={{ color: `hsl(${g.hue} 70% 65%)` }}>{r.leader ? "✦" : "·"}</span>
+                      <span className={`min-w-0 flex-1 truncate text-[12px] ${on ? "text-[#22c55e]" : r.leader ? "text-white/90 font-semibold" : "text-white/70"}`}>{r.name}</span>
+                      {r.temp >= 0.3 && <span className="shrink-0 text-[11px] font-semibold tabular-nums" style={{ color: AMBER }}>{Math.round(r.temp * 100)}°</span>}
+                      <span className={`w-12 shrink-0 text-right text-[12px] font-semibold tabular-nums ${r.ret >= 0 ? "text-up" : "text-down"}`}>
+                        {r.ret >= 0 ? "+" : ""}{r.ret.toFixed(1)}%
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+              {g.n > 6 && <li className="px-1.5 pt-0.5 text-[11px] text-white/30">+{g.n - 6}종목 (구체에서 탐색)</li>}
+            </ul>
+          </div>
         ))}
       </div>
       <div className="mx-auto flex max-w-xl items-center gap-3">

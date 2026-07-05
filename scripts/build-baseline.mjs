@@ -10,7 +10,7 @@ const ROOT = process.cwd();
 if (!hasToss) { console.error("토스 키 없음(.env.local)"); process.exit(0); }
 const stocksData = JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/etf-stocks.json"), "utf8"));
 const marketMap = JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/stock-markets.json"), "utf8"));
-const KOSPI_N = 200, KOSDAQ_N = 50;
+const KOSPI_N = 200, KOSDAQ_N = 200;
 const num = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
 const r3 = (v) => (Number.isFinite(v) ? Math.round(v * 1000) / 1000 : null);
 const median = (a) => { const s = [...a].sort((x, y) => x - y); const n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : 0; };
@@ -45,7 +45,10 @@ for (const s of sel) {
   const rets = C.map((v, i) => (i === 0 ? 0 : (v - C[i - 1]) / (C[i - 1] || 1)));
   const m = master[s.code];
   out[s.code] = {
-    code: s.code, name: s.name, theme: s.themes?.[0] ?? "기타", market: marketMap[s.code] || "KOSPI",
+    // 테마: 지수·범용 버킷보다 구체 테마 우선(성좌·고유수익 분해용)
+    code: s.code, name: s.name,
+    theme: (s.themes || []).find((t) => !["코스피·대형", "코스닥", "배당·커버드콜", "기타"].includes(t)) || s.themes?.[0] || "기타",
+    market: marketMap[s.code] || "KOSPI",
     prevClose: C[n - 1],                                  // 전일 종가(네이버)
     medVol20: median(V.slice(-20)),                       // 20일 거래량 중앙값(네이버 = 장중과 동일 스케일)
     vol20: r3(std(rets.slice(-20)) * 100),                // 20일 변동성%
