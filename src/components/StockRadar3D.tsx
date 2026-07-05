@@ -172,8 +172,8 @@ export default function StockRadar3D() {
     <div className="space-y-4">
       <div className="mx-auto w-full" style={{ maxWidth: 620 }}>
         <div className="relative w-full overflow-hidden rounded-[20px] bg-[#0b0e0c]" style={{ aspectRatio: "1 / 1" }}>
-          <canvas ref={cvRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp}
-            className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing" role="img"
+          <canvas ref={cvRef} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+            className="absolute inset-0 h-full w-full cursor-grab touch-none select-none active:cursor-grabbing" role="img"
             aria-label="3D 관제 구체 — 거래량×수익률×자금유입, 온도=크기" />
         </div>
       </div>
