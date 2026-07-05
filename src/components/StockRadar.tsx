@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { radarData, AXIS5, getTa, groupLabel } from "@/lib/radarData";
+import { radarData } from "@/lib/radarData";
+import { JudgeCard, ThemePanel } from "./radarShared";
 
 const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
 const MUTED_UP = "#a06a73", MUTED_DOWN = "#6a73a0"; // 시장·섹터 동반: 옅은 방향 색조
@@ -445,113 +446,20 @@ export default function StockRadar() {
     <button onClick={() => switchMode(m)} className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${mode === m ? "bg-[#3182f6] text-white" : "bg-white/[0.06] text-white/55 hover:text-white"}`}>{label}</button>
   );
 
-  // 판단 근거 카드 — 종목 선택 시. 예측 아님, 사람이 판단할 근거 조립.
+  // 판단 근거 카드 — 공유 컴포넌트(radarShared.JudgeCard, 3D 탭과 동일). 여기선 view 행에서 프롭만 계산.
   const JudgmentCard = () => {
     if (selected == null) return null;
     const s = stocks[selected]; const row = view.f[playIdx]?.b[selected]; if (!s || !row) return null;
-    const temp = row[3] as number, ret = row[5] as number, led = (row[6] ?? 0) as number;
-    const spec = (row[7] ?? 0) as number, grp = (row[10] ?? -1) as number;
-    const mkt = (row[11] ?? 0) as number, secDev = (row[12] ?? 0) as number;
-    const perc = (row[13] ?? []) as number[];
-    const am = Math.abs(mkt), as = Math.abs(secDev), ap = Math.abs(spec), tot = am + as + ap || 1e-9;
-    const ledTxt = led === 0 ? "종목 고유" : led === 1 ? "섹터 동반" : "시장 동반";
-    const ledCol = led === 0 ? SELECT : "#94a3b8";
-    const ta = getTa(s.code);
-    const Seg = ({ label, v, col }: { label: string; v: number; col: string }) => (
-      <div className="flex items-center gap-2">
-        <span className="w-10 shrink-0 text-[11px] text-white/45">{label}</span>
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
-          <div className="h-full rounded-full" style={{ width: `${Math.round(v / tot * 100)}%`, background: col }} />
-        </div>
-        <span className="w-9 shrink-0 text-right text-[11px] tabular-nums text-white/60">{Math.round(v / tot * 100)}%</span>
-      </div>
-    );
-    const taLabel = (() => {
-      if (!ta) return null;
-      const rsiT = ta.rsi >= 70 ? "과매수" : ta.rsi <= 30 ? "과매도" : "중립";
-      const macdT = ta.macdCross === 1 ? "골든크로스" : ta.macdCross === -1 ? "데드크로스" : ta.macdHist > 0 ? "상승" : "하락";
-      const bbT = ta.bbPctB > 1 ? "상단 이탈" : ta.bbPctB < 0 ? "하단 이탈" : `밴드 내 ${Math.round(ta.bbPctB * 100)}%`;
-      const maT = ta.maArr === 1 ? "정배열" : ta.maArr === -1 ? "역배열" : "혼조";
-      const adxT = ta.adx >= 25 ? `추세강함(${ta.trend > 0 ? "상승" : "하락"})` : "추세약함";
-      return { rsiT, macdT, bbT, maT, adxT };
-    })();
-
     return (
-      <div className="rounded-[20px] bg-[#22c55e]/[0.07] p-4">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <CircleLogo name={s.name} on size={8} />
-            <div>
-              <div className="flex items-center gap-1.5 text-[15px] font-bold text-white">
-                {s.name}
-                {s.market && <span className="rounded bg-white/10 px-1 py-px text-[10px] font-medium text-white/55">{s.market === "KOSDAQ" ? "코스닥" : "코스피"}</span>}
-              </div>
-              <div className="text-[12px] text-white/50">
-                온도 <strong style={{ color: AMBER }}>{Math.round(temp * 100)}°</strong>
-                {grp >= 0 && <> · {groupLabel(grp)} 주도</>} · <span style={{ color: ret >= 0 ? UP : DOWN }}>{ret >= 0 ? "+" : ""}{ret.toFixed(1)}%</span>
-              </div>
-            </div>
-          </div>
-          <button onClick={() => setSelected(null)} className="rounded-full bg-white/[0.06] px-2 py-1 text-xs text-white/50 hover:text-white">닫기 ✕</button>
-        </div>
-
-        {/* 1. 왜 떴나 */}
-        <div className="mb-3">
-          <div className="mb-1.5 text-[12px] font-bold text-white/70">왜 떴나 <span className="font-normal text-white/40">· 이 움직임의 출처</span></div>
-          <div className="space-y-1">
-            <Seg label="시장" v={am} col="#6a73a0" />
-            <Seg label="섹터" v={as} col="#a06a73" />
-            <Seg label="고유" v={ap} col={SELECT} />
-          </div>
-          <div className="mt-1.5 text-[12px]" style={{ color: ledCol }}>→ <strong>{ledTxt}</strong> 주도 {led === 0 ? "(시장·섹터 빼도 이 종목만의 움직임)" : "(테마·지수가 같이 움직임 — 종목만의 신호 약함)"}</div>
-        </div>
-
-        {/* 2. 무엇이 특이 */}
-        {perc.length === 5 ? (
-          <div className="mb-3">
-            <div className="mb-1.5 text-[12px] font-bold text-white/70">무엇이 특이 <span className="font-normal text-white/40">· 동종 대비 위치(백분위)</span></div>
-            <div className="space-y-1">
-              {AXIS5.map((label, k) => (
-                <div key={label} className="flex items-center gap-2">
-                  <span className="w-12 shrink-0 text-[11px] text-white/45">{label}</span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
-                    <div className="h-full rounded-full" style={{ width: `${perc[k]}%`, background: perc[k] >= 80 ? AMBER : "#5b6573" }} />
-                  </div>
-                  <span className="w-12 shrink-0 text-right text-[11px] tabular-nums" style={{ color: perc[k] >= 80 ? AMBER : "rgba(255,255,255,0.45)" }}>
-                    {perc[k] >= 50 ? `상위${Math.max(1, 100 - perc[k])}%` : `하위${Math.max(1, perc[k])}%`}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="mb-3 text-[12px] text-white/35">무엇이 특이 — 일일 모드에서 보입니다.</div>
-        )}
-
-        {/* 3. 통념 지표 + 정직 라벨 */}
-        {taLabel && (
-          <div className="mb-2">
-            <div className="mb-1.5 text-[12px] font-bold text-white/70">통념 지표 <span className="font-normal text-white/40">· 최신일 기준</span></div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[12px] text-white/65">
-              <div>RSI <strong className="text-white/85">{ta!.rsi}</strong> <span className="text-white/45">{taLabel.rsiT}</span></div>
-              <div>MACD <strong className="text-white/85">{taLabel.macdT}</strong></div>
-              <div>볼린저 <strong className="text-white/85">{taLabel.bbT}</strong></div>
-              <div>이평 <strong className="text-white/85">{taLabel.maT}</strong></div>
-              <div>스토캐스틱 <strong className="text-white/85">{ta!.stochK}</strong></div>
-              <div>ADX <strong className="text-white/85">{taLabel.adxT}</strong></div>
-            </div>
-            <div className="mt-1.5 rounded-lg bg-[#f5a623]/[0.08] px-2 py-1 text-[11px] text-[#f5a623]/90">
-              ⚠️ 우리 7개월 검증에서 이 지표들의 미래수익 예측력 <strong>0</strong> (특히 과매도≠반등). 친숙한 참고 맥락일 뿐.
-            </div>
-          </div>
-        )}
-
-        <div className="mt-2 border-t border-white/[0.06] pt-2 text-center text-[11px] text-white/40">
-          판단은 당신 몫입니다 · <strong className="text-white/55">매매신호·투자자문 아님</strong>
-        </div>
-      </div>
+      <JudgeCard
+        code={s.code} name={s.name} market={s.market}
+        temp={row[3] as number} retPct={row[5] as number} grp={(row[10] ?? -1) as number}
+        mkt={(row[11] ?? 0) as number} secDev={(row[12] ?? 0) as number} spec={(row[7] ?? 0) as number}
+        led={(row[6] ?? 0) as number} perc={(row[13] ?? []) as number[]}
+        onClose={() => setSelected(null)}
+      />
     );
-  };
+  }
 
   return (
     <div className="space-y-4">
@@ -613,6 +521,9 @@ export default function StockRadar() {
         <List title={mode === "cum" ? "누적 상승 상위" : "상승률 상위"} accent={UP} rows={lists.up} kind="up" />
         <List title={mode === "cum" ? "누적 하락 상위" : "하락률 상위"} accent={DOWN} rows={lists.down} kind="down" />
       </div>
+
+      {/* 성좌별 종목 리스트 — 3D 탭과 동일 구성(실시간 모드는 프레임 불일치로 제외) */}
+      {mode !== "live" && <ThemePanel frameIdx={playIdx} selected={selected} onSelect={setSelected} />}
 
       <div className="space-y-1 text-center text-[11px] text-white/35">
         <p>

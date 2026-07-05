@@ -21,8 +21,8 @@ const ETF_NAV = [
   { href: "/etf/themes", label: "테마" },
 ];
 const RADAR_NAV = [
-  { href: "/radar", label: "관제 스코프", exact: true },
-  { href: "/radar/test", label: "3D 구체 TEST" },
+  { href: "/radar", label: "2D 관제 스코프", exact: true },
+  { href: "/radar/3d", label: "3D 관제 스코프" },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean) {
