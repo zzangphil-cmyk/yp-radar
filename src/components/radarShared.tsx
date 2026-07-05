@@ -316,6 +316,106 @@ export function judgePropsFromFrame(frameIdx: number, stockIdx: number, onClose:
   };
 }
 
+// ── 요약 패널(슬라이드①): 결론부터 — 전체 TOP5(이유 포함) + 발광(주도원인)별 서머리 ──
+//  발광 4유형의 의미·장점·단점을 선언하고, 그 기준 상승/하락 TOP3를 짚어준다. 예측 아님.
+const GROUP_INFO = [
+  { label: "거래량", color: "#f5a623", mean: "평소 대비 거래가 몰리는 중", pro: "관심·자금이 들어오는 가장 빠른 흔적", con: "단타 쏠림·하루짜리 테마일 수 있음" },
+  { label: "고유수익", color: "#f04452", mean: "시장·섹터를 빼고도 남는 이 종목만의 등락", pro: "종목 자체 재료(실적·공시) 가능성", con: "재료가 이미 가격에 반영된 뒤일 수 있음" },
+  { label: "변동성", color: "#8b5cf6", mean: "가격 흔들림(진폭) 자체가 커짐", pro: "큰 변화가 진행 중이라는 신호", con: "방향이 없음 — 위아래 모두 커질 수 있음" },
+  { label: "자금유입", color: "#06b6d4", mean: "시총 대비 거래대금이 이례적 (과거 검증에서 생존한 신호)", pro: "조용한 종목에 자금이 쏠리는 걸 포착", con: "누가·왜 사는지는 보이지 않음" },
+];
+// TOP5 "왜 1등인지" — 5축 백분위에서 가장 이례적인 축 1~2개를 순위 언어로
+function reasonOf(pct5: number[]): string {
+  if (!pct5 || pct5.length !== 5) return "여러 축 동시 이탈";
+  const ranked = pct5.map((p, k) => ({ k, p })).sort((a, b) => b.p - a.p);
+  const top = ranked.filter((x) => x.p >= 70).slice(0, 2);
+  if (!top.length) return "단일 극단 없이 여러 축이 고르게 높음 (조합형 이상)";
+  return top.map((x) => `${AXIS5[x.k]} 상위 ${Math.max(1, 100 - x.p)}%`).join(" + ");
+}
+
+export function SummaryPanel({ frameIdx, selected, onSelect, overrideB }: { frameIdx: number; selected: number | null; onSelect: (i: number | null) => void; overrideB?: (number[] | null)[] }) {
+  const f = radarData.frames[clamp(frameIdx, 0, radarData.frameCount - 1)];
+  if (!f && !overrideB) return null;
+  const rowsSrc: (number[] | null)[] = overrideB ?? f.b.map((b) => b as unknown as number[]);
+  const stocks = radarData.stocks;
+  const all = rowsSrc.map((b, i) => ({
+    i, name: stocks[i].name, hue: themeMeta.hue[themeMeta.themeIdx[i]],
+    temp: b ? b[3] : 0, ret: b ? b[5] : 0, grp: b ? ((b[7] as number) ?? -1) : -1,
+    pct5: b ? ((b[8] as unknown as number[]) ?? []) : [],
+  }));
+  const top5 = [...all].sort((a, b) => b.temp - a.temp).slice(0, 5);
+
+  const RowBtn = ({ r, rank, reason }: { r: (typeof all)[number]; rank?: number; reason?: boolean }) => {
+    const on = selected === r.i;
+    return (
+      <button onClick={() => onSelect(on ? null : r.i)}
+        className={`flex w-full items-center gap-2 rounded-lg px-1.5 py-1 text-left transition-colors ${on ? "bg-[#22c55e]/10" : "hover:bg-white/[0.04]"}`}>
+        {rank != null && <span className="w-4 shrink-0 text-center text-[13px] font-bold tabular-nums text-white/35">{rank}</span>}
+        <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: `hsl(${r.hue} 70% 62%)` }} />
+        <span className={`min-w-0 shrink-0 truncate text-[13px] font-semibold ${on ? "text-[#22c55e]" : "text-white/90"}`}>{r.name}</span>
+        <span className="shrink-0 text-[12px] font-semibold tabular-nums" style={{ color: AMBER }}>{Math.round(r.temp * 100)}°</span>
+        <span className={`shrink-0 text-[12px] font-semibold tabular-nums ${r.ret >= 0 ? "text-up" : "text-down"}`}>{r.ret >= 0 ? "+" : ""}{r.ret.toFixed(1)}%</span>
+        {reason && <span className="min-w-0 flex-1 truncate text-right text-[11px] text-white/45">{reasonOf(r.pct5)}</span>}
+      </button>
+    );
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* ⑴ 전체 서머리 — 결론부터 */}
+      <div className="rounded-[20px] bg-base-800 p-4">
+        <div className="mb-1 text-[14px] font-bold text-white">오늘의 결론 — 온도 TOP 5</div>
+        <p className="mb-2 text-[12px] text-white/45">
+          수백 종목을 5축(거래량·고유수익·변동성·당일폭·자금유입) 동시 이탈로 줄 세운 결과. <strong className="text-white/60">&ldquo;왜 이 순위인지&rdquo;</strong>를 오른쪽에 축 순위로 적었다.
+        </p>
+        <ul className="space-y-0.5">
+          {top5.map((r, k) => <li key={r.i}><RowBtn r={r} rank={k + 1} reason /></li>)}
+        </ul>
+      </div>
+
+      {/* ⑵ 발광(주도원인)별 서머리 — 의미·장단점 선언 + 상승/하락 TOP3 */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {GROUP_INFO.map((g, gi) => {
+          const mem = all.filter((r) => r.grp === gi && r.temp >= 0.15);
+          const ups = mem.filter((r) => r.ret >= 0).sort((a, b) => b.temp - a.temp).slice(0, 3);
+          const downs = mem.filter((r) => r.ret < 0).sort((a, b) => b.temp - a.temp).slice(0, 3);
+          return (
+            <div key={g.label} className="rounded-[20px] bg-base-800 p-4">
+              <div className="mb-1 flex items-center gap-2">
+                <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: g.color, boxShadow: `0 0 8px ${g.color}88` }} />
+                <span className="text-[13px] font-bold" style={{ color: g.color }}>{g.label} 발광</span>
+                <span className="text-[11px] text-white/40">{mem.length}종목</span>
+              </div>
+              <p className="text-[12px] text-white/60">{g.mean}</p>
+              <p className="mt-0.5 text-[11px]"><span className="text-[#22c55e]/80">장점</span> <span className="text-white/50">{g.pro}</span></p>
+              <p className="text-[11px]"><span className="text-[#f04452]/80">단점</span> <span className="text-white/50">{g.con}</span></p>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <div>
+                  <div className="mb-0.5 text-[11px] font-semibold text-up">상승 쪽 TOP{ups.length}</div>
+                  <ul className="space-y-0.5">
+                    {ups.map((r) => <li key={r.i}><RowBtn r={r} /></li>)}
+                    {!ups.length && <li className="px-1 text-[11px] text-white/25">없음</li>}
+                  </ul>
+                </div>
+                <div>
+                  <div className="mb-0.5 text-[11px] font-semibold text-down">하락 쪽 TOP{downs.length}</div>
+                  <ul className="space-y-0.5">
+                    {downs.map((r) => <li key={r.i}><RowBtn r={r} /></li>)}
+                    {!downs.length && <li className="px-1 text-[11px] text-white/25">없음</li>}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-center text-[11px] text-white/35">
+        &ldquo;베스트&rdquo;는 <strong className="text-white/50">관측 기준(온도·발광)의 순위</strong>일 뿐, 오를 종목이 아닙니다 · 매매신호·투자자문 아님
+      </p>
+    </div>
+  );
+}
+
 // ── 성좌별 종목 리스트: 뜨거운 성좌부터, ✦=대장주, 클릭=레이더에서 선택 ──
 //  overrideB: 실시간 스냅샷 blip(stocks 순, 결측 null)로 대체
 export function ThemePanel({ frameIdx, selected, onSelect, overrideB }: { frameIdx: number; selected: number | null; onSelect: (i: number | null) => void; overrideB?: (number[] | null)[] }) {

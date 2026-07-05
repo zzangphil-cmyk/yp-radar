@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData } from "@/lib/radarData";
-import { JudgeCard, ThemePanel, useLiveDay, dayKST, fmtDay, themeMeta } from "./radarShared";
+import { JudgeCard, ThemePanel, SummaryPanel, useLiveDay, dayKST, fmtDay, themeMeta } from "./radarShared";
 
 const UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
 const GROUP_LABELS = ["거래량", "고유수익", "변동성", "자금유입"]; // 온도(D²)를 띄운 주 원인
@@ -38,6 +38,7 @@ export default function StockRadar() {
   const [playIdx, setPlayIdx] = useState(frameCount - 1);
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+  const [slide, setSlide] = useState<1 | 2>(1); // ①요약(결론부터) / ②상세(성좌별)
   // 실시간 하루 버퍼 — 공유 훅(radarShared.useLiveDay): 히스토리 시딩·폴링·IDB·기록일 관리 (3D 탭과 동일)
   const { liveBuf, liveDate, days, isToday, liveClosed, liveLast, loadSeq, pickDate: pickDateRaw, goToday } = useLiveDay(mode === "live");
   const followRef = useRef(true); // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
@@ -321,6 +322,14 @@ export default function StockRadar() {
     };
   }, [view, playIdx, stocks]);
 
+  // 요약·상세 패널 데이터 기준: 일일=현재 프레임 / 누적=구간 마지막 날 / 실시간=현재 스냅샷(overrideB)
+  const sumIdx = mode === "cum" ? endIdx : clamp(playIdx, 0, frameCount - 1);
+  const liveOB = useMemo(() => {
+    if (mode !== "live" || !liveBuf.length) return undefined;
+    const fr = liveBuf[clamp(playIdx, 0, liveBuf.length - 1)];
+    return stocks.map((s) => fr?.map[s.code] ?? null);
+  }, [mode, liveBuf, playIdx, stocks]);
+
   const dateOpts = frames.map((f, i) => <option key={i} value={i}>{f.t}</option>);
   const goTo = (v: number) => { const s = stRef.current; s.playing = false; s.target = v; s.shown = v; setPlaying(false); setPlayIdx(v); followRef.current = v >= view.hi; };
   const onStart = (v: number) => { setStartIdx(v); if (v > endIdx) setEndIdx(v); goTo(Math.max(v, playIdx)); };
@@ -443,14 +452,23 @@ export default function StockRadar() {
 
       {selected != null && <JudgmentCard />}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <List title="온도 상위 (평소와 다른 정도)" accent={AMBER} rows={lists.hot} kind="hot" />
-        <List title={mode === "cum" ? "누적 상승 상위" : "상승률 상위"} accent={UP} rows={lists.up} kind="up" />
-        <List title={mode === "cum" ? "누적 하락 상위" : "하락률 상위"} accent={DOWN} rows={lists.down} kind="down" />
+      {/* 슬라이드 ①요약 / ②상세 — 결론부터, 원하면 드릴다운 */}
+      <div className="flex items-center justify-center gap-1 rounded-full">
+        <button onClick={() => setSlide(1)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 1 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>① 요약 — 결론부터</button>
+        <button onClick={() => setSlide(2)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 2 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>② 상세 — 성좌별 전체</button>
       </div>
-
-      {/* 성좌별 종목 리스트 — 3D 탭과 동일 구성(실시간 모드는 프레임 불일치로 제외) */}
-      {mode !== "live" && <ThemePanel frameIdx={playIdx} selected={selected} onSelect={setSelected} />}
+      {slide === 1 ? (
+        <SummaryPanel frameIdx={sumIdx} selected={selected} onSelect={setSelected} overrideB={liveOB} />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <List title="온도 상위 (평소와 다른 정도)" accent={AMBER} rows={lists.hot} kind="hot" />
+            <List title={mode === "cum" ? "누적 상승 상위" : "상승률 상위"} accent={UP} rows={lists.up} kind="up" />
+            <List title={mode === "cum" ? "누적 하락 상위" : "하락률 상위"} accent={DOWN} rows={lists.down} kind="down" />
+          </div>
+          <ThemePanel frameIdx={sumIdx} selected={selected} onSelect={setSelected} overrideB={liveOB} />
+        </>
+      )}
 
       <div className="space-y-1 text-center text-[11px] text-white/35">
         <p>

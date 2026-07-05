@@ -5,7 +5,7 @@
 //   드래그 회전 · 휠/핀치 줌 · 성좌(테마 연결선) · ✦대장주 · 성도 라벨. 의존성 없는 캔버스 3D.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData, groupLabel } from "@/lib/radarData";
-import { themeMeta, ThemePanel, JudgeCard, judgePropsFromFrame, useLiveDay, dayKST, fmtDay, SELECT, AMBER } from "./radarShared";
+import { themeMeta, ThemePanel, SummaryPanel, JudgeCard, judgePropsFromFrame, useLiveDay, dayKST, fmtDay, SELECT, AMBER } from "./radarShared";
 
 const HOT = 0.4, F_PERS = 3.4, DZ = 0.5;
 const ZOOM_MIN = 0.6, ZOOM_MAX = 5, LABEL_ZOOM = 1.7; // 성도(星圖)처럼: 줌인하면 고온 별 이름 표시
@@ -36,6 +36,7 @@ export default function StockRadar3D() {
   const [playIdx, setPlayIdx] = useState(frameCount - 1);
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+  const [slide, setSlide] = useState<1 | 2>(1); // ①요약 / ②상세(성좌별)
   const [constell, setConstell] = useState(true);
   const constellRef = useRef(true);
   useEffect(() => { constellRef.current = constell; renderRef.current?.(); }, [constell]);
@@ -391,9 +392,18 @@ export default function StockRadar3D() {
         return jp ? <JudgeCard {...jp} /> : null;
       })()}
 
-      {/* 성좌별 종목 리스트 — 공유 컴포넌트(2D 탭과 동일) */}
-      <ThemePanel frameIdx={mode === "cum" ? endIdx : clampedIdx} selected={selected} onSelect={setSelected}
-        overrideB={view.live ? view.overrideB?.[clampedIdx] : undefined} />
+      {/* 슬라이드 ①요약 / ②상세 — 결론부터, 원하면 드릴다운(2D와 동일) */}
+      <div className="flex items-center justify-center gap-1">
+        <button onClick={() => setSlide(1)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 1 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>① 요약 — 결론부터</button>
+        <button onClick={() => setSlide(2)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 2 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>② 상세 — 성좌별 전체</button>
+      </div>
+      {slide === 1 ? (
+        <SummaryPanel frameIdx={mode === "cum" ? endIdx : clampedIdx} selected={selected} onSelect={setSelected}
+          overrideB={view.live ? view.overrideB?.[clampedIdx] : undefined} />
+      ) : (
+        <ThemePanel frameIdx={mode === "cum" ? endIdx : clampedIdx} selected={selected} onSelect={setSelected}
+          overrideB={view.live ? view.overrideB?.[clampedIdx] : undefined} />
+      )}
 
       <div className="space-y-1 text-center text-[11px] text-white/35">
         <p>
