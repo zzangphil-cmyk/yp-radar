@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData, groupLabel } from "@/lib/radarData";
 
-const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
+const SELECT = "#22c55e", AMBER = "#f5a623";
 const HOT = 0.4, F_PERS = 3.4;
 const ZOOM_MIN = 0.6, ZOOM_MAX = 5, LABEL_ZOOM = 1.7; // 성도(星圖)처럼: 줌인하면 고온 별 이름 표시
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
@@ -39,6 +39,23 @@ export default function StockRadar3D() {
     return [b[1], b[2], (b[9] as number) ?? 0, b[3], b[5], (b[7] as number) ?? -1];
   })), [frames]);
   const dataRef = useRef(data); useEffect(() => { dataRef.current = data; }, [data]);
+
+  // 테마 = 성좌: 테마별 고유 색(황금각 분산 hue) · 대장주 = 테마 내 ETF 노출 1위(stocks가 노출순이라 첫 등장)
+  const themeMeta = useMemo(() => {
+    const themeOf = stocks.map((st) => st.theme ?? "기타");
+    const themes: string[] = []; const idxOf: Record<string, number> = {};
+    themeOf.forEach((t) => { if (!(t in idxOf)) { idxOf[t] = themes.length; themes.push(t); } });
+    const hue = themes.map((_, k) => Math.round((k * 137.5 + 12) % 360));
+    const themeIdx = themeOf.map((t) => idxOf[t]);
+    const leader = themes.map(() => -1);
+    themeIdx.forEach((k, i) => { if (leader[k] === -1) leader[k] = i; });
+    const members = themes.map((_, k) => themeIdx.map((kk, i) => (kk === k ? i : -1)).filter((i) => i >= 0));
+    return { themes, hue, themeIdx, leader, members };
+  }, [stocks]);
+  const themeRef = useRef(themeMeta); useEffect(() => { themeRef.current = themeMeta; }, [themeMeta]);
+  const [constell, setConstell] = useState(true); // 성좌(테마 연결선) 토글
+  const constellRef = useRef(true);
+  useEffect(() => { constellRef.current = constell; renderRef.current?.(); }, [constell]);
 
   useEffect(() => {
     const cv = cvRef.current; if (!cv) return;
@@ -119,34 +136,69 @@ export default function StockRadar3D() {
       const o = P(0, 0, 0);
       ctx.fillStyle = "rgba(31,214,154,0.5)"; ctx.beginPath(); ctx.arc(o.px, o.py, 2, 0, 7); ctx.fill();
 
-      // 점: 깊이 정렬(먼 것부터)
+      // 점: 월드좌표 → 성좌(같은 테마 최근접 연결) → 깊이 정렬 드로우
       const D = dataRef.current;
+      const TM = themeRef.current;
       const i0 = clamp(Math.floor(s.animF), 0, frameCount - 1), i1 = Math.min(i0 + 1, frameCount - 1);
       const fr = clamp(s.animF - i0, 0, 1);
       const f0 = D[i0], f1 = D[i1];
       if (f0 && f1) {
-        const order = stocks.map((_, i) => i).map((i) => {
+        const pts = stocks.map((_, i) => {
           const x = f0[i][0] + (f1[i][0] - f0[i][0]) * fr, y = f0[i][1] + (f1[i][1] - f0[i][1]) * fr, z = f0[i][2] + (f1[i][2] - f0[i][2]) * fr;
           const p = P(x, y, z);
           posRef.current[i] = { x: p.px, y: p.py, d: p.depth };
-          return { i, p, temp: f0[i][3], ret: f0[i][4], grp: f0[i][5], y };
-        }).sort((a, b) => a.p.depth - b.p.depth);
+          return { i, x, y, z, p, temp: f0[i][3], ret: f0[i][4], grp: f0[i][5] };
+        });
+        // 성좌 선: 각 별을 같은 테마의 최근접 별과 연결(별자리)
+        if (constellRef.current) {
+          const seen = new Set<number>();
+          for (let k = 0; k < TM.members.length; k++) {
+            const mem = TM.members[k];
+            if (mem.length < 2) continue;
+            ctx.strokeStyle = `hsl(${TM.hue[k]} 60% 60%)`; ctx.lineWidth = 1;
+            for (const i of mem) {
+              const a = pts[i];
+              let bj = -1, bd2 = Infinity;
+              for (const j of mem) { if (j === i) continue; const b = pts[j]; const dd = (a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2; if (dd < bd2) { bd2 = dd; bj = j; } }
+              if (bj === -1) continue;
+              const key = i < bj ? i * 1000 + bj : bj * 1000 + i;
+              if (seen.has(key)) continue; seen.add(key);
+              const b = pts[bj];
+              const fogA = clamp(((a.p.depth + b.p.depth) / 2 + 1.1) / 2.2, 0, 1);
+              ctx.globalAlpha = 0.05 + 0.11 * fogA;
+              ctx.beginPath(); ctx.moveTo(a.p.px, a.p.py); ctx.lineTo(b.p.px, b.p.py); ctx.stroke();
+            }
+          }
+          ctx.globalAlpha = 1;
+        }
         const sel = selRef.current;
-        for (const { i, p, temp, ret, grp, y } of order) {
+        const order = [...pts].sort((a, b) => a.p.depth - b.p.depth);
+        for (const { i, p, temp, ret, grp } of order) {
           const isSel = sel === i, hot = temp >= HOT;
-          const retDriven = grp === 1;
-          const col = isSel ? SELECT : !hot ? NEUTRAL : retDriven ? (y >= 0 ? UP : DOWN) : AMBER;
+          const k = TM.themeIdx[i], isLeader = TM.leader[k] === i;
+          const col = isSel ? SELECT : `hsl(${TM.hue[k]} ${hot ? 78 : 48}% ${hot ? 67 : 54}%)`; // 색=성좌(테마), 밝기=온도
           const fog = clamp((p.depth + 1.1) / 2.2, 0, 1);           // 깊이 안개(뒤=흐림)
-          const r = (isSel ? 3.5 : 2) * p.s + temp * 6 * p.s;
-          if (hot || isSel) { ctx.globalAlpha = (0.10 + 0.16 * temp) * (0.4 + 0.6 * fog); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p.px, p.py, r + 6 * (temp + (isSel ? 0.4 : 0)), 0, 7); ctx.fill(); }
-          ctx.globalAlpha = (hot || isSel ? 0.55 + 0.45 * temp : 0.32) * (0.35 + 0.65 * fog);
+          const r = (isSel ? 3.5 : isLeader ? 2.8 : 2) * p.s + temp * 6 * p.s;
+          const glowK = Math.max(temp, isLeader ? 0.3 : 0);
+          if (hot || isSel || isLeader) { ctx.globalAlpha = (0.10 + 0.16 * glowK) * (0.4 + 0.6 * fog); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p.px, p.py, r + 6 * (glowK + (isSel ? 0.4 : 0)), 0, 7); ctx.fill(); }
+          ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * temp : isLeader ? 0.8 : 0.42) * (0.35 + 0.65 * fog);
           ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p.px, p.py, r, 0, 7); ctx.fill();
+          if (isLeader && !isSel) {
+            // 대장주 = 성좌의 으뜸별: ✦ 스파이크 + 상시 이름(테마의 주도는 대장주)
+            ctx.globalAlpha = 0.8 * (0.4 + 0.6 * fog); ctx.strokeStyle = col; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(p.px - r - 6, p.py); ctx.lineTo(p.px - r - 1.5, p.py); ctx.moveTo(p.px + r + 1.5, p.py); ctx.lineTo(p.px + r + 6, p.py);
+            ctx.moveTo(p.px, p.py - r - 6); ctx.lineTo(p.px, p.py - r - 1.5); ctx.moveTo(p.px, p.py + r + 1.5); ctx.lineTo(p.px, p.py + r + 6);
+            ctx.stroke();
+            ctx.globalAlpha = 0.55 * (0.4 + 0.6 * fog); ctx.fillStyle = col; ctx.font = "9px sans-serif"; ctx.textAlign = "left";
+            ctx.fillText(stocks[i].name, p.px + r + 8, p.py + 3);
+          }
           if (isSel) {
             ctx.globalAlpha = 0.95; ctx.strokeStyle = SELECT; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.arc(p.px, p.py, r + 5, 0, 7); ctx.stroke();
             ctx.fillStyle = SELECT; ctx.font = "11px monospace"; ctx.textAlign = "left";
             ctx.fillText(`${stocks[i].name} ${ret >= 0 ? "+" : ""}${ret.toFixed(1)}% · ${grp >= 0 ? groupLabel(grp) : ""}`, p.px + r + 8, p.py - r - 6);
-          } else if (hot && s.zoom >= LABEL_ZOOM) {
+          } else if (hot && !isLeader && s.zoom >= LABEL_ZOOM) {
             // 성도(星圖): 줌인하면 고온 별의 이름이 나타남
             ctx.globalAlpha = clamp((s.zoom - LABEL_ZOOM) / 0.6, 0, 0.85) * (0.4 + 0.6 * fog);
             ctx.fillStyle = col; ctx.font = "10px sans-serif"; ctx.textAlign = "left";
@@ -232,7 +284,21 @@ export default function StockRadar3D() {
           <button onClick={() => zoomBy(1.35)} aria-label="줌 인" className="h-7 w-7 rounded-full text-base font-bold text-white/70 transition-colors hover:bg-white/10 hover:text-white">＋</button>
           <button onClick={resetView} aria-label="시점 리셋" className="h-7 rounded-full px-2 text-xs font-semibold text-white/55 transition-colors hover:bg-white/10 hover:text-white">리셋</button>
         </div>
+        <button onClick={() => setConstell((v) => !v)} aria-label="성좌 토글"
+          className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${constell ? "bg-white/[0.12] text-white" : "bg-white/[0.05] text-white/45 hover:text-white"}`}>
+          ✦ 성좌 {constell ? "ON" : "OFF"}
+        </button>
         <span className="text-white/45">드래그 회전 · 휠/핀치 줌 · 클릭 선택</span>
+      </div>
+
+      {/* 성좌(테마) 색상 범례 */}
+      <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px]">
+        {themeMeta.themes.map((t, k) => (
+          <span key={t} className="inline-flex items-center gap-1 text-white/55">
+            <span className="inline-block h-2 w-2 rounded-full" style={{ background: `hsl(${themeMeta.hue[k]} 65% 60%)` }} />
+            {t}
+          </span>
+        ))}
       </div>
       <div className="mx-auto flex max-w-xl items-center gap-3">
         <input type="range" min={0} max={frameCount - 1} step={1} value={playIdx} onChange={(e) => goTo(+e.target.value)} className="flex-1" />
@@ -244,7 +310,7 @@ export default function StockRadar3D() {
           <strong className="text-white/55">4축</strong> — X <strong className="text-white/50">거래량</strong> · Y <strong className="text-white/50">수익률</strong> · Z <strong style={{ color: AMBER }}>자금유입</strong>(시총 통제 거래대금, 검증 생존 신호) · <strong className="text-white/50">크기·발광 = 온도(D²)</strong>. 원점 = 그날 평균 종목.
         </p>
         <p>
-          색조 = 왜 떴나 · <span style={{ color: UP }}>빨강</span>/<span style={{ color: DOWN }}>파랑</span> 수익률 주도 · <span style={{ color: AMBER }}>호박색</span> 거래량·변동성·자금 주도 · <span style={{ color: SELECT }}>초록 선택</span> ·{" "}
+          <strong className="text-white/55">색 = 성좌(테마)</strong> · 밝기·크기 = 온도(D²) · <strong className="text-white/55">✦ 스파이크 = 대장주</strong>(테마 내 ETF 노출 1위 — 테마의 주도) · 선 = 같은 성좌 연결 · <span style={{ color: SELECT }}>초록 = 선택</span> ·{" "}
           <strong className="text-white/50">줌인하면 고온 별의 이름이 나타납니다(성도처럼)</strong>.
           <strong className="text-white/45"> 온도는 방향·매매신호가 아닙니다.</strong>
         </p>
