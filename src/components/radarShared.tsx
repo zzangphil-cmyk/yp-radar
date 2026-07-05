@@ -345,12 +345,34 @@ export function SummaryPanel({ frameIdx, selected, onSelect, overrideB }: { fram
   }));
   const top5 = [...all].sort((a, b) => b.temp - a.temp).slice(0, 5);
 
+  // 델타 우선: 직전 프레임(실시간이면 최신 일일) 대비 온도 순위 변화 — "어제와 뭐가 달라졌나"
+  const prevIdx = overrideB ? radarData.frameCount - 1 : clamp(frameIdx, 0, radarData.frameCount - 1) - 1;
+  const prevRank: Record<number, number> = {};
+  if (prevIdx >= 0) {
+    const pf = radarData.frames[prevIdx];
+    if (pf) {
+      pf.b.map((b, i) => ({ i, t: (b as unknown as number[])[3] }))
+        .sort((a, b) => b.t - a.t)
+        .forEach((r, rank) => { prevRank[r.i] = rank + 1; });
+    }
+  }
+  const RankDelta = ({ i, cur }: { i: number; cur: number }) => {
+    const pr = prevRank[i];
+    if (pr == null) return null;
+    if (pr > 10) return <span className="shrink-0 rounded bg-[#f5a623]/15 px-1 text-[10px] font-bold text-[#f5a623]">NEW</span>;
+    const d = pr - cur;
+    if (d > 0) return <span className="shrink-0 text-[10px] font-bold text-up">▲{d}</span>;
+    if (d < 0) return <span className="shrink-0 text-[10px] font-bold text-down">▼{-d}</span>;
+    return <span className="shrink-0 text-[10px] text-white/30">–</span>;
+  };
+
   const RowBtn = ({ r, rank, reason }: { r: (typeof all)[number]; rank?: number; reason?: boolean }) => {
     const on = selected === r.i;
     return (
       <button onClick={() => onSelect(on ? null : r.i)}
         className={`flex w-full items-center gap-2 rounded-lg px-1.5 py-1 text-left transition-colors ${on ? "bg-[#22c55e]/10" : "hover:bg-white/[0.04]"}`}>
         {rank != null && <span className="w-4 shrink-0 text-center text-[13px] font-bold tabular-nums text-white/35">{rank}</span>}
+        {rank != null && <RankDelta i={r.i} cur={rank} />}
         <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: `hsl(${r.hue} 70% 62%)` }} />
         <span className={`min-w-0 shrink-0 truncate text-[13px] font-semibold ${on ? "text-[#22c55e]" : "text-white/90"}`}>{r.name}</span>
         <span className="shrink-0 text-[12px] font-semibold tabular-nums" style={{ color: AMBER }}>{Math.round(r.temp * 100)}°</span>

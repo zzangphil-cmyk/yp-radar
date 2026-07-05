@@ -47,10 +47,13 @@ export default function Dashboard() {
   const dom = allocation.assets.find((a) => a.name === "국내주식");
   const ovs = allocation.assets.find((a) => a.name === "해외주식");
 
-  // 결론 TOP5: 국민연금이 실제로 가장 사 모은 종목(지분율 증가) — 이유 = 지분 변화 + 평가액
-  const top5 = changes.accumulated.slice(0, 5);
-  const recentBuys = recent.recentFilings.filter((f) => (f.ownDelta ?? 0) > 0).slice(0, 3);
-  const recentSells = recent.recentFilings.filter((f) => (f.ownDelta ?? 0) < 0).slice(0, 3);
+  // 결론 TOP5 = DART 최근 움직임(주 단위로 변함) — "델타 우선": 안 변하는 연간공시는 맥락으로 강등
+  const top5 = recent.recentFilings.slice(0, 5);
+  const daysAgo = (ymd: string) => {
+    const d = new Date(`${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}`);
+    const n = Math.max(0, Math.round((Date.now() - d.getTime()) / 86400000));
+    return n === 0 ? "오늘" : `${n}일 전`;
+  };
 
   const summary = (
     <div className="space-y-6">
@@ -63,18 +66,19 @@ export default function Dashboard() {
         <QuadrantChart q={quadrant} compact />
       </section>
 
-      {/* 결론부터 — 국민연금이 가장 사 모은 TOP5 */}
+      {/* 결론부터 — 국민연금의 최근 움직임(DART, 주 단위로 변함) */}
       <div className="rounded-[20px] bg-base-800 p-4">
-        <div className="mb-1 text-[14px] font-bold text-white">결론 — 국민연금이 실제로 가장 사 모은 TOP 5 <span className="text-[11px] font-normal text-white/40">({changes.prevYear}→{changes.curYear})</span></div>
-        <p className="mb-2 text-[12px] text-white/45">주가와 무관하게 <strong className="text-white/60">지분율이 실제로 늘어난</strong>(=순매수) 순서. 왜 이 순위인지를 오른쪽에 적었다.</p>
+        <div className="mb-1 text-[14px] font-bold text-white">결론 — 국민연금의 최근 움직임 TOP 5 <span className="text-[11px] font-normal text-radar">DART 실시간</span></div>
+        <p className="mb-2 text-[12px] text-white/45">5%+ 보유 종목의 <strong className="text-white/60">가장 최근 매매 보고</strong>부터. 연간공시(1년에 한 번 변함)는 아래 카드와 상세에.</p>
         <ul className="space-y-0.5">
           {top5.map((r, k) => (
-            <li key={r.slug}>
-              <Link href={`/nps/stock/${encodeURIComponent(r.slug)}`} className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-white/[0.04]">
+            <li key={r.slug + r.date}>
+              <Link href={`/nps/recent`} className="flex items-center gap-2 rounded-lg px-1.5 py-1 hover:bg-white/[0.04]">
                 <span className="w-4 shrink-0 text-center text-[13px] font-bold tabular-nums text-white/35">{k + 1}</span>
+                <span className="shrink-0 rounded bg-white/[0.07] px-1 text-[10px] font-semibold text-white/50">{daysAgo(r.date)}</span>
                 <span className="min-w-0 shrink-0 truncate text-[13px] font-semibold text-white/90">{r.name}</span>
-                <span className="shrink-0 text-[12px] font-semibold tabular-nums text-up">지분 +{r.ownDelta}%p</span>
-                <span className="min-w-0 flex-1 truncate text-right text-[11px] text-white/45">{r.ownPrev}% → {r.ownCur}% · 평가액 {formatEok(r.valCur)}</span>
+                <span className={`shrink-0 text-[12px] font-semibold tabular-nums ${(r.ownDelta ?? 0) >= 0 ? "text-up" : "text-down"}`}>{(r.ownDelta ?? 0) >= 0 ? "+" : ""}{r.ownDelta}%p</span>
+                <span className="min-w-0 flex-1 truncate text-right text-[11px] text-white/45">보유 {r.ownership}% · {r.reason}</span>
               </Link>
             </li>
           ))}
@@ -97,13 +101,13 @@ export default function Dashboard() {
           leftTitle="신규 TOP3" rightTitle="전량매도 TOP3"
           left={changes.newEntries.slice(0, 3).map((r) => ({ key: r.slug, name: r.name, right: formatEok(r.value), tone: "text-radar" }))}
           right={changes.exits.slice(0, 3).map((r) => ({ key: r.slug, name: r.name, right: formatEok(r.prevValue), tone: "text-white/50" }))} />
-        <KindCard color="#06b6d4" title="최근 5%+ 동향 (DART)"
-          mean="5% 이상 보유 종목의 거의 실시간 매매 보고"
-          pro="연간공시와 달리 지금 움직임이 보임"
-          con="5% 이상 보유분만 — 전체 포트폴리오의 일부"
-          leftTitle="최근 매수 TOP3" rightTitle="최근 매도 TOP3"
-          left={recentBuys.map((f) => ({ key: f.slug + f.date, name: f.name, right: `+${f.ownDelta}%p`, tone: "text-up" }))}
-          right={recentSells.map((f) => ({ key: f.slug + f.date, name: f.name, right: `${f.ownDelta}%p`, tone: "text-down" }))} />
+        <KindCard color="#06b6d4" title="보유 기둥 (수준·맥락)"
+          mean="포트폴리오의 기둥 — 평가액·지분율 상위 (잘 안 변함)"
+          pro="연기금의 기본 체력과 시장 영향력이 보임"
+          con="변화 신호가 아님 — 늘 비슷한 이름들"
+          leftTitle="평가액 TOP3" rightTitle="지분율 TOP3"
+          left={changes.topHoldings.slice(0, 3).map((h) => ({ key: h.slug, name: h.name, right: formatEok(h.value), tone: "text-radar" }))}
+          right={[...changes.topHoldings].sort((a, b) => (b.ownership ?? 0) - (a.ownership ?? 0)).slice(0, 3).map((h) => ({ key: h.slug, name: h.name, right: `${h.ownership ?? "-"}%`, tone: "text-white/60" }))} />
       </div>
       <p className="text-center text-[11px] text-white/35">&ldquo;TOP&rdquo;은 공시 데이터의 관측 순위일 뿐, 추천이 아닙니다 · 매매신호·투자자문 아님</p>
     </div>

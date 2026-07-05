@@ -4,14 +4,15 @@ export default // 유형별 서머리 카드 — 의미·장점·단점 선언 +
 function KindCard({ color, title, mean, pro, con, leftTitle, rightTitle, left, right }: {
   color: string; title: string; mean: string; pro: string; con: string;
   leftTitle: string; rightTitle: string;
-  left: { key: string; name: string; right: string; tone?: string }[];
-  right: { key: string; name: string; right: string; tone?: string }[];
+  left: { key: string; name: string; right: string; tone?: string; badge?: string }[];
+  right: { key: string; name: string; right: string; tone?: string; badge?: string }[];
 }) {
   const Rows = ({ rows }: { rows: typeof left }) => (
     <ul className="space-y-0.5">
       {rows.map((r) => (
         <li key={r.key} className="flex items-center gap-1.5 rounded-lg px-1.5 py-0.5">
           <span className="min-w-0 flex-1 truncate text-[12px] text-white/80">{r.name}</span>
+          {r.badge && <span className="shrink-0 rounded bg-[#f5a623]/15 px-1 text-[10px] font-bold text-[#f5a623]">{r.badge}</span>}
           <span className={`shrink-0 text-[12px] font-semibold tabular-nums ${r.tone ?? "text-white/60"}`}>{r.right}</span>
         </li>
       ))}

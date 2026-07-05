@@ -6,9 +6,10 @@ import IndexCard from "@/components/IndexCard";
 import SlideTabs from "@/components/SlideTabs";
 import KindCard from "@/components/KindCard";
 import { etf, etfStocks, fmtAmt, fmtEok } from "@/lib/etfData";
+import { radarData } from "@/lib/radarData";
 import { getSpark } from "@/lib/tossData";
 
-function FlowList({ title, tone, rows }: { title: string; tone: string; rows: { code: string; name: string; flow: number }[] }) {
+function FlowList({ title, tone, rows }: { title: string; tone: string; rows: { code: string; name: string; flow: number; badge?: string }[] }) {
   return (
     <div className="card p-4">
       <div className={`mb-2 text-sm font-semibold ${tone}`}>{title}</div>
@@ -16,7 +17,10 @@ function FlowList({ title, tone, rows }: { title: string; tone: string; rows: { 
         {rows.map((r) => (
           <li key={r.code}>
             <Link href={`/etf/stock/${r.code}`} className="flex items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-white/[0.04]">
-              <span className="truncate text-white/85">{r.name}</span>
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span className="truncate text-white/85">{r.name}</span>
+                {r.badge && <span className="shrink-0 rounded bg-[#f5a623]/15 px-1 text-[10px] font-bold text-[#f5a623]" title="레이더 온도(최신 일일 프레임)">{r.badge}</span>}
+              </span>
               <span className={`ml-2 shrink-0 tabular-nums ${r.flow >= 0 ? "text-radar" : "text-up"}`}>
                 {r.flow >= 0 ? "+" : ""}{fmtEok(r.flow)}
               </span>
@@ -37,16 +41,17 @@ export default function EtfDashboard() {
   const inflows = [...etfStocks.stocks].sort((a, b) => b.flow - a.flow).slice(0, 5);
   const outflows = [...etfStocks.stocks].sort((a, b) => a.flow - b.flow).slice(0, 5);
 
-  // 결론 TOP5: 오늘 |등락|이 가장 큰 ETF — 이유 = 테마 · 거래량 순위(etfs가 거래량순)
-  const top5 = [...etf.etfs]
-    .map((e, i) => ({ ...e, volRank: i + 1 }))
-    .sort((a, b) => Math.abs(b.changeRate ?? 0) - Math.abs(a.changeRate ?? 0))
-    .slice(0, 5);
-  // 유형별
+  // 유형별 + 결론(수익률 랭킹 — 사람들이 ETF에서 제일 먼저 보는 것)
   const byChg = [...etf.etfs].sort((a, b) => (b.changeRate ?? 0) - (a.changeRate ?? 0));
   const byRet3m = [...etf.etfs].filter((e) => e.ret3m != null).sort((a, b) => (b.ret3m ?? 0) - (a.ret3m ?? 0));
 
   const pct = (v: number | null | undefined) => `${(v ?? 0) >= 0 ? "+" : ""}${(v ?? 0).toFixed(1)}%`;
+  // 보유종목 ↔ 레이더 연결: 최신 일일 프레임의 온도(D²)로 "지금 뜨거운 구성종목" 배지
+  const lastF = radarData.frames[radarData.frameCount - 1];
+  const tempOf: Record<string, number> = {};
+  radarData.stocks.forEach((st, i) => { tempOf[st.code] = (lastF.b[i] as unknown as number[])[3] ?? 0; });
+  const tempBadge = (code: string) => { const t = tempOf[code]; return t >= 0.3 ? `${Math.round(t * 100)}°` : undefined; };
+  const totalAum = etf.etfs.reduce((a, e) => a + (e.marketSum ?? 0), 0);
 
   const summary = (
     <div className="space-y-6">
@@ -57,31 +62,41 @@ export default function EtfDashboard() {
         ))}
       </section>
 
-      {/* 결론부터 — 오늘의 ETF TOP5 */}
+      {/* 결론부터 — 수익률 랭킹 (오늘 / 3개월) + AUM */}
       <div className="rounded-[20px] bg-base-800 p-4">
-        <div className="mb-1 text-[14px] font-bold text-white">오늘의 결론 — 가장 크게 움직인 ETF TOP 5</div>
-        <p className="mb-2 text-[12px] text-white/45">거래량 상위 50개 중 오늘 등락이 가장 큰 순서. <strong className="text-white/60">왜 이 순위인지</strong>를 오른쪽에 적었다.</p>
-        <ul className="space-y-0.5">
-          {top5.map((e, k) => (
-            <li key={e.code} className="flex items-center gap-2 rounded-lg px-1.5 py-1">
-              <span className="w-4 shrink-0 text-center text-[13px] font-bold tabular-nums text-white/35">{k + 1}</span>
-              <span className="min-w-0 shrink-0 truncate text-[13px] font-semibold text-white/90">{e.name}</span>
-              <span className={`shrink-0 text-[12px] font-semibold tabular-nums ${(e.changeRate ?? 0) >= 0 ? "text-up" : "text-down"}`}>{pct(e.changeRate)}</span>
-              <span className="min-w-0 flex-1 truncate text-right text-[11px] text-white/45">{e.theme} · 거래량 {e.volRank}위 · 3개월 {pct(e.ret3m)}</span>
-            </li>
+        <div className="mb-1 text-[14px] font-bold text-white">오늘의 결론 — 수익률 TOP 5</div>
+        <p className="mb-2 text-[12px] text-white/45">거래량 상위 50개 기준. 왼쪽은 <strong className="text-white/60">오늘</strong>, 오른쪽은 <strong className="text-white/60">3개월</strong> — 오른쪽 끝은 순자산(AUM).</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          {([["오늘 수익률", byChg.slice(0, 5)], ["3개월 수익률", byRet3m.slice(0, 5)]] as const).map(([lbl, rows]) => (
+            <div key={lbl}>
+              <div className="mb-0.5 px-1.5 text-[11px] font-semibold text-white/40">{lbl}</div>
+              <ul className="space-y-0.5">
+                {rows.map((e, k) => {
+                  const v = lbl === "오늘 수익률" ? e.changeRate : e.ret3m;
+                  return (
+                    <li key={e.code} className="flex items-center gap-2 rounded-lg px-1.5 py-1">
+                      <span className="w-4 shrink-0 text-center text-[13px] font-bold tabular-nums text-white/35">{k + 1}</span>
+                      <span className="min-w-0 flex-1 truncate text-[13px] font-semibold text-white/90">{e.name}</span>
+                      <span className={`shrink-0 text-[12px] font-semibold tabular-nums ${(v ?? 0) >= 0 ? "text-up" : "text-down"}`}>{pct(v)}</span>
+                      <span className="w-14 shrink-0 text-right text-[11px] tabular-nums text-white/40">{fmtEok(e.marketSum)}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
 
       {/* 유형별 서머리 — 의미·장단점 선언 + TOP3 */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <KindCard color="#06b6d4" title="구성종목 자금 유·출입"
-          mean="ETF들이 실제로 사고판 개별 종목의 순유입(3개월)"
+          mean="ETF들이 실제로 사고판 개별 종목의 순유입(3개월) · 주황 °배지 = 그 종목의 지금 레이더 온도"
           pro="리테일·패시브 자금이 어느 종목으로 쏠리는지 보임"
           con="지수 편입·리밸런싱 등 기계적 매매가 섞여 있음"
           leftTitle="유입 TOP3" rightTitle="유출 TOP3"
-          left={inflows.slice(0, 3).map((r) => ({ key: r.code, name: r.name, right: `+${fmtEok(r.flow)}`, tone: "text-radar" }))}
-          right={outflows.slice(0, 3).map((r) => ({ key: r.code, name: r.name, right: fmtEok(r.flow), tone: "text-up" }))} />
+          left={inflows.slice(0, 3).map((r) => ({ key: r.code, name: r.name, right: `+${fmtEok(r.flow)}`, tone: "text-radar", badge: tempBadge(r.code) }))}
+          right={outflows.slice(0, 3).map((r) => ({ key: r.code, name: r.name, right: fmtEok(r.flow), tone: "text-up", badge: tempBadge(r.code) }))} />
         <KindCard color="#f5a623" title="오늘 등락"
           mean="오늘 하루의 가격 움직임"
           pro="지금 시장이 어디에 반응 중인지 즉시 보임"
@@ -105,7 +120,7 @@ export default function EtfDashboard() {
     <div className="space-y-10">
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Kpi label="추적 ETF" value={`${etf.topN}개`} sub="거래량 상위" accent="radar" />
-        <Kpi label="구성종목" value={`${etfStocks.count}개`} sub="국내주식" />
+        <Kpi label="합산 순자산(AUM)" value={fmtEok(totalAum)} sub={`구성종목 ${etfStocks.count}개`} />
         <Kpi label="평균 3개월 수익" value={`${avgRet > 0 ? "+" : ""}${avgRet.toFixed(1)}%`} accent={avgRet >= 0 ? "up" : "down"} />
         <Kpi label="테마 수" value={etf.themes.length} />
       </section>
@@ -124,8 +139,8 @@ export default function EtfDashboard() {
           <Link href="/etf/flows" className="text-sm text-amber-400 hover:text-amber-300">전체 보기 →</Link>
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <FlowList title="▲ ETF 자금 유입 TOP" tone="text-radar" rows={inflows} />
-          <FlowList title="▼ ETF 자금 유출 TOP" tone="text-up" rows={outflows} />
+          <FlowList title="▲ ETF 자금 유입 TOP" tone="text-radar" rows={inflows.map((r) => ({ ...r, badge: tempBadge(r.code) }))} />
+          <FlowList title="▼ ETF 자금 유출 TOP" tone="text-up" rows={outflows.map((r) => ({ ...r, badge: tempBadge(r.code) }))} />
         </div>
       </section>
 
