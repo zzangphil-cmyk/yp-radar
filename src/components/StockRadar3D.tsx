@@ -1,6 +1,6 @@
 "use client";
 
-// 3D 관제 구체 — 4축: X 거래량 · Y 수익률 · Z 자금유입(공간) + 온도 D²(크기·발광)
+// 3D 관제 구체 — 4축: X 거래량 · Y 수익률 · Z 자금유입(공간) + 온도 D²(크기·밝기)
 //   모드: 실시간(공유 훅 useLiveDay — 2D와 동일 파이프라인) · 일일 · 누적. 원점 = 그날 횡단면 평균.
 //   드래그 회전 · 휠/핀치 줌 · 성좌(테마 연결선) · ✦대장주 · 성도 라벨. 의존성 없는 캔버스 3D.
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -407,7 +407,7 @@ export default function StockRadar3D() {
 
       <div className="space-y-1 text-center text-[11px] text-white/35">
         <p>
-          <strong className="text-white/55">4축</strong> — X <strong className="text-white/50">거래량</strong> · Y <strong className="text-white/50">{mode === "cum" ? "누적수익" : "수익률"}</strong> · Z <strong style={{ color: AMBER }}>자금유입</strong>(검증 생존 신호) · <strong className="text-white/50">크기·발광 = 온도(D²)</strong>. 원점 = 그날 평균 종목.
+          <strong className="text-white/55">4축</strong> — X <strong className="text-white/50">거래량</strong> · Y <strong className="text-white/50">{mode === "cum" ? "누적수익" : "수익률"}</strong> · Z <strong style={{ color: AMBER }}>자금유입</strong>(검증 생존 신호) · <strong className="text-white/50">크기·밝기 = 온도(D²)</strong>. 원점 = 그날 평균 종목.
         </p>
         <p>
           <strong className="text-white/55">색 = 성좌(테마)</strong> · <strong className="text-white/55">✦ = 대장주</strong>(테마의 주도) · 선 = 같은 성좌 연결 · <span style={{ color: SELECT }}>초록 = 선택</span> ·{" "}

@@ -316,8 +316,8 @@ export function judgePropsFromFrame(frameIdx: number, stockIdx: number, onClose:
   };
 }
 
-// ── 요약 패널(슬라이드①): 결론부터 — 전체 TOP5(이유 포함) + 발광(주도원인)별 서머리 ──
-//  발광 4유형의 의미·장점·단점을 선언하고, 그 기준 상승/하락 TOP3를 짚어준다. 예측 아님.
+// ── 요약 패널(슬라이드①): 결론부터 — 전체 TOP5(이유 포함) + 신호(주도원인)별 서머리 ──
+//  신호 4유형의 의미·장점·단점을 선언하고, 그 기준 상승/하락 TOP3를 짚어준다. 예측 아님.
 const GROUP_INFO = [
   { label: "거래량", color: "#f5a623", mean: "평소 대비 거래가 몰리는 중", pro: "관심·자금이 들어오는 가장 빠른 흔적", con: "단타 쏠림·하루짜리 테마일 수 있음" },
   { label: "고유수익", color: "#f04452", mean: "시장·섹터를 빼고도 남는 이 종목만의 등락", pro: "종목 자체 재료(실적·공시) 가능성", con: "재료가 이미 가격에 반영된 뒤일 수 있음" },
@@ -373,7 +373,7 @@ export function SummaryPanel({ frameIdx, selected, onSelect, overrideB }: { fram
         </ul>
       </div>
 
-      {/* ⑵ 발광(주도원인)별 서머리 — 의미·장단점 선언 + 상승/하락 TOP3 */}
+      {/* ⑵ 신호(주도원인)별 서머리 — 의미·장단점 선언 + 상승/하락 TOP3 */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {GROUP_INFO.map((g, gi) => {
           const mem = all.filter((r) => r.grp === gi && r.temp >= 0.15);
@@ -383,7 +383,7 @@ export function SummaryPanel({ frameIdx, selected, onSelect, overrideB }: { fram
             <div key={g.label} className="rounded-[20px] bg-base-800 p-4">
               <div className="mb-1 flex items-center gap-2">
                 <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: g.color, boxShadow: `0 0 8px ${g.color}88` }} />
-                <span className="text-[13px] font-bold" style={{ color: g.color }}>{g.label} 발광</span>
+                <span className="text-[13px] font-bold" style={{ color: g.color }}>{g.label} 신호</span>
                 <span className="text-[11px] text-white/40">{mem.length}종목</span>
               </div>
               <p className="text-[12px] text-white/60">{g.mean}</p>
@@ -410,7 +410,7 @@ export function SummaryPanel({ frameIdx, selected, onSelect, overrideB }: { fram
         })}
       </div>
       <p className="text-center text-[11px] text-white/35">
-        &ldquo;베스트&rdquo;는 <strong className="text-white/50">관측 기준(온도·발광)의 순위</strong>일 뿐, 오를 종목이 아닙니다 · 매매신호·투자자문 아님
+        &ldquo;베스트&rdquo;는 <strong className="text-white/50">관측 기준(온도·신호)의 순위</strong>일 뿐, 오를 종목이 아닙니다 · 매매신호·투자자문 아님
       </p>
     </div>
   );

@@ -26,7 +26,7 @@ export default function Radar3DPage() {
           <p className="mt-1.5 max-w-2xl text-sm text-white/55">
             <strong className="text-white/80">{(radarData as { universe?: string }).universe ?? "코스피 200 · 코스닥"}</strong>의{" "}
             <strong className="text-white/80">온도</strong>(지금 평소와 얼마나 다른가)를 3차원 구체로 보는 관측 도구입니다.
-            X 거래량 × Y 수익률 × Z <strong className="text-white/80">자금유입</strong>(과거 검증에서 살아남은 신호) + 크기·발광 ={" "}
+            X 거래량 × Y 수익률 × Z <strong className="text-white/80">자금유입</strong>(과거 검증에서 살아남은 신호) + 크기·밝기 ={" "}
             <strong className="text-white/80">온도(D²)</strong> — <strong className="text-white/80">방향이 아니라 &ldquo;크게 움직이는 중&rdquo;을 측정</strong>합니다.
           </p>
         </div>
