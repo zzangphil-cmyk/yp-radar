@@ -22,12 +22,12 @@ const ETF_NAV = [
 ];
 const RADAR_NAV = [
   { href: "/radar", label: "관제 스코프", exact: true },
+  { href: "/radar/test", label: "3D 구체 TEST" },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean) {
   if (exact) {
     if (href === "/nps") return pathname === "/nps" || pathname.startsWith("/nps/stock");
-    if (href === "/radar") return pathname === "/radar" || pathname.startsWith("/radar/");
     return pathname === href;
   }
   return pathname === href || pathname.startsWith(href + "/");

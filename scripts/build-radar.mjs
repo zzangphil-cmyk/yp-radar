@@ -111,7 +111,9 @@ for (let fi = 0; fi < FRAMES; fi++) {
   // 축 원점 = 그날 횡단면 평균(중앙값): 점은 '평균 종목 대비' 상대 위치
   const Larr = relVol.map((v) => Math.log2(Math.max(v, 1e-6)));
   const Lmed = median(Larr), Rmed = median(ret1);
-  // D² + 온도 + 최대기여 + 분해(시장/섹터/고유) + 5축 백분위
+  // 3D 제3축용: 자금유입(부호 있는 z, 시장 내) — 09 백테스트에서 유일하게 생존한 신호
+  const zFlow = madZByGroup(flow, market);
+  // D² + 온도 + 최대기여 + 분해(시장/섹터/고유) + 5축 백분위 + 자금유입z
   const b = [];
   for (let i = 0; i < N; i++) {
     let q = 0; for (let a = 0; a < p; a++) for (let bb = 0; bb < p; bb++) q += Z[a][i] * Si[a][bb] * Z[bb][i];
@@ -121,7 +123,7 @@ for (let fi = 0; fi < FRAMES; fi++) {
     const x = clamp((Larr[i] - Lmed) / VOL_EDGE, -1, 1);
     const y = clamp((ret1[i] - Rmed) / RET_DAILY, -1, 1);
     b[i] = [i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi],
-      [pcRel[i], pcSpec[i], pcVol[i], pcRange[i], pcFlow[i]]];
+      [pcRel[i], pcSpec[i], pcVol[i], pcRange[i], pcFlow[i]], r3(clamp(zFlow[i] / 3, -1, 1))];
   }
   frames.push({ t: dates[d].slice(5).replace("-", "/"), b });
 }
@@ -135,7 +137,7 @@ const out = {
   lastTs: lastDate,
   universe: `코스피 ${nK} · 코스닥 ${nQ}`,
   axes: { x: "상대거래량(평소의 ×배)", y: "등락률(%, 종가 기준)" },
-  blip: "[i, x, y, temp(D²온도 0~1), relVol(배), retPct(%), d2, topGroup(0거래량/1고유수익/2변동성/3자금유입), pct[거래량,고유수익,변동성,당일폭,자금유입](시장내 백분위 0~100)]",
+  blip: "[i, x, y, temp(D²온도 0~1), relVol(배), retPct(%), d2, topGroup(0거래량/1고유수익/2변동성/3자금유입), pct5(시장내 백분위), zFlow(자금유입 z ÷3 클램프, 3D Z축)]",
   model: { score: "Mahalanobis D² (5피처, Ledoit-Wolf 수축, 시장 내 표준화)", features: ["거래량", "고유수익", "변동성", "당일폭", "자금유입"], temp: `log(D²/${DF})/log(${TEMP_CEIL}/${DF}) 클램프 (로그 압축)`, note: "온도=평소와 다른 정도(강도). 방향=수익률(표시용), 예측 아님" },
   featGroups: ["거래량", "고유수익", "변동성", "자금유입"],
   stocks, frameCount: frames.length, frames,

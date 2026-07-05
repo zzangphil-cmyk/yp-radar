@@ -2,10 +2,11 @@ import radar from "@/data/radar-frames.json";
 import taLatest from "@/data/ta-latest.json";
 
 export interface RadarStock { code: string; name: string; theme?: string; market?: string }
-// [stockIndex, x, y, temp(D²온도 0~1), relVol(평소의 ×배), retPct(등락률 %), d2, topGroup, pct5]
+// [stockIndex, x, y, temp(D²온도 0~1), relVol(평소의 ×배), retPct(등락률 %), d2, topGroup, pct5, zFlow?]
 //  topGroup: 0 거래량 / 1 고유수익 / 2 변동성 / 3 자금유입 — "무엇이 띄웠나"(최대 기여 피처)
 //  pct5: [거래량,고유수익,변동성,당일폭,자금유입] 시장 내 백분위(0~100)
-export type Blip = [number, number, number, number, number, number, number, number, number[]];
+//  zFlow: 자금유입 부호 z(÷3 클램프, -1~1) — 3D 구체의 Z축 (일일 프레임에만 존재)
+export type Blip = [number, number, number, number, number, number, number, number, number[], number?];
 export interface RadarFrame { t: string; b: Blip[] }
 export interface RadarData {
   asOf: string;
