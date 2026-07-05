@@ -51,11 +51,6 @@ export default function RadarPage() {
         색조는 <strong>왜 떴나</strong>(빨강·파랑=수익률 주도 / 호박색=거래량·변동성·자금 주도). <strong>날짜 슬라이더·재생</strong>으로 온도 변화를 봅니다.
       </div>
 
-      <p className="text-xs text-white/40">
-        ※ 출처: {radarData.source}. {radarData.window}. 토스가 과거 분(分) 시세를 제공하지 않아
-        <strong className="text-white/55"> 일봉(거래일 단위)</strong>으로 구성했습니다. 25일도 이 구간에 포함됩니다.
-        <strong className="text-white/55"> 이상 탐지는 매매 신호가 아닙니다.</strong>
-      </p>
     </div>
   );
 }

@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData } from "@/lib/radarData";
-import { JudgeCard, ThemePanel, useLiveDay, dayKST, fmtDay } from "./radarShared";
+import { JudgeCard, ThemePanel, useLiveDay, dayKST, fmtDay, themeMeta } from "./radarShared";
 
-const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
-const MUTED_UP = "#a06a73", MUTED_DOWN = "#6a73a0"; // 시장·섹터 동반: 옅은 방향 색조
+const UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
 const GROUP_LABELS = ["거래량", "고유수익", "변동성", "자금유입"]; // 온도(D²)를 띄운 주 원인
 const HOT = 0.4, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
+const ZOOM_MIN = 0.6, ZOOM_MAX = 5, LABEL_ZOOM = 1.6; // 3D와 동일한 줌·성도 라벨
 const xTicks = [{ x: -0.63, l: "÷4" }, { x: -0.31, l: "÷2" }, { x: 0, l: "평균" }, { x: 0.31, l: "×2" }, { x: 0.63, l: "×4" }];
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 
@@ -26,7 +26,10 @@ function CircleLogo({ name, on, size = 8 }: { name: string; on?: boolean; size?:
 export default function StockRadar() {
   const { stocks, frames, frameCount } = radarData;
   const cvRef = useRef<HTMLCanvasElement | null>(null);
-  const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, shown: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0 });
+  const stRef = useRef({ animF: frameCount - 1, target: frameCount - 1, shown: frameCount - 1, dwell: 0, sweep: -Math.PI / 2, playing: false, last: 0, zoom: 1, panX: 0, panY: 0, dragging: false, lastX: 0, lastY: 0, moved: 0 });
+  const ptrRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchRef = useRef(0);
+  const renderRef = useRef<(() => void) | null>(null); // 상호작용 즉시 드로우(백그라운드 RAF 정지 대비)
   const selRef = useRef<number | null>(null);
   const posRef = useRef<{ x: number; y: number }[]>(stocks.map(() => ({ x: 0, y: 0 })));
   const [mode, setMode] = useState<"cum" | "daily" | "live">("daily");
@@ -158,8 +161,13 @@ export default function StockRadar() {
     let W = 0, H = 0;
     const resize = () => { const r = cv.getBoundingClientRect(); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
     resize(); window.addEventListener("resize", resize);
+    // 휠 줌(3D와 동일) — passive:false로 페이지 스크롤 차단
+    const onWheel = (e: WheelEvent) => { e.preventDefault(); const s = stRef.current; s.zoom = clamp(s.zoom * Math.exp(-e.deltaY * 0.0012), ZOOM_MIN, ZOOM_MAX); renderRef.current?.(); };
+    cv.addEventListener("wheel", onWheel, { passive: false });
     let raf = 0;
-    const loop = (t: number) => {
+    const render = (t: number) => {
+      if (!W || !H) resize();
+      if (!W || !H) return;
       const s = stRef.current, V = viewRef.current;
       const dt = Math.min(60, t - s.last) / 1000; s.last = t;
       s.animF += (s.target - s.animF) * (1 - Math.exp(-dt * 7));
@@ -172,64 +180,73 @@ export default function StockRadar() {
       } else s.dwell = 0;
       if (s.playing || moving || liveOn) s.sweep += dt * 0.7;
 
-      const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 22;
+      // 줌·팬: 원점(ox,oy) = 중심 + 팬, 반지름 = 기본 × 줌
+      const cx = W / 2, cy = H / 2, R0 = Math.min(W, H) / 2 - 22;
+      const R = R0 * s.zoom, ox = cx + s.panX, oy = cy + s.panY;
       let i0 = clamp(Math.floor(s.animF), V.lo, V.hi); const i1 = Math.min(i0 + 1, V.hi);
       const fr = clamp(s.animF - i0, 0, 1);
       const f0 = V.f[i0]?.b, f1 = V.f[i1]?.b; const E = V.retEdge;
-      if (!f0 || !f1) { raf = requestAnimationFrame(loop); return; }
-      const mapX = (x: number) => cx + x * R * 0.92, mapY = (y: number) => cy - y * R * 0.92;
+      if (!f0 || !f1) return;
+      const mapX = (x: number) => ox + x * R * 0.92, mapY = (y: number) => oy - y * R * 0.92;
       const sel = selRef.current;
 
       ctx.clearRect(0, 0, W, H);
       ctx.strokeStyle = "rgba(31,214,154,0.11)"; ctx.lineWidth = 1;
-      for (let k = 1; k <= 4; k++) { ctx.beginPath(); ctx.arc(cx, cy, R * k / 4, 0, 7); ctx.stroke(); }
-      ctx.fillStyle = "rgba(31,214,154,0.045)"; ctx.beginPath(); ctx.arc(cx, cy, R * 0.5, 0, 7); ctx.fill();
+      for (let k = 1; k <= 4; k++) { ctx.beginPath(); ctx.arc(ox, oy, R * k / 4, 0, 7); ctx.stroke(); }
+      ctx.fillStyle = "rgba(31,214,154,0.045)"; ctx.beginPath(); ctx.arc(ox, oy, R * 0.5, 0, 7); ctx.fill();
       ctx.strokeStyle = "rgba(255,255,255,0.10)";
-      ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox - R, oy); ctx.lineTo(ox + R, oy); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox, oy - R); ctx.lineTo(ox, oy + R); ctx.stroke();
       ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "10px sans-serif"; ctx.textAlign = "center";
-      for (const tk of xTicks) ctx.fillText(tk.l, mapX(tk.x), cy + 13);
+      for (const tk of xTicks) ctx.fillText(tk.l, mapX(tk.x), oy + 13);
       ctx.textAlign = "left";
       const half = Math.round(E / 2);
       for (const tk of [{ p: E, l: `+${E}%` }, { p: half, l: `+${half}%` }, { p: -half, l: `−${half}%` }, { p: -E, l: `−${E}%` }])
-        ctx.fillText(tk.l, cx + 5, mapY(tk.p / E) + 3);
+        ctx.fillText(tk.l, ox + 5, mapY(tk.p / E) + 3);
       if (s.playing || moving || liveOn) {
-        const g = ctx.createConicGradient(s.sweep, cx, cy);
+        const g = ctx.createConicGradient(s.sweep, ox, oy);
         g.addColorStop(0, "rgba(31,214,154,0)"); g.addColorStop(0.9, "rgba(31,214,154,0)");
         g.addColorStop(0.99, "rgba(31,214,154,0.12)"); g.addColorStop(1, "rgba(31,214,154,0.22)");
-        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, 0, 7); ctx.fill();
-        ctx.save(); ctx.translate(cx, cy); ctx.rotate(s.sweep); ctx.strokeStyle = "rgba(31,214,154,0.4)"; ctx.lineWidth = 1.5;
+        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.arc(ox, oy, R, 0, 7); ctx.fill();
+        ctx.save(); ctx.translate(ox, oy); ctx.rotate(s.sweep); ctx.strokeStyle = "rgba(31,214,154,0.4)"; ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(R, 0); ctx.stroke(); ctx.restore();
       }
       ctx.fillStyle = "rgba(255,255,255,0.34)"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
-      ctx.fillText("거래량 (그날 평균 대비) →", cx, cy + R + 14);
-      ctx.save(); ctx.translate(cx - R - 8, cy); ctx.rotate(-Math.PI / 2); ctx.fillText(V.yTitle, 0, 0); ctx.restore();
+      ctx.fillText("거래량 (그날 평균 대비) →", cx, H - 8);
+      ctx.save(); ctx.translate(14, cy); ctx.rotate(-Math.PI / 2); ctx.fillText(V.yTitle, 0, 0); ctx.restore();
       ctx.textAlign = "left"; ctx.fillStyle = "rgba(31,214,154,0.45)"; ctx.font = "12px monospace";
       ctx.fillText(`${V.f[Math.round(clamp(s.animF, V.lo, V.hi))]?.t ?? ""}${s.playing ? " ▶" : " ⏸"}`, 12, 19);
+      if (Math.abs(s.zoom - 1) > 0.05) { ctx.fillStyle = "rgba(255,255,255,0.35)"; ctx.textAlign = "right"; ctx.fillText(`×${s.zoom.toFixed(1)}`, W - 12, 19); ctx.textAlign = "left"; }
 
       const swA = ((s.sweep % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
       const orderList = [...stocks.keys()].sort((a, c) => (f0[a][3] as number) - (f0[c][3] as number));
       for (const i of orderList) {
         const a0 = f0[i] as number[], a1 = f1[i] as number[];
         const x = a0[1] + (a1[1] - a0[1]) * fr, y = a0[2] + (a1[2] - a0[2]) * fr;
-        const anomaly = a0[3], ret = a0[5], ledBy = a0[6] ?? 0, grp = a0[10] ?? -1;
+        const anomaly = a0[3], ret = a0[5], grp = a0[10] ?? -1;
         const isSel = sel === i, hot = anomaly >= HOT;
-        // 색조=왜 떴나: 수익률 주도(grp 1, 누적 -1)→빨강/파랑(고유는 진하게, 시장·섹터 동반은 옅게),
-        //              거래량·변동성·자금 주도→호박색(수익률이 아닌 이유로 뜬 것), 평범→회색.
-        const retDriven = grp === 1 || grp === -1;
+        const tk = themeMeta.themeIdx[i], isLeader = themeMeta.leader[tk] === i;
+        // 색 = 성좌(테마, 3D와 동일) · 밝기 = 온도
+        const col = isSel ? SELECT : `hsl(${themeMeta.hue[tk]} ${hot ? 88 : 62}% ${hot ? 68 : 56}%)`;
         const px = mapX(x), py = mapY(y); posRef.current[i] = { x: px, y: py };
-        const up = y >= 0;
-        const col = isSel ? SELECT : !hot ? NEUTRAL
-          : retDriven ? (ledBy === 0 ? (up ? UP : DOWN) : (up ? MUTED_UP : MUTED_DOWN)) : AMBER;
         const dim = sel != null && !isSel && !hot ? 0.4 : 1;
         let ang = Math.atan2(-y, x); ang = (ang + 2 * Math.PI) % (2 * Math.PI);
         let d = swA - ang; d = ((d % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         const lit = (s.playing || moving || liveOn) && d < 0.5 ? 1 - d / 0.5 : 0;
-        const r = isSel ? 4 + anomaly * 4 : 2.3 + anomaly * 5;
-        // 발광: 뜨거울수록(온도 D²) 크고 밝게 — 원인 색과 무관하게 강도 표현
-        if (isSel || hot) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0), 0, 7); ctx.fill(); }
-        ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : 0.4 + 0.2 * lit) * dim;
+        const r = isSel ? 4 + anomaly * 4 : (isLeader ? 3 : 2.3) + anomaly * 5;
+        if (isSel || hot || isLeader) { ctx.globalAlpha = 0.15 * Math.max(anomaly, lit, isSel ? 0.6 : 0, isLeader ? 0.3 : 0) * dim; ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r + 7 * Math.max(anomaly, lit, isSel ? 0.7 : 0, isLeader ? 0.3 : 0), 0, 7); ctx.fill(); }
+        ctx.globalAlpha = (hot || isSel ? 0.6 + 0.4 * Math.max(anomaly, lit) : isLeader ? 0.75 : 0.4 + 0.2 * lit) * dim;
         ctx.fillStyle = col; ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fill();
+        if (isLeader && !isSel) {
+          // ✦ 대장주(3D와 동일): 스파이크 + 상시 이름
+          ctx.globalAlpha = 0.8 * dim; ctx.strokeStyle = col; ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(px - r - 6, py); ctx.lineTo(px - r - 1.5, py); ctx.moveTo(px + r + 1.5, py); ctx.lineTo(px + r + 6, py);
+          ctx.moveTo(px, py - r - 6); ctx.lineTo(px, py - r - 1.5); ctx.moveTo(px, py + r + 1.5); ctx.lineTo(px, py + r + 6);
+          ctx.stroke();
+          ctx.globalAlpha = 0.55 * dim; ctx.fillStyle = col; ctx.font = "9px sans-serif"; ctx.textAlign = "left";
+          ctx.fillText(stocks[i].name, px + r + 8, py + 3);
+        }
         if (isSel) { ctx.globalAlpha = s.playing ? 0.6 + 0.4 * Math.abs(Math.sin(t / 350)) : 0.9; ctx.strokeStyle = SELECT; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(px, py, r + 5, 0, 7); ctx.stroke(); }
         else if (hot) { ctx.globalAlpha = 0.5 * Math.max(anomaly, lit) * dim; ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(px, py, r + 4, 0, 7); ctx.stroke(); }
         if (isSel) {
@@ -238,22 +255,61 @@ export default function StockRadar() {
           ctx.beginPath(); ctx.moveTo(px + r, py - r); ctx.lineTo(px + r + 7, py - r - 7); ctx.lineTo(px + r + 92, py - r - 7); ctx.stroke();
           ctx.fillStyle = col; ctx.font = "11px monospace"; ctx.textAlign = "left";
           ctx.fillText(`${stocks[i].name} ${ret >= 0 ? "+" : ""}${ret.toFixed(1)}% · ${why}`, px + r + 9, py - r - 10);
+        } else if (hot && !isLeader && s.zoom >= LABEL_ZOOM) {
+          // 성도(星圖): 줌인하면 고온 점의 이름이 나타남(3D와 동일)
+          ctx.globalAlpha = clamp((s.zoom - LABEL_ZOOM) / 0.6, 0, 0.85) * dim;
+          ctx.fillStyle = col; ctx.font = "10px sans-serif"; ctx.textAlign = "left";
+          ctx.fillText(stocks[i].name, px + r + 5, py + 3);
         }
         ctx.globalAlpha = 1;
       }
-      raf = requestAnimationFrame(loop);
     };
+    const loop = (t: number) => { render(t); raf = requestAnimationFrame(loop); };
+    renderRef.current = () => render(performance.now());
+    render(performance.now()); // 첫 프레임 동기
     raf = requestAnimationFrame(loop);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); cv.removeEventListener("wheel", onWheel); renderRef.current = null; };
   }, [frames, frameCount, stocks]);
 
-  const onCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-    let best = -1, bd = 16 * 16;
-    posRef.current.forEach((p, i) => { const dd = (p.x - mx) ** 2 + (p.y - my) ** 2; if (dd < bd) { bd = dd; best = i; } });
-    setSelected((cur) => (best === -1 ? null : best === cur ? null : best));
+  // 드래그 팬 + 클릭 선택 + 핀치 줌(3D와 동일 조작감)
+  const pinchDist = () => { const ps = [...ptrRef.current.values()]; return ps.length < 2 ? 0 : Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y); };
+  const onDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const s = stRef.current;
+    ptrRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
+    if (ptrRef.current.size === 2) { pinchRef.current = pinchDist(); s.dragging = false; return; }
+    s.dragging = true; s.moved = 0; s.lastX = e.clientX; s.lastY = e.clientY;
   };
+  const onMoveC = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const s = stRef.current;
+    if (ptrRef.current.has(e.pointerId)) ptrRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (ptrRef.current.size === 2) {
+      const d = pinchDist();
+      if (pinchRef.current > 0 && d > 0) { s.zoom = clamp(s.zoom * (d / pinchRef.current), ZOOM_MIN, ZOOM_MAX); pinchRef.current = d; renderRef.current?.(); }
+      return;
+    }
+    if (!s.dragging) return;
+    const dx = e.clientX - s.lastX, dy = e.clientY - s.lastY;
+    s.moved += Math.abs(dx) + Math.abs(dy);
+    s.panX += dx; s.panY += dy; // 2D는 드래그 = 이동(팬)
+    s.lastX = e.clientX; s.lastY = e.clientY;
+    renderRef.current?.();
+  };
+  const onUpC = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const s = stRef.current;
+    ptrRef.current.delete(e.pointerId);
+    if (ptrRef.current.size >= 1) { pinchRef.current = 0; return; }
+    s.dragging = false;
+    if (s.moved < 6) {
+      const rect = (e.target as HTMLCanvasElement).getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      let best = -1, bd = 16 * 16;
+      posRef.current.forEach((p, i) => { const dd = (p.x - mx) ** 2 + (p.y - my) ** 2; if (dd < bd) { bd = dd; best = i; } });
+      setSelected((cur) => (best === -1 ? null : best === cur ? null : best));
+    }
+  };
+  const zoomBy = (f: number) => { const s = stRef.current; s.zoom = clamp(s.zoom * f, ZOOM_MIN, ZOOM_MAX); renderRef.current?.(); };
+  const resetViewport = () => { const s = stRef.current; s.zoom = 1; s.panX = 0; s.panY = 0; renderRef.current?.(); };
 
   const lists = useMemo(() => {
     const b = view.f[playIdx]?.b ?? [];
@@ -331,7 +387,7 @@ export default function StockRadar() {
     <div className="space-y-4">
       <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
         <div className="relative w-full overflow-hidden rounded-[20px] bg-[#0b0e0c]" style={{ aspectRatio: "1 / 1" }}>
-          <canvas ref={cvRef} onClick={onCanvasClick} className="absolute inset-0 h-full w-full cursor-pointer" role="img" aria-label="종목 관제 레이더 — 거래량 배수×등락률, 날짜 범위 스냅샷/누적" />
+          <canvas ref={cvRef} onPointerDown={onDown} onPointerMove={onMoveC} onPointerUp={onUpC} onPointerCancel={onUpC} className="absolute inset-0 h-full w-full cursor-grab touch-none select-none active:cursor-grabbing" role="img" aria-label="종목 관제 레이더 — 거래량 배수×등락률, 날짜 범위 스냅샷/누적" />
         </div>
       </div>
 
@@ -367,6 +423,11 @@ export default function StockRadar() {
             <select value={endIdx} onChange={(e) => onEnd(+e.target.value)} className="rounded-xl bg-base-700 px-2 py-1 text-white/90">{dateOpts}</select>
           </>
         )}
+        <div className="flex items-center gap-0.5 rounded-full bg-white/[0.07] p-1">
+          <button onClick={() => zoomBy(1 / 1.35)} aria-label="줌 아웃" className="h-7 w-7 rounded-full text-base font-bold text-white/70 transition-colors hover:bg-white/10 hover:text-white">−</button>
+          <button onClick={() => zoomBy(1.35)} aria-label="줌 인" className="h-7 w-7 rounded-full text-base font-bold text-white/70 transition-colors hover:bg-white/10 hover:text-white">＋</button>
+          <button onClick={resetViewport} aria-label="시점 리셋" className="h-7 rounded-full px-2 text-xs font-semibold text-white/55 transition-colors hover:bg-white/10 hover:text-white">리셋</button>
+        </div>
       </div>
       <div className="mx-auto flex max-w-xl items-center gap-3">
         <input type="range" min={view.lo} max={Math.max(view.lo, view.hi)} step={1} value={clamp(playIdx, view.lo, view.hi)} onChange={(e) => goTo(+e.target.value)} disabled={view.hi <= view.lo} className="flex-1 disabled:opacity-40" />
@@ -396,9 +457,8 @@ export default function StockRadar() {
           <strong className="text-white/55">크기·밝기 = 온도</strong>(D², 지금 평소와 얼마나 다른가) — 거래량·고유수익·변동성·자금유입 5축의 동시 이탈 강도.
         </p>
         <p>
-          색조 = <strong className="text-white/50">왜 떴나</strong> ·{" "}
-          <span style={{ color: UP }}>빨강</span>/<span style={{ color: DOWN }}>파랑</span> = 수익률 주도(<span style={{ color: MUTED_UP }}>옅으면</span> 시장·섹터 동반) ·{" "}
-          <span style={{ color: AMBER }}>호박색</span> = 거래량·변동성·자금 주도(수익률 아님) · <span style={{ color: SELECT }}>초록 선택</span>.
+          <strong className="text-white/55">색 = 성좌(테마)</strong> · <strong className="text-white/55">✦ = 대장주</strong>(테마의 주도) · <span style={{ color: SELECT }}>초록 = 선택</span> ·{" "}
+          드래그 이동 · 휠/핀치 줌 · <strong className="text-white/50">줌인하면 고온 점의 이름이 나타납니다</strong>. &ldquo;왜 떴나&rdquo;는 점 선택 시 카드에서.
         </p>
         <p className="text-white/45"><strong>온도는 &ldquo;크게 움직이는 중&rdquo;을 뜻할 뿐, 방향(오를지/내릴지)·매매신호가 아닙니다. 투자자문 아님.</strong></p>
       </div>

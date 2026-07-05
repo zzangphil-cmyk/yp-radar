@@ -51,11 +51,6 @@ export default function Radar3DPage() {
         드래그 회전, 휠·핀치 줌 — <strong>줌인하면 고온 별의 이름</strong>이 성도처럼 나타납니다. 날짜 슬라이더·재생으로 온도 변화를 봅니다.
       </div>
 
-      <p className="text-xs text-white/40">
-        ※ 출처: {radarData.source}. {radarData.window}. 데이터·모델은 2D 관제 스코프와 동일(마할라노비스 D², 원점=그날 평균).
-        테마는 섹터 ETF 분류 + 토스증권 업종 분류 기준.
-        <strong className="text-white/55"> 이상 탐지는 매매 신호가 아닙니다.</strong>
-      </p>
     </div>
   );
 }
