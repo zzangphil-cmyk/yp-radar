@@ -394,8 +394,8 @@ export default function StockRadar3D() {
 
       {/* 슬라이드 ①요약 / ②상세 — 결론부터, 원하면 드릴다운(2D와 동일) */}
       <div className="flex items-center justify-center gap-1">
-        <button onClick={() => setSlide(1)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 1 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>① 요약 — 결론부터</button>
-        <button onClick={() => setSlide(2)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 2 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>② 상세 — 성좌별 전체</button>
+        <button onClick={() => setSlide(1)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 1 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>요약</button>
+        <button onClick={() => setSlide(2)} className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${slide === 2 ? "bg-white/[0.12] text-white" : "bg-white/[0.04] text-white/45 hover:text-white"}`}>상세</button>
       </div>
       {slide === 1 ? (
         <SummaryPanel frameIdx={mode === "cum" ? endIdx : clampedIdx} selected={selected} onSelect={setSelected}
