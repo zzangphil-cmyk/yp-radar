@@ -121,7 +121,8 @@ export async function GET(req: Request) {
     const p = 5; const C: number[][] = Array.from({ length: p }, () => Array(p).fill(0));
     for (let a = 0; a < p; a++) for (let b = 0; b < p; b++) { let s = 0; for (let i = 0; i < N; i++) s += Z[a][i] * Z[b][i]; C[a][b] = s / N; }
     const alpha = clamp(0.1 + p / N, 0.1, 0.5); const S = C.map((rw, a) => rw.map((v, b) => (a === b ? v : (1 - alpha) * v))); const Si = inv(S);
-    const pcs = [pctRankByGroup(relVol, market), pctRankByGroup(specRet.map(Math.abs), market), pctRankByGroup(vol20, market), pctRankByGroup(range, market), pctRankByGroup(flow.map(Math.abs), market)];
+    const zF = madZByGroup(flow, market); // 3D Z축: 자금유입 부호 z
+  const pcs = [pctRankByGroup(relVol, market), pctRankByGroup(specRet.map(Math.abs), market), pctRankByGroup(vol20, market), pctRankByGroup(range, market), pctRankByGroup(flow.map(Math.abs), market)];
     const Larr = relVol.map((v) => Math.log2(Math.max(v, 1e-6)));
     const Lmed = median(Larr), Rmed = median(ret1); // 원점=그날 횡단면 평균
     const v: (number | number[])[][] = [];
@@ -130,7 +131,7 @@ export async function GET(req: Request) {
       const d2 = Math.max(0, q); const temp = clamp(Math.log(Math.max(d2, DF) / DF) / Math.log(TEMP_CEIL / DF), 0, 1);
       let mg = -1, mgi = 0; for (let a = 0; a < p; a++) { const az = Math.abs(Z[a][i]); if (az > mg) { mg = az; mgi = a; } }
       const x = clamp((Larr[i] - Lmed) / VOL_EDGE, -1, 1), y = clamp((ret1[i] - Rmed) / RET_DAILY, -1, 1);
-      v.push([i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi], [pcs[0][i], pcs[1][i], pcs[2][i], pcs[3][i], pcs[4][i]]]);
+      v.push([i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi], [pcs[0][i], pcs[1][i], pcs[2][i], pcs[3][i], pcs[4][i]], r3(clamp(zF[i] / 3, -1, 1))]);
     }
     const t = `${String(9 + Math.floor(mi / 60)).padStart(2, "0")}:${String(mi % 60).padStart(2, "0")}`;
     frames.push({ t, ts: t, o: true, v });

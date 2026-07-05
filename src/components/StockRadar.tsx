@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { radarData } from "@/lib/radarData";
-import { JudgeCard, ThemePanel } from "./radarShared";
+import { JudgeCard, ThemePanel, useLiveDay, dayKST, fmtDay } from "./radarShared";
 
 const NEUTRAL = "#5b6573", UP = "#f04452", DOWN = "#4c82fb", SELECT = "#22c55e", AMBER = "#f5a623";
 const MUTED_UP = "#a06a73", MUTED_DOWN = "#6a73a0"; // 시장·섹터 동반: 옅은 방향 색조
@@ -10,17 +10,6 @@ const GROUP_LABELS = ["거래량", "고유수익", "변동성", "자금유입"];
 const HOT = 0.4, VOL_EDGE = 3.2, RET_DAILY = 14, DZ = 0.5;
 const xTicks = [{ x: -0.63, l: "÷4" }, { x: -0.31, l: "÷2" }, { x: 0, l: "평균" }, { x: 0.31, l: "×2" }, { x: 0.63, l: "×4" }];
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
-const dayKST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
-
-// 장중 기록 저장소(IndexedDB — localStorage보다 큰 용량). 날짜별 스냅샷 버퍼 저장/조회.
-function idbOpen(): Promise<IDBDatabase> {
-  return new Promise((res, rej) => { const r = indexedDB.open("yp-radar", 1); r.onupgradeneeded = () => r.result.createObjectStore("days"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
-}
-async function idbPut(key: string, val: unknown) { const db = await idbOpen(); return new Promise<void>((res, rej) => { const tx = db.transaction("days", "readwrite"); tx.objectStore("days").put(val, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); }
-async function idbGet<T>(key: string): Promise<T | null> { const db = await idbOpen(); return new Promise((res) => { const tx = db.transaction("days", "readonly"); const rq = tx.objectStore("days").get(key); rq.onsuccess = () => res((rq.result as T) ?? null); rq.onerror = () => res(null); }); }
-async function idbKeys(): Promise<string[]> { const db = await idbOpen(); return new Promise((res) => { const tx = db.transaction("days", "readonly"); const rq = tx.objectStore("days").getAllKeys(); rq.onsuccess = () => res((rq.result as string[]) || []); rq.onerror = () => res([]); }); }
-async function idbDel(key: string) { const db = await idbOpen(); return new Promise<void>((res) => { const tx = db.transaction("days", "readwrite"); tx.objectStore("days").delete(key); tx.oncomplete = () => res(); tx.onerror = () => res(); }); }
-type DayRec = { d: string; c: string[]; f: { t: string; ts: string; o: boolean; v: (number[] | null)[] }[] };
 
 const LOGO_BG = ["#3182f6", "#f04452", "#f5a623", "#8b5cf6", "#06b6d4", "#ec4899", "#64748b", "#0ea5e9"];
 function CircleLogo({ name, on, size = 8 }: { name: string; on?: boolean; size?: number }) {
@@ -46,139 +35,17 @@ export default function StockRadar() {
   const [playIdx, setPlayIdx] = useState(frameCount - 1);
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
-  // 실시간 버퍼: 1분마다 스냅샷을 누적 → 슬라이더·재생으로 장중 움직임 되돌려보기.
-  type LiveFrame = { t: string; ts: string; open: boolean; map: Record<string, number[]> };
-  const [liveBuf, setLiveBuf] = useState<LiveFrame[]>([]);
-  const [liveDate, setLiveDate] = useState<string>("");   // 보는 날짜("" 전엔 오늘). 과거=기록 재생
-  const [days, setDays] = useState<string[]>([]);          // 기록된 날짜 목록(최신순) + 오늘
-  const [serverDays, setServerDays] = useState<string[]>([]); // 서버 기록(public/live, 모두 공유)
-  const [liveClosed, setLiveClosed] = useState(false);     // 오늘 장 마감 → 폴링 중지, 그날 기록만 표시
-  const followRef = useRef(true);                          // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
-  const liveLast = liveBuf[liveBuf.length - 1];
-  const isToday = liveDate === dayKST() || liveDate === "";
-
-  // 마운트: 서버 기록(public/live) + 브라우저 기록 날짜 병합 + 오늘로 시작
-  useEffect(() => {
-    setLiveDate(dayKST());
-    Promise.all([
-      idbKeys().catch(() => [] as string[]),
-      fetch("/live/index.json").then((r) => (r.ok ? r.json() : { dates: [] })).catch(() => ({ dates: [] })),
-    ]).then(([ks, idx]) => {
-      const today = dayKST();
-      const sv = (idx.dates || []) as string[];
-      setServerDays(sv);
-      const idbDays = ks.map((k) => k.replace(/^day-/, ""));
-      const list = Array.from(new Set([today, ...sv, ...idbDays])).sort().reverse();
-      setDays(list);
-      idbDays.filter((d) => !list.slice(0, 14).includes(d)).forEach((d) => idbDel(`day-${d}`));
-    });
-  }, []);
-
-  // 선택 날짜의 기록 로드 — 과거: 서버 기록 우선(완전), 없으면 브라우저 기록. 오늘: 브라우저 복원 후 이어서 폴링.
-  useEffect(() => {
-    if (mode !== "live" || !liveDate) return;
-    let alive = true;
-    const apply = (rec: DayRec | null) => {
-      if (!alive) return;
-      if (rec && Array.isArray(rec.c) && Array.isArray(rec.f)) {
-        const codes = rec.c;
-        setLiveBuf(rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; }));
-      } else setLiveBuf([]);
-      followRef.current = true; stRef.current.target = 0; stRef.current.animF = 0;
-    };
-    // 오늘: 서버 히스토리(네이버 분봉 재구성)로 개장~현재를 시딩 — 몇 시에 접속해도 09:00부터 보임.
-    //  이미 폴링으로 쌓인 프레임 중 히스토리 이후 것만 뒤에 보존(경합 방지). 실패 시 브라우저 기록 폴백.
-    const tmin = (t: string) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
-    const mergeToday = (rec: DayRec | null) => {
-      if (!alive || !rec?.c?.length || !rec.f?.length) return false;
-      const codes = rec.c;
-      const hist: LiveFrame[] = rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; });
-      const lastT = tmin(hist[hist.length - 1].t);
-      setLiveBuf((prev) => [...hist, ...prev.filter((f) => tmin(f.t) > lastT)]);
-      followRef.current = true;
-      return true;
-    };
-    if (!isToday && serverDays.includes(liveDate)) {
-      fetch(`/live/${liveDate}.json`).then((r) => (r.ok ? r.json() : null)).then(apply).catch(() => apply(null));
-    } else if (isToday) {
-      fetch("/api/radar/history").then((r) => (r.ok ? r.json() : null))
-        .then((rec: DayRec | null) => { if (!mergeToday(rec)) idbGet<DayRec>(`day-${liveDate}`).then(apply); })
-        .catch(() => idbGet<DayRec>(`day-${liveDate}`).then(apply));
-    } else {
-      idbGet<DayRec>(`day-${liveDate}`).then(apply);
-    }
-    return () => { alive = false; };
-  }, [mode, liveDate, isToday, serverDays]);
-
-  // 휴장·주말: 오늘 데이터가 전혀 없으면 최근 기록일로 자동 전환
-  useEffect(() => {
-    if (mode !== "live" || !isToday || !liveClosed || liveBuf.length) return;
-    const prev = days.find((d) => d !== dayKST());
-    if (prev) setLiveDate(prev);
-  }, [mode, isToday, liveClosed, liveBuf.length, days]);
-
-  // 폴링: 오늘·실시간·장중일 때만. 장 마감(open=false) 감지 시 폴링 완전 중지(그날 기록만 표시).
-  useEffect(() => {
-    if (mode !== "live" || !isToday) return;
-    let alive = true; let timer: ReturnType<typeof setTimeout> | undefined;
-    setLiveClosed(false);
-    const pull = async () => {
-      let closed = false;
-      try {
-        const r = await fetch("/api/radar/live", { cache: "no-store" });
-        const j = await r.json();
-        if (alive && j.stocks) {
-          if (j.open) {
-            const map: Record<string, number[]> = {};
-            for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
-            const fr: LiveFrame = { t: j.t, ts: j.ts ?? j.t, open: true, map };
-            setLiveBuf((prev) => {
-              if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev; // 동일 스냅샷(캐시) → 무시
-              const next = [...prev, fr];
-              if (next.length > 800) next.shift(); // 하루치(30초 간격 ≈ 6.7h)
-              return next;
-            });
-          } else closed = true; // 장 마감
-        }
-      } catch { /* 폴링 실패 시 직전 버퍼 유지 */ }
-      if (!alive) return;
-      if (closed) setLiveClosed(true);                 // 마감 → 폴링 중지(재개는 새로고침/재진입)
-      else timer = setTimeout(pull, 30000);            // 장중 30초
-    };
-    pull();
-    return () => { alive = false; if (timer) clearTimeout(timer); };
-  }, [mode, isToday]);
-
-  // 장 마감 후: 서버에 그날 전체 기록이 있으면 그걸로 표시(앱을 안 켜둔 시간까지 완전한 하루)
-  useEffect(() => {
-    if (mode !== "live" || !isToday || !liveClosed) return;
-    const today = dayKST();
-    if (!serverDays.includes(today)) return;
-    let alive = true;
-    fetch(`/live/${today}.json`).then((r) => (r.ok ? r.json() : null)).then((rec: DayRec | null) => {
-      if (!alive || !rec?.c || !rec?.f) return;
-      const codes = rec.c;
-      setLiveBuf(rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; }));
-    }).catch(() => { });
-    return () => { alive = false; };
-  }, [mode, isToday, liveClosed, serverDays]);
-
+  // 실시간 하루 버퍼 — 공유 훅(radarShared.useLiveDay): 히스토리 시딩·폴링·IDB·기록일 관리 (3D 탭과 동일)
+  const { liveBuf, liveDate, days, isToday, liveClosed, liveLast, loadSeq, pickDate: pickDateRaw, goToday } = useLiveDay(mode === "live");
+  const followRef = useRef(true); // 최신 추종(끝에 있으면 새 프레임 도착 시 자동 이동)
+  // 날짜 로드·시딩 시 애니메이션 리셋
+  useEffect(() => { followRef.current = true; const st = stRef.current; st.target = 0; st.animF = 0; }, [loadSeq]);
   // 최신 추종: 오늘·실시간이고 끝을 보고 있을 때만(과거·재생·이전시점이면 가로채지 않음)
   useEffect(() => {
     if (mode === "live" && isToday && followRef.current && !stRef.current.playing && liveBuf.length) {
       const hi = liveBuf.length - 1; stRef.current.target = hi; setPlayIdx(hi);
     }
   }, [liveBuf.length, mode, isToday]);
-
-  // 저장: 오늘치 누적을 IndexedDB에 날짜별로 보관(새로고침·다른 날에도 그날 기록 유지)
-  useEffect(() => {
-    if (mode !== "live" || !isToday || !liveBuf.length) return;
-    const today = dayKST();
-    const codes = Object.keys(liveBuf[liveBuf.length - 1].map);
-    const f = liveBuf.map((fr) => ({ t: fr.t, ts: fr.ts, o: fr.open, v: codes.map((c) => fr.map[c] ?? null) }));
-    idbPut(`day-${today}`, { d: today, c: codes, f } as DayRec).catch(() => {});
-    setDays((prev) => (prev.includes(today) ? prev : [today, ...prev].sort().reverse()));
-  }, [liveBuf, mode, isToday]);
 
   // 보기 데이터: 누적(시작일 대비) 또는 일일. 좌표·이상점수 산출.
   const view = useMemo(() => {
@@ -409,11 +276,10 @@ export default function StockRadar() {
   };
   const switchMode = (m: "cum" | "daily" | "live") => {
     setMode(m);
-    if (m === "live") { followRef.current = true; setLiveDate(dayKST()); const s = stRef.current; s.playing = false; setPlaying(false); s.target = 0; s.animF = 0; s.shown = 0; setPlayIdx(0); }
+    if (m === "live") { followRef.current = true; goToday(); const s = stRef.current; s.playing = false; setPlaying(false); s.target = 0; s.animF = 0; s.shown = 0; setPlayIdx(0); }
     else goTo(m === "cum" ? startIdx : endIdx);
   };
-  const pickDate = (d: string) => { const s = stRef.current; s.playing = false; setPlaying(false); followRef.current = true; setLiveDate(d); };
-  const fmtDay = (d: string) => (d === dayKST() ? "오늘" : d.slice(5).replace("-", "/"));
+  const pickDate = (d: string) => { const st = stRef.current; st.playing = false; setPlaying(false); followRef.current = true; pickDateRaw(d); };
 
   const List = ({ title, accent, rows, kind }: { title: string; accent: string; rows: typeof lists.up; kind: "hot" | "up" | "down" }) => (
     <div className="rounded-[20px] bg-base-800 p-3">

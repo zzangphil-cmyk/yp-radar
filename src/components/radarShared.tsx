@@ -3,10 +3,157 @@
 // 2D/3D 관제 스코프 공유 모듈 — 두 탭은 레이더만 다르고 구성은 동일하다.
 //  · themeMeta: 성좌(테마) 색·대장주·멤버 (radarData 정적 → 모듈 1회 계산)
 //  · CircleLogo · JudgeCard(판단 근거 카드) · ThemePanel(성좌별 종목 리스트)
+import { useEffect, useRef, useState } from "react";
 import { radarData, AXIS5, getTa, groupLabel } from "@/lib/radarData";
 
 export const SELECT = "#22c55e", AMBER = "#f5a623", UP = "#f04452", DOWN = "#4c82fb";
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+export const dayKST = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+export const fmtDay = (d: string) => (d === dayKST() ? "오늘" : d.slice(5).replace("-", "/"));
+
+// ── 장중 기록 저장소(IndexedDB) + 실시간 버퍼 훅: 2D/3D 공용 ──
+export type LiveFrame = { t: string; ts: string; open: boolean; map: Record<string, number[]> };
+export type DayRec = { d: string; c: string[]; f: { t: string; ts: string; o: boolean; v: (number[] | null)[] }[] };
+function idbOpen(): Promise<IDBDatabase> {
+  return new Promise((res, rej) => { const r = indexedDB.open("yp-radar", 1); r.onupgradeneeded = () => r.result.createObjectStore("days"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+}
+async function idbPut(key: string, val: unknown) { const db = await idbOpen(); return new Promise<void>((res, rej) => { const tx = db.transaction("days", "readwrite"); tx.objectStore("days").put(val, key); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); }
+async function idbGet<T>(key: string): Promise<T | null> { const db = await idbOpen(); return new Promise((res) => { const tx = db.transaction("days", "readonly"); const rq = tx.objectStore("days").get(key); rq.onsuccess = () => res((rq.result as T) ?? null); rq.onerror = () => res(null); }); }
+async function idbKeys(): Promise<string[]> { const db = await idbOpen(); return new Promise((res) => { const tx = db.transaction("days", "readonly"); const rq = tx.objectStore("days").getAllKeys(); rq.onsuccess = () => res((rq.result as string[]) || []); rq.onerror = () => res([]); }); }
+async function idbDel(key: string) { const db = await idbOpen(); return new Promise<void>((res) => { const tx = db.transaction("days", "readwrite"); tx.objectStore("days").delete(key); tx.oncomplete = () => res(); tx.onerror = () => res(); }); }
+const recToBuf = (rec: DayRec): LiveFrame[] => {
+  const codes = rec.c;
+  return rec.f.map((fr) => { const map: Record<string, number[]> = {}; fr.v.forEach((bl, k) => { if (bl) map[codes[k]] = bl; }); return { t: fr.t, ts: fr.ts, open: fr.o, map }; });
+};
+
+/**
+ * 실시간 하루 버퍼 훅 — 서버 히스토리 시딩(접속 시점 무관 09시부터) + 30초 폴링(장중) +
+ * IndexedDB 오늘 저장 + 날짜별 기록(서버 우선) + 휴장 자동 전환. active=false면 폴링·로드 중지.
+ * loadSeq: 버퍼가 통째로 교체될 때 증가 — 컴포넌트가 애니메이션 리셋 트리거로 사용.
+ */
+export function useLiveDay(active: boolean) {
+  const [liveBuf, setLiveBuf] = useState<LiveFrame[]>([]);
+  const [liveDate, setLiveDate] = useState<string>("");
+  const [days, setDays] = useState<string[]>([]);
+  const [serverDays, setServerDays] = useState<string[]>([]);
+  const [liveClosed, setLiveClosed] = useState(false);
+  const [loadSeq, setLoadSeq] = useState(0);
+  const isToday = liveDate === dayKST() || liveDate === "";
+  const liveLast = liveBuf[liveBuf.length - 1];
+
+  // 마운트: 서버 기록 + 브라우저 기록 날짜 병합
+  useEffect(() => {
+    setLiveDate(dayKST());
+    Promise.all([
+      idbKeys().catch(() => [] as string[]),
+      fetch("/live/index.json").then((r) => (r.ok ? r.json() : { dates: [] })).catch(() => ({ dates: [] })),
+    ]).then(([ks, idx]) => {
+      const today = dayKST();
+      const sv = (idx.dates || []) as string[];
+      setServerDays(sv);
+      const idbDays = ks.map((k) => k.replace(/^day-/, ""));
+      const list = Array.from(new Set([today, ...sv, ...idbDays])).sort().reverse();
+      setDays(list);
+      idbDays.filter((d) => !list.slice(0, 14).includes(d)).forEach((d) => idbDel(`day-${d}`));
+    });
+  }, []);
+
+  // 선택 날짜 로드 — 과거: 서버 기록 우선 / 오늘: 서버 히스토리 시딩(폴링 프레임은 뒤에 보존)
+  useEffect(() => {
+    if (!active || !liveDate) return;
+    let alive = true;
+    const tmin = (t: string) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+    const apply = (rec: DayRec | null) => {
+      if (!alive) return;
+      setLiveBuf(rec && Array.isArray(rec.c) && Array.isArray(rec.f) ? recToBuf(rec) : []);
+      setLoadSeq((v) => v + 1);
+    };
+    const mergeToday = (rec: DayRec | null) => {
+      if (!alive || !rec?.c?.length || !rec.f?.length) return false;
+      const hist = recToBuf(rec);
+      const lastT = tmin(hist[hist.length - 1].t);
+      setLiveBuf((prev) => [...hist, ...prev.filter((f) => tmin(f.t) > lastT)]);
+      setLoadSeq((v) => v + 1);
+      return true;
+    };
+    if (!isToday && serverDays.includes(liveDate)) {
+      fetch(`/live/${liveDate}.json`).then((r) => (r.ok ? r.json() : null)).then(apply).catch(() => apply(null));
+    } else if (isToday) {
+      fetch("/api/radar/history").then((r) => (r.ok ? r.json() : null))
+        .then((rec: DayRec | null) => { if (!mergeToday(rec)) idbGet<DayRec>(`day-${liveDate}`).then(apply); })
+        .catch(() => idbGet<DayRec>(`day-${liveDate}`).then(apply));
+    } else {
+      idbGet<DayRec>(`day-${liveDate}`).then(apply);
+    }
+    return () => { alive = false; };
+  }, [active, liveDate, isToday, serverDays]);
+
+  // 폴링(오늘·장중만) — 마감 감지 시 중지
+  useEffect(() => {
+    if (!active || !isToday) return;
+    let alive = true; let timer: ReturnType<typeof setTimeout> | undefined;
+    setLiveClosed(false);
+    const pull = async () => {
+      let closed = false;
+      try {
+        const r = await fetch("/api/radar/live", { cache: "no-store" });
+        const j = await r.json();
+        if (alive && j.stocks) {
+          if (j.open) {
+            const map: Record<string, number[]> = {};
+            for (const bl of j.frame.b) map[j.stocks[bl[0]].code] = bl;
+            const fr: LiveFrame = { t: j.t, ts: j.ts ?? j.t, open: true, map };
+            setLiveBuf((prev) => {
+              if (prev.length && prev[prev.length - 1].ts === fr.ts) return prev;
+              const next = [...prev, fr];
+              if (next.length > 800) next.shift();
+              return next;
+            });
+          } else closed = true;
+        }
+      } catch { /* 유지 */ }
+      if (!alive) return;
+      if (closed) setLiveClosed(true);
+      else timer = setTimeout(pull, 30000);
+    };
+    pull();
+    return () => { alive = false; if (timer) clearTimeout(timer); };
+  }, [active, isToday]);
+
+  // 장 마감 후 서버 전체 기록으로 교체
+  useEffect(() => {
+    if (!active || !isToday || !liveClosed) return;
+    const today = dayKST();
+    if (!serverDays.includes(today)) return;
+    let alive = true;
+    fetch(`/live/${today}.json`).then((r) => (r.ok ? r.json() : null)).then((rec: DayRec | null) => {
+      if (!alive || !rec?.c || !rec?.f) return;
+      setLiveBuf(recToBuf(rec)); setLoadSeq((v) => v + 1);
+    }).catch(() => { });
+    return () => { alive = false; };
+  }, [active, isToday, liveClosed, serverDays]);
+
+  // 휴장·주말: 오늘 데이터 없으면 최근 기록일로
+  useEffect(() => {
+    if (!active || !isToday || !liveClosed || liveBuf.length) return;
+    const prev = days.find((d) => d !== dayKST());
+    if (prev) setLiveDate(prev);
+  }, [active, isToday, liveClosed, liveBuf.length, days]);
+
+  // 오늘 누적 저장(IndexedDB)
+  useEffect(() => {
+    if (!active || !isToday || !liveBuf.length) return;
+    const today = dayKST();
+    const codes = Object.keys(liveBuf[liveBuf.length - 1].map);
+    const f = liveBuf.map((fr) => ({ t: fr.t, ts: fr.ts, o: fr.open, v: codes.map((c) => fr.map[c] ?? null) }));
+    idbPut(`day-${today}`, { d: today, c: codes, f } as DayRec).catch(() => { });
+    setDays((prev) => (prev.includes(today) ? prev : [today, ...prev].sort().reverse()));
+  }, [liveBuf, active, isToday]);
+
+  const pickDate = (d: string) => setLiveDate(d);
+  const goToday = () => setLiveDate(dayKST());
+  return { liveBuf, liveDate, days, isToday, liveClosed, liveLast, loadSeq, pickDate, goToday };
+}
 
 // 성좌 메타 — 색(수제 고대비 hue)·대장주(테마 내 ETF 노출 1위 = stocks 첫 등장)·멤버
 export const themeMeta = (() => {
@@ -143,12 +290,15 @@ export function JudgeCard(p: JudgeCardProps) {
 }
 
 // 일일 프레임에서 JudgeCard 프롭 계산(3D·공용): 분해(시장/섹터/고유) + 백분위
-export function judgePropsFromFrame(frameIdx: number, stockIdx: number, onClose: () => void): JudgeCardProps | null {
+//  overrideB: 실시간 스냅샷 등 프레임 밖 blip 배열(stocks 순 정렬, 결측 null)로 대체 계산
+export function judgePropsFromFrame(frameIdx: number, stockIdx: number, onClose: () => void, overrideB?: (number[] | null)[]): JudgeCardProps | null {
   const f = radarData.frames[clamp(frameIdx, 0, radarData.frameCount - 1)];
   const s = radarData.stocks[stockIdx];
-  if (!f || !s) return null;
-  const bl = f.b[stockIdx] as unknown as number[];
-  const rets = f.b.map((b) => (b as unknown as number[])[5]);
+  if ((!f && !overrideB) || !s) return null;
+  const rows: (number[] | null)[] = overrideB ?? f.b.map((b) => b as unknown as number[]);
+  const bl = rows[stockIdx];
+  if (!bl) return null;
+  const rets = rows.map((b) => (b ? b[5] : 0));
   const mkt = rets.reduce((a, v) => a + v, 0) / (rets.length || 1);
   const th = s.theme ?? "기타";
   const mem = themeMeta.members[themeMeta.themeIdx[stockIdx]] ?? [];
@@ -166,13 +316,15 @@ export function judgePropsFromFrame(frameIdx: number, stockIdx: number, onClose:
 }
 
 // ── 성좌별 종목 리스트: 뜨거운 성좌부터, ✦=대장주, 클릭=레이더에서 선택 ──
-export function ThemePanel({ frameIdx, selected, onSelect }: { frameIdx: number; selected: number | null; onSelect: (i: number | null) => void }) {
+//  overrideB: 실시간 스냅샷 blip(stocks 순, 결측 null)로 대체
+export function ThemePanel({ frameIdx, selected, onSelect, overrideB }: { frameIdx: number; selected: number | null; onSelect: (i: number | null) => void; overrideB?: (number[] | null)[] }) {
   const f = radarData.frames[clamp(frameIdx, 0, radarData.frameCount - 1)];
-  if (!f) return null;
+  if (!f && !overrideB) return null;
+  const rowsSrc: (number[] | null)[] = overrideB ?? f.b.map((b) => b as unknown as number[]);
   const stocks = radarData.stocks;
   const groups = themeMeta.themes.map((t, k) => {
     const rows = themeMeta.members[k]
-      .map((i) => { const b = f.b[i] as unknown as number[]; return { i, name: stocks[i].name, temp: b[3], ret: b[5], leader: themeMeta.leader[k] === i }; })
+      .map((i) => { const b = rowsSrc[i]; return { i, name: stocks[i].name, temp: b ? b[3] : 0, ret: b ? b[5] : 0, leader: themeMeta.leader[k] === i }; })
       .sort((a, b) => (b.leader ? 1 : 0) - (a.leader ? 1 : 0) || b.temp - a.temp);
     const maxTemp = rows.reduce((m, r) => Math.max(m, r.temp), 0);
     const avgRet = rows.reduce((sum, r) => sum + r.ret, 0) / (rows.length || 1);

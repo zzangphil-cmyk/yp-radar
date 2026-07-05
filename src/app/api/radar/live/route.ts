@@ -94,6 +94,7 @@ export async function GET() {
   const alpha = clamp(0.1 + p / N, 0.1, 0.5);
   const S = C.map((row, a) => row.map((v, b) => (a === b ? v : (1 - alpha) * v)));
   const Si = inv(S);
+  const zF = madZByGroup(flow, market); // 3D Z축: 자금유입 부호 z
   const pcs = [pctRankByGroup(relVol, market), pctRankByGroup(specRet.map(Math.abs), market), pctRankByGroup(vol20, market), pctRankByGroup(range, market), pctRankByGroup(flow.map(Math.abs), market)];
 
   // 축 원점 = 그날 횡단면 평균(중앙값): 점은 '평균 종목 대비' 상대 위치
@@ -107,7 +108,7 @@ export async function GET() {
     let mg = -1, mgi = 0; for (let a = 0; a < p; a++) { const az = Math.abs(Z[a][i]); if (az > mg) { mg = az; mgi = a; } }
     const x = clamp((Larr[i] - Lmed) / VOL_EDGE, -1, 1);
     const y = clamp((ret1[i] - Rmed) / RET_DAILY, -1, 1);
-    b.push([i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi], [pcs[0][i], pcs[1][i], pcs[2][i], pcs[3][i], pcs[4][i]]]);
+    b.push([i, r3(x), r3(y), r2(temp), r2(relVol[i]), r2(ret1[i]), r2(d2), FEAT_GROUP[mgi], [pcs[0][i], pcs[1][i], pcs[2][i], pcs[3][i], pcs[4][i]], r3(clamp(zF[i] / 3, -1, 1))]);
   }
 
   const open = sel.some((c) => String(live[c].marketStatus) === "OPEN");
