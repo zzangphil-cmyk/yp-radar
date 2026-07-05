@@ -11,6 +11,11 @@ if (!hasToss) { console.error("토스 키 없음(.env.local)"); process.exit(0);
 const stocksData = JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/etf-stocks.json"), "utf8"));
 const marketMap = JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/stock-markets.json"), "utf8"));
 const KOSPI_N = 200, KOSDAQ_N = 200;
+// 테마 해석: 구체 ETF 테마 > 네이버 업종명 > 버킷 (build-radar와 동일)
+const GENERIC = new Set(["코스피·대형", "코스닥", "배당·커버드콜", "기타"]);
+const ALIAS = { "반도체와반도체장비": "반도체" };
+const industryMap = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "src/data/stock-industry.json"), "utf8")).byCode; } catch { return {}; } })();
+const themeOfStock = (s) => { const sp = (s.themes || []).find((t) => !GENERIC.has(t)); const t = sp || industryMap[s.code] || s.themes?.[0] || "기타"; return ALIAS[t] || t; };
 const num = (v) => Number(String(v ?? "").replace(/,/g, "")) || 0;
 const r3 = (v) => (Number.isFinite(v) ? Math.round(v * 1000) / 1000 : null);
 const median = (a) => { const s = [...a].sort((x, y) => x - y); const n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : 0; };
@@ -45,9 +50,9 @@ for (const s of sel) {
   const rets = C.map((v, i) => (i === 0 ? 0 : (v - C[i - 1]) / (C[i - 1] || 1)));
   const m = master[s.code];
   out[s.code] = {
-    // 테마: 지수·범용 버킷보다 구체 테마 우선(성좌·고유수익 분해용)
+    // 테마: 구체 ETF 테마 > 네이버 업종명 > 버킷 (성좌·고유수익 분해용)
     code: s.code, name: s.name,
-    theme: (s.themes || []).find((t) => !["코스피·대형", "코스닥", "배당·커버드콜", "기타"].includes(t)) || s.themes?.[0] || "기타",
+    theme: themeOfStock(s),
     market: marketMap[s.code] || "KOSPI",
     prevClose: C[n - 1],                                  // 전일 종가(네이버)
     medVol20: median(V.slice(-20)),                       // 20일 거래량 중앙값(네이버 = 장중과 동일 스케일)
