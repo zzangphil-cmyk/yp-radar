@@ -54,7 +54,8 @@ export function useLiveDay(active: boolean) {
       const idbDays = ks.map((k) => k.replace(/^day-/, ""));
       const list = Array.from(new Set([today, ...sv, ...idbDays])).sort().reverse();
       setDays(list);
-      idbDays.filter((d) => !list.slice(0, 14).includes(d)).forEach((d) => idbDel(`day-${d}`));
+      // 캐시 정리: 서버에 정본이 있는 과거 날짜만 로컬 캐시 삭제 — 유일본은 절대 삭제 안 함(기록=자산)
+      idbDays.filter((d) => d !== today && sv.includes(d)).forEach((d) => idbDel(`day-${d}`));
     });
   }, []);
 

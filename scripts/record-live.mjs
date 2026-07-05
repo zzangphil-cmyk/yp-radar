@@ -25,7 +25,7 @@ function loadDay(date) {
 }
 function saveDay(date, rec) { fs.writeFileSync(path.join(DIR, `${date}.json`), JSON.stringify(rec)); }
 function updateIndex() {
-  const dates = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.replace(".json", "")).sort().reverse().slice(0, 30);
+  const dates = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.replace(".json", "")).sort().reverse(); // 기록은 삭제·상한 없이 전량 누적(연구 자산)
   fs.writeFileSync(path.join(DIR, "index.json"), JSON.stringify({ dates }));
   return dates;
 }

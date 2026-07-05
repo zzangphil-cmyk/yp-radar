@@ -131,7 +131,7 @@ for (let mi = 0; mi < SES; mi += RES_MIN) {
 }
 
 fs.writeFileSync(path.join(DIR, `${DATE}.json`), JSON.stringify({ d: DATE, c: present, f: frames }));
-const dates = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.replace(".json", "")).sort().reverse().slice(0, 30);
+const dates = fs.readdirSync(DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.replace(".json", "")).sort().reverse(); // 기록은 삭제·상한 없이 전량 누적(연구 자산)
 fs.writeFileSync(path.join(DIR, "index.json"), JSON.stringify({ dates }));
 console.log(`완료 · ${DATE} · ${present.length}종목 · ${frames.length}프레임(${RES_MIN}분) · index ${dates.length}일`);
 const sz = Math.round(fs.statSync(path.join(DIR, `${DATE}.json`)).size / 1024);
