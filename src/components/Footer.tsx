@@ -1,4 +1,5 @@
 import { RadarMark } from "./Brand";
+import VisitStats from "./VisitStats";
 
 export default function Footer() {
   return (
@@ -21,6 +22,9 @@ export default function Footer() {
           보장하지 않습니다. 투자 판단의 책임은 이용자 본인에게 있습니다.
           © {new Date().getFullYear()} Y&P 레이더
         </p>
+        <div className="flex items-center justify-between gap-3">
+          <VisitStats />
+        </div>
       </div>
     </footer>
   );
