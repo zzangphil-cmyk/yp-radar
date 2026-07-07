@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const ATCH = "FILE_000000003647207"; // 기금 포트폴리오 현황_20260228
+const ATCH = "FILE_000000003665243"; // 기금 포트폴리오 현황_20260331 (data.go.kr 15106894)
 
 async function load() {
   const p = path.join(ROOT, "data/_alloc.csv");

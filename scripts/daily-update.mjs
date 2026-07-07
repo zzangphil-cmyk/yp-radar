@@ -27,6 +27,10 @@ if (mode === "morning") {
     ["build-panel.mjs", null], ["build-radar.mjs", "src/data/radar-frames.json"],
     ["build-ta-panel.mjs", null], ["build-ta-latest.mjs", "src/data/ta-latest.json"],
     ["build-etf-data.mjs", "src/data/etf.json"],
+    // ETF 구성종목·스파크 — etf.json 갱신 뒤 실행 (KRX 비중은 마지막 수집분 재사용, 순유입·시세는 일일 갱신)
+    ["build-etf-holdings.mjs", null],
+    ["build-etf-stocks-full.mjs", "src/data/etf-stocks.json"],
+    ["build-toss-spark.mjs", "src/data/toss-spark.json"],
     ["build-recent-data.mjs", "src/data/nps-recent.json"],
   ];
   for (const [script, out] of steps) {
