@@ -107,7 +107,8 @@ const holdings = (await inBatches(universe, 6, async (u) => {
 console.log("최근 필링 조회…");
 const recentRaw = [];
 const bgn = daysAgo(85), end = fmt(today());
-for (let p = 1; p <= 12; p++) {
+// list.json은 최신순 — 페이지 캡이 낮으면 85일 창이 실제로는 며칠로 줄어든다 (100건/일 수준)
+for (let p = 1; p <= 90; p++) {
   const r = await fetch(`https://opendart.fss.or.kr/api/list.json?crtfc_key=${KEY}&bgn_de=${bgn}&end_de=${end}&pblntf_ty=D&page_no=${p}&page_count=100`);
   const j = await r.json();
   if (j.status !== "000") break;
