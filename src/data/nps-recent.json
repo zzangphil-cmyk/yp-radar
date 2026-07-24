@@ -1,12 +1,12 @@
 {
- "asOf": "20260719",
+ "asOf": "20260724",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
   "holdings": 110,
-  "recent": 132,
+  "recent": 131,
   "recentBuy": 66,
-  "recentSell": 66
+  "recentSell": 65
  },
  "holdings": [
   {
@@ -2419,16 +2419,6 @@
    "date": "20260601",
    "ownership": 9.48,
    "ownDelta": -1.01,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "현대글로비스",
-   "slug": "현대글로비스",
-   "inPanel": true,
-   "stockCode": "086280",
-   "date": "20260506",
-   "ownership": 9.05,
-   "ownDelta": -1.04,
    "reason": "단순추가취득/처분"
   }
  ]
