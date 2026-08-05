@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container-page space-y-3 text-xs text-white/45">
         <div className="flex items-center gap-2 text-white/70">
           <RadarMark size={18} />
-          <span className="font-semibold">Y&P 레이더</span>
+          <span className="font-semibold">주부 레이더</span>
         </div>
         {/* 데이터 출처 — 사이트 전체 통합 표기 */}
         <div className="grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-2">
@@ -20,7 +20,7 @@ export default function Footer() {
           레이더 온도(D²)는 &ldquo;평소와 얼마나 다른가&rdquo;의 관측치이며 방향 예측이 아닙니다.
           본 사이트는 투자 자문이나 매매 권유가 아니며, 정보의 정확성·완전성을
           보장하지 않습니다. 투자 판단의 책임은 이용자 본인에게 있습니다.
-          © {new Date().getFullYear()} Y&P 레이더
+          © {new Date().getFullYear()} 주부 레이더
         </p>
         <div className="flex items-center justify-between gap-3">
           <VisitStats />

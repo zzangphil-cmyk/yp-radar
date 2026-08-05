@@ -7,9 +7,9 @@ import { etf } from "@/lib/etfData";
 import { radarData } from "@/lib/radarData";
 
 export const metadata: Metadata = {
-  title: "Y&P 레이더 — ETF·국민연금 수급 추적",
+  title: "주부 레이더 — 주식·부동산·ETF·국민연금",
   description:
-    "ETF 실시간 수급·테마와 국민연금 포트폴리오를 한 곳에서. 빠른 리테일 흐름(ETF)과 느린 장기자금(국민연금)을 함께 추적하는 수급 레이더.",
+    "주식(주)과 부동산(부)을 한 이름에. ETF 실시간 수급·테마, 국민연금 포트폴리오, 수도권 주택시장까지 — 빠른 돈과 느린 돈을 함께 보는 시장 레이더.",
 };
 
 export default function RootLayout({

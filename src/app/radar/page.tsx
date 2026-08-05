@@ -1,7 +1,7 @@
 import StockRadar from "@/components/StockRadar";
 import { radarData } from "@/lib/radarData";
 
- export const metadata = { title: "2D 관제 스코프 | Y&P 레이더" };
+ export const metadata = { title: "2D 관제 스코프 | 주부 레이더" };
 
 export default function RadarPage() {
   const last = radarData.frames[radarData.frames.length - 1]?.b ?? [];

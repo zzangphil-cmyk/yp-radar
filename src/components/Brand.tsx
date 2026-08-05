@@ -22,7 +22,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
       <RadarMark />
       {!compact && (
         <span className="font-extrabold tracking-tight">
-          Y&P<span className="text-radar"> 레이더</span>
+          주부<span className="text-radar"> 레이더</span>
         </span>
       )}
     </span>

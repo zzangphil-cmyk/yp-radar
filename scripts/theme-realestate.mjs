@@ -1,4 +1,4 @@
-// 부동산 분석기(정적 3페이지)를 Y&P 레이더 다크 UI로 통일.
+// 부동산 분석기(정적 3페이지)를 주부 레이더 다크 UI로 통일.
 // - 원본 HTML에 <style id="yp-theme"> 다크 오버라이드 + 상단 글로벌 스위처(.yp-top) 주입
 // - 멱등: 재실행/새 버전 재번들 후 다시 돌려도 기존 주입분을 교체
 // 사용: node scripts/theme-realestate.mjs
@@ -13,7 +13,7 @@ const SIBLINGS = ["real_estate_policy_timeline_v1_0.html", "real_estate_expert_s
 const MARK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#a78bfa" stroke-width="1.4" opacity=".45"/><circle cx="12" cy="12" r="5.5" stroke="#a78bfa" stroke-width="1.4" opacity=".8"/><circle cx="12" cy="12" r="1.7" fill="#a78bfa"/></svg>';
 const YP_BAR =
   '<div class="yp-top">' +
-    `<a class="yp-brand" href="/">${MARK}<span>Y&amp;P <b>레이더</b></span></a>` +
+    `<a class="yp-brand" href="/">${MARK}<span>주부 <b>레이더</b></span></a>` +
     '<nav class="yp-switch">' +
       '<a href="/radar">주식</a>' +
       '<a href="/etf">ETF</a>' +
