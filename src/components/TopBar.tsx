@@ -62,11 +62,9 @@ export default function TopBar({ etfAsOf, npsAsOf, radarAsOf }: { etfAsOf: strin
           <SwitchBtn href="/radar" label="주식" on={product === "radar"} />
           <SwitchBtn href="/etf" label="ETF" on={product === "etf"} />
           <SwitchBtn href="/nps" label="국민연금" on={product === "nps"} />
-          {/* 부동산: 독립 정적 분석기(자체 상단 네비 보유) — 새 탭으로 오픈 */}
+          {/* 부동산: 정적 분석기(자체 상단에 동일 스위처 보유) — 같은 탭 이동 */}
           <a
             href="/realestate/capital_area_market_analyzer_v3_0.html"
-            target="_blank"
-            rel="noopener"
             className="rounded-[10px] px-3.5 py-1.5 text-sm font-bold text-white/45 transition-colors hover:text-white"
           >
             부동산

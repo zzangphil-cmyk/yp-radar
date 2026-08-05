@@ -37,9 +37,9 @@ export default function Hub() {
               ETF 레이더
             </Link>
             <Link href="/nps" className="btn-radar">국민연금 레이더</Link>
-            <a href="/realestate/capital_area_market_analyzer_v3_0.html" target="_blank" rel="noopener"
+            <a href="/realestate/capital_area_market_analyzer_v3_0.html"
               className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 transition-colors hover:border-white/30 hover:text-white">
-              부동산 분석기 ↗
+              부동산 분석기
             </a>
           </div>
         </div>
