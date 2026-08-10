@@ -3,7 +3,11 @@
 //   B) geojson 좌표를 소수 5자리(≈1m)로 반올림
 //   C) 앱 코드에서 한 번도 참조되지 않는 열 제거 (이름이 코드에 등장하면 무조건 보존 — 보수적)
 //   D) base64 → 원본 JSON 인라인 (base64는 33% 부풀고 압축도 방해)
-// 새 버전 반영 순서: 파일 교체 → optimize → build-realestate-summary → theme-realestate
+// [새 버전 반영 순서] 원본 3파일 + 청크를 교체한 뒤 아래 순서로 1회씩 실행:
+//   1. node scripts/compress-chunks.mjs          (청크 .json → .jsonz gzip, 112MB→10MB)
+//   2. node scripts/optimize-realestate.mjs      (이 파일: payload 축소 + 청크 경로·해제기 주입)
+//   3. node scripts/build-realestate-summary.mjs (홈 시각화용 요약 추출)
+//   4. node scripts/theme-realestate.mjs         (다크 테마 + 상단 바 + 요약 배너)
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
@@ -66,12 +70,36 @@ const round5 = (o) => {
 };
 for (const k of ["sigungu_geojson", "geojson"]) if (DATA[k]) DATA[k] = round5(DATA[k]);
 
+// ── E) 청크가 gzip(.jsonz)으로 저장돼 있으면 경로를 맞춘다 ────────────────
+const CHUNK_DIR = path.join(ROOT, "public", "realestate", "data", "market_monthly_chunks_v1_0");
+const chunksCompressed =
+  fs.existsSync(CHUNK_DIR) && fs.readdirSync(CHUNK_DIR).some((f) => f.endsWith(".jsonz"));
+if (chunksCompressed && DATA.monthly_chunks) {
+  for (const k of Object.keys(DATA.monthly_chunks)) {
+    DATA.monthly_chunks[k] = String(DATA.monthly_chunks[k]).replace(/\.json$/, ".jsonz");
+  }
+}
+
 // ── D) 원본 JSON 인라인 (base64 제거) ─────────────────────────────────────
 // HTML <script> 안이므로 '<'를 이스케이프해 </script> 조기 종료를 방지
 const json = JSON.stringify(DATA).replace(/</g, "\\u003c");
 
 // _decodePayload("...") → 인라인 JSON
 html = html.replace(/_decodePayload\("[A-Za-z0-9+/=]+"\)/, `${MARK}${json}`);
+
+// gzip 청크 해제기 주입 + fetch 응답 처리 교체
+if (chunksCompressed) {
+  const helper =
+    "function _ypGunzip(r){" +
+    "if(!/\\.jsonz(\\?|$)/.test(r.url)||typeof DecompressionStream==='undefined'||!r.body)return r.json();" +
+    "return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json()}";
+  if (!html.includes("function _ypGunzip")) {
+    html = html.replace("function inflateTable(", `${helper} function inflateTable(`);
+  }
+  const fetchRe = /(fetch\(path\)\.then\(response=>\{if\(!response\.ok\)throw new Error\(`monthly chunk \$\{response\.status\}`\);return )response\.json\(\)(\})/;
+  if (!fetchRe.test(html)) throw new Error("청크 fetch 코드를 찾지 못함 — 분석기 구조 변경 확인");
+  html = html.replace(fetchRe, "$1_ypGunzip(response)$2");
+}
 
 // 새로 패킹한 키를 앱의 inflate 목록에 추가
 const listRe = /(\[)((?:'[a-z_]+',?)+)(\]\.forEach\(key=>\{DATA\[key\]=inflateTable\(DATA\[key\]\)\}\))/;
@@ -86,6 +114,7 @@ fs.writeFileSync(FILE, html);
 const after = Buffer.byteLength(html);
 console.log(`패킹: ${packed.length}개 테이블 (${packed.join(", ")})`);
 console.log(`미참조 열 제거: ${droppedCols}개`);
+console.log(`청크: ${chunksCompressed ? ".jsonz(gzip) 경로 + 해제기 주입" : ".json(무압축) 그대로"}`);
 console.log(`파일: ${mb(before)} → ${mb(after)} MB (-${mb(before - after)})`);
 const br = zlib.brotliCompressSync(Buffer.from(html)).length;
 console.log(`brotli 전송 예상: ${mb(br)} MB`);
