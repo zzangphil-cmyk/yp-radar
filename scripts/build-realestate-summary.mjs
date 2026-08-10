@@ -114,6 +114,98 @@ const coverage = DATA.coverage.map((c) => ({
   framework: c.official_framework,
 }));
 
+// ── 6) 정책 타임라인 (형제 페이지에서 파싱) ──────────────────────────────
+function grabConstD(file) {
+  const p = path.join(ROOT, "public", "realestate", file);
+  if (!fs.existsSync(p)) return [];
+  const s = fs.readFileSync(p, "utf8");
+  const i = s.indexOf("const D=");
+  if (i < 0) return [];
+  const start = s.indexOf("[", i);
+  let depth = 0, inStr = false, esc = false, end = -1;
+  for (let q = start; q < s.length; q++) {
+    const c = s[q];
+    if (esc) { esc = false; continue; }
+    if (c === "\\") { esc = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === "[" || c === "{") depth++;
+    else if (c === "]" || c === "}") { depth--; if (depth === 0) { end = q + 1; break; } }
+  }
+  return end > 0 ? JSON.parse(s.slice(start, end)) : [];
+}
+
+const POL = grabConstD("real_estate_policy_timeline_v1_0.html");
+// 복합 분야("금융·세제")는 대표 버킷으로 묶어 가독성 확보
+const BUCKET = [
+  ["공급", /공급|정비/], ["금융", /금융/], ["세제", /세제|지방세/],
+  ["청약·전매", /청약|전매/], ["임대차", /임대차/], ["규제지역", /규제지역|토지거래/],
+];
+const bucketOf = (cat) => BUCKET.find(([, re2]) => re2.test(cat ?? ""))?.[0] ?? "기타";
+const polYears = {};
+const polBuckets = {};
+const polRegions = {};
+for (const p of POL) {
+  const y = (p.date ?? "").slice(0, 4);
+  if (y) {
+    polYears[y] = polYears[y] ?? { year: y, total: 0, major: 0 };
+    polYears[y].total++;
+    if (p.major) polYears[y].major++;
+  }
+  const b = bucketOf(p.category);
+  polBuckets[b] = (polBuckets[b] ?? 0) + 1;
+  polRegions[p.region ?? "기타"] = (polRegions[p.region ?? "기타"] ?? 0) + 1;
+}
+const polDates = POL.map((p) => p.date).filter(Boolean).sort();
+const policy = {
+  count: POL.length,
+  range: polDates.length ? [polDates[0], polDates[polDates.length - 1]] : null,
+  years: Object.values(polYears).sort((a, b) => a.year.localeCompare(b.year)),
+  buckets: Object.entries(polBuckets).map(([k, v]) => ({ name: k, count: v })).sort((a, b) => b.count - a.count),
+  regions: Object.entries(polRegions).map(([k, v]) => ({ name: k, count: v })).sort((a, b) => b.count - a.count),
+  // 원본이 날짜순이 아니므로 명시적으로 최신순 정렬
+  latest: [...POL]
+    .filter((p) => p.date)
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 4)
+    .map((p) => ({ date: p.date, title: p.title, region: p.region, category: p.category, major: !!p.major })),
+};
+
+// ── 7) 전문가 컨센서스 ────────────────────────────────────────────────────
+const EXP = grabConstD("real_estate_expert_signals_v1_0.html");
+const remarkYears = {};
+for (const e of EXP) {
+  for (const r of e.remarks ?? []) {
+    const y = (r.ym ?? "").slice(0, 4);
+    if (!y || r.direction == null) continue;
+    remarkYears[y] = remarkYears[y] ?? { year: y, sum: 0, n: 0, up: 0, down: 0 };
+    remarkYears[y].sum += r.direction;
+    remarkYears[y].n++;
+    if (r.direction > 0) remarkYears[y].up++;
+    else if (r.direction < 0) remarkYears[y].down++;
+  }
+}
+// 전문가별 최신 발언 방향
+const latestByExpert = EXP.map((e) => {
+  const rs = (e.remarks ?? []).filter((r) => r.ym).sort((a, b) => a.ym.localeCompare(b.ym));
+  const last = rs[rs.length - 1];
+  return last ? { name: e.name, ym: last.ym, direction: last.direction, theme: last.theme } : null;
+}).filter(Boolean);
+const dirNow = latestByExpert.length
+  ? latestByExpert.reduce((a, x) => a + (x.direction ?? 0), 0) / latestByExpert.length
+  : null;
+const experts = {
+  count: EXP.length,
+  consensusNow: dirNow == null ? null : Math.round(dirNow * 100) / 100,
+  bullish: latestByExpert.filter((x) => (x.direction ?? 0) > 0).length,
+  bearish: latestByExpert.filter((x) => (x.direction ?? 0) < 0).length,
+  neutral: latestByExpert.filter((x) => (x.direction ?? 0) === 0).length,
+  years: Object.values(remarkYears)
+    .map((y) => ({ ...y, avg: Math.round((y.sum / y.n) * 100) / 100 }))
+    .sort((a, b) => a.year.localeCompare(b.year)),
+  latest: latestByExpert.sort((a, b) => b.ym.localeCompare(a.ym)),
+};
+
 const asOf =
   DATA.complex_grade.find((c) => c.source_as_of)?.source_as_of ?? macro.asOf ?? null;
 
@@ -137,6 +229,8 @@ const out = {
   regions,
   macro,
   zones: zoneStats,
+  policy,
+  experts,
   coverage,
   source: "수도권 주택시장 분석기 v3.0 (국토부 실거래·K-apt·생활권계획)",
 };
@@ -147,3 +241,4 @@ console.log(`요약 저장: src/data/realestate-summary.json (${kb}KB)`);
 console.log(`기준 ${out.asOf} · 단지 ${out.counts.complexes} · 생활권 ${out.counts.zones} · 시군구 ${out.counts.sigungu}`);
 console.log(`거시 ${macro.asOf} ${macro.status} · 기준금리 ${macro.baseRate}% · 국고3년 ${macro.treasury3y}%`);
 console.log(`생활권 평단가 중앙 ${zoneStats.medianPyeong}만원 · 최고 ${zoneStats.topPrice[0]?.zone} ${zoneStats.topPrice[0]?.pyeong}만원`);
+console.log(`정책 ${policy.count}건(${policy.range?.[0]}~${policy.range?.[1]}) · 전문가 ${experts.count}인 컨센서스 ${experts.consensusNow} (강세 ${experts.bullish}/약세 ${experts.bearish})`);

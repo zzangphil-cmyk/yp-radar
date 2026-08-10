@@ -10,6 +10,8 @@ import {
   GradeDistribution,
   MacroTimeline,
   ZoneRanking,
+  PolicyPulse,
+  ExpertConsensus,
   RealestateEntries,
 } from "@/components/RealestatePanels";
 import { etf, etfStocks, fmtAmt } from "@/lib/etfData";
@@ -205,8 +207,22 @@ export default function Hub() {
           <h2 className="section-title">돈의 값 — 거시 타이밍</h2>
         </div>
         <MacroTimeline />
+      </section>
+
+      <section className="space-y-4">
+        <div className="border-t border-white/[0.07] pt-8">
+          <h2 className="section-title">
+            판을 움직이는 것 — 정책과 사람
+            <span className="ml-2 align-middle text-xs font-normal text-white/40">긴 글 대신 한 장으로</span>
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <PolicyPulse />
+          <ExpertConsensus />
+        </div>
         <p className="text-xs text-white/40">
-          ※ 급지·점수는 공개 데이터 기반 관측 지표이며 감정평가나 투자 권유가 아닙니다. 출처: {re.source}
+          ※ 급지·점수·컨센서스는 공개 데이터 기반 관측 지표이며 감정평가나 투자 권유가 아닙니다. 전문가 방향성은
+          공개 발언을 정리한 것으로 본 사이트의 전망이 아닙니다. 출처: {re.source}
         </p>
       </section>
     </div>

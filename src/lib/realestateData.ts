@@ -44,6 +44,23 @@ export interface ReSummary {
     topRise: ReZone[];
     topFall: ReZone[];
   };
+  policy: {
+    count: number;
+    range: string[] | null;
+    years: { year: string; total: number; major: number }[];
+    buckets: { name: string; count: number }[];
+    regions: { name: string; count: number }[];
+    latest: { date: string; title: string; region: string; category: string; major: boolean }[];
+  };
+  experts: {
+    count: number;
+    consensusNow: number | null; // -2(강한 하락) ~ +2(강한 상승)
+    bullish: number;
+    bearish: number;
+    neutral: number;
+    years: { year: string; avg: number; n: number; up: number; down: number }[];
+    latest: { name: string; ym: string; direction: number; theme: string }[];
+  };
   coverage: { metro: string; status: string; parsed: number; official: number; sigunguCount: number; framework: string }[];
   source: string;
 }

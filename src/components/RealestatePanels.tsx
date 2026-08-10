@@ -188,6 +188,131 @@ export function ZoneRanking() {
   );
 }
 
+/** 정책 흐름 — 연도별 밀도 + 분야 분포 (텍스트 28건을 한 장으로) */
+export function PolicyPulse() {
+  const p = re.policy;
+  if (!p.count) return null;
+  const maxY = Math.max(...p.years.map((y) => y.total), 1);
+  const maxB = Math.max(...p.buckets.map((b) => b.count), 1);
+  return (
+    <div className="card p-4">
+      <div className="mb-1 flex items-baseline justify-between">
+        <span className="text-sm font-semibold text-white/85">정책 흐름</span>
+        <span className="text-[11px] text-white/40">{p.count}건 · {p.range?.[0]?.slice(0, 4)}~{p.range?.[1]?.slice(0, 4)}</span>
+      </div>
+      <p className="mb-3 text-[11px] text-white/45">
+        막대 높이 = 그해 대책 수. <span className="text-[#c4b5fd]">진한 부분</span>이 주요 대책 —{" "}
+        <strong className="text-white/70">최근 2년에 몰려 있으면 규제 사이클</strong>입니다.
+      </p>
+      <div className="flex h-20 items-end gap-1">
+        {p.years.map((y) => {
+          const h = (y.total / maxY) * 100;
+          const majorH = y.total ? (y.major / y.total) * 100 : 0;
+          return (
+            <div key={y.year} className="flex flex-1 flex-col items-center gap-1" title={`${y.year} ${y.total}건 (주요 ${y.major})`}>
+              <span className="text-[9px] tabular-nums text-white/40">{y.total}</span>
+              <span className="flex w-full flex-col justify-end rounded-t bg-[#a78bfa]/25" style={{ height: `${Math.max(6, h)}%` }}>
+                <span className="w-full rounded-t bg-[#a78bfa]" style={{ height: `${majorH}%` }} />
+              </span>
+              <span className="text-[9px] text-white/35">{y.year.slice(2)}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <div className="mb-1 text-[11px] font-semibold text-white/55">분야</div>
+          <ul className="space-y-0.5">
+            {p.buckets.slice(0, 5).map((b) => (
+              <li key={b.name} className="grid grid-cols-[62px_1fr_20px] items-center gap-2">
+                <span className="truncate text-[11px] text-white/70">{b.name}</span>
+                <span className="h-1.5 overflow-hidden rounded-full bg-white/[0.05]">
+                  <span className="block h-full rounded-full bg-[#a78bfa]" style={{ width: `${(b.count / maxB) * 100}%` }} />
+                </span>
+                <span className="text-right text-[10px] tabular-nums text-white/45">{b.count}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <div className="mb-1 text-[11px] font-semibold text-white/55">최근 대책</div>
+          <ul className="space-y-0.5">
+            {p.latest.slice(0, 4).map((it) => (
+              <li key={it.date + it.title} className="flex items-center gap-1.5">
+                <span className="shrink-0 text-[10px] tabular-nums text-white/35">{it.date.slice(2, 7)}</span>
+                {it.major && <span className="shrink-0 rounded bg-[#a78bfa]/15 px-1 text-[9px] font-bold text-[#c4b5fd]">주요</span>}
+                <span className="min-w-0 flex-1 truncate text-[11px] text-white/75" title={it.title}>{it.title}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <Link href={RE_PAGES.policy} className="mt-2 inline-block text-[11px] text-[#c4b5fd] hover:text-[#ddd6fe]">
+        정책 타임라인 전체 →
+      </Link>
+    </div>
+  );
+}
+
+/** 전문가 컨센서스 — 12인 방향성을 게이지 + 연도별 추이로 */
+export function ExpertConsensus() {
+  const e = re.experts;
+  if (!e.count) return null;
+  const c = e.consensusNow ?? 0;
+  const pos = ((c + 2) / 4) * 100; // -2~+2 → 0~100%
+  const label = c > 0.5 ? "상승 우위" : c < -0.5 ? "하락 우위" : "혼조";
+  const tone = c > 0.5 ? "#f0616e" : c < -0.5 ? "#5a9bff" : "#8b9096";
+  const maxN = Math.max(...e.years.map((y) => y.n), 1);
+  return (
+    <div className="card p-4">
+      <div className="mb-1 flex items-baseline justify-between">
+        <span className="text-sm font-semibold text-white/85">전문가 컨센서스</span>
+        <span className="text-[11px] font-semibold" style={{ color: tone }}>{label}</span>
+      </div>
+      <p className="mb-3 text-[11px] text-white/45">
+        {e.count}인의 최신 발언 방향. <strong className="text-white/70">합의가 한쪽으로 쏠릴수록</strong> 되돌림 위험도 함께 커집니다.
+      </p>
+
+      {/* 게이지 */}
+      <div className="relative h-2 rounded-full" style={{ background: "linear-gradient(90deg,#5a9bff33,#8b909633,#f0616e33)" }}>
+        <span className="absolute top-1/2 h-4 w-1 -translate-y-1/2 rounded-full" style={{ left: `${pos}%`, background: tone }} />
+      </div>
+      <div className="mt-1 flex justify-between text-[10px] text-white/35">
+        <span>하락</span>
+        <span className="tabular-nums text-white/60">
+          강세 {e.bullish} · 중립 {e.neutral} · 약세 {e.bearish}
+        </span>
+        <span>상승</span>
+      </div>
+
+      {/* 연도별 방향 */}
+      <div className="mt-3 flex h-14 items-center gap-1">
+        {e.years.map((y) => {
+          const up = y.avg >= 0;
+          const h = (Math.abs(y.avg) / 2) * 100;
+          return (
+            <div key={y.year} className="flex flex-1 flex-col items-center" title={`${y.year} 평균 ${y.avg} (${y.n}건)`}>
+              <span className="flex h-6 w-full items-end">
+                {up && <span className="w-full rounded-t" style={{ height: `${Math.max(6, h)}%`, background: "#f0616e", opacity: 0.35 + (y.n / maxN) * 0.65 }} />}
+              </span>
+              <span className="h-px w-full bg-white/10" />
+              <span className="flex h-6 w-full items-start">
+                {!up && <span className="w-full rounded-b" style={{ height: `${Math.max(6, h)}%`, background: "#5a9bff", opacity: 0.35 + (y.n / maxN) * 0.65 }} />}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex gap-1 text-[9px] text-white/30">
+        {e.years.map((y) => <span key={y.year} className="flex-1 text-center">{y.year.slice(2)}</span>)}
+      </div>
+      <Link href={RE_PAGES.experts} className="mt-2 inline-block text-[11px] text-[#c4b5fd] hover:text-[#ddd6fe]">
+        전문가 12인 상세 →
+      </Link>
+    </div>
+  );
+}
+
 /** 부동산 세부 진입 카드 3종 */
 export function RealestateEntries() {
   const items = [

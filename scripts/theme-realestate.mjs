@@ -30,8 +30,95 @@ const barFor = (activeHref) =>
     '<span class="yp-chip">수도권 주택시장</span>' +
   '</div>';
 
-// ── 공통(글로벌 바 + 스크롤바) ─────────────────────────────────────────────
+// ── 시각 요약 배너 (긴 텍스트 페이지 맨 위에 "한 장 요약"을 얹는다) ─────────
+// 요약 수치는 build-realestate-summary.mjs 산출물을 재사용 (없으면 배너 생략)
+const SUMMARY_PATH = path.join(process.cwd(), "src", "data", "realestate-summary.json");
+const SUM = fs.existsSync(SUMMARY_PATH) ? JSON.parse(fs.readFileSync(SUMMARY_PATH, "utf8")) : null;
+
+function policyBanner() {
+  const p = SUM?.policy;
+  if (!p?.count) return "";
+  const maxY = Math.max(...p.years.map((y) => y.total), 1);
+  const bars = p.years.map((y) => {
+    const h = Math.max(8, (y.total / maxY) * 100);
+    const majorH = y.total ? (y.major / y.total) * 100 : 0;
+    return `<div class="ypv-col" title="${y.year} ${y.total}건(주요 ${y.major})">
+      <i class="ypv-n">${y.total}</i>
+      <span class="ypv-bar" style="height:${h}%"><span style="height:${majorH}%"></span></span>
+      <i class="ypv-x">${y.year.slice(2)}</i></div>`;
+  }).join("");
+  const maxB = Math.max(...p.buckets.map((b) => b.count), 1);
+  const buckets = p.buckets.slice(0, 5).map((b) =>
+    `<li><span>${b.name}</span><i><em style="width:${(b.count / maxB) * 100}%"></em></i><b>${b.count}</b></li>`
+  ).join("");
+  return `<section class="ypv">
+    <div class="ypv-head"><b>한 장 요약</b><span>${p.count}건 · ${p.range?.[0]?.slice(0, 4)}~${p.range?.[1]?.slice(0, 4)} · 진한 부분 = 주요 대책</span></div>
+    <div class="ypv-grid">
+      <div class="ypv-chart">${bars}</div>
+      <ul class="ypv-list">${buckets}</ul>
+    </div>
+  </section>`;
+}
+
+function expertBanner() {
+  const e = SUM?.experts;
+  if (!e?.count) return "";
+  const c = e.consensusNow ?? 0;
+  const pos = ((c + 2) / 4) * 100;
+  const label = c > 0.5 ? "상승 우위" : c < -0.5 ? "하락 우위" : "혼조";
+  const tone = c > 0.5 ? "#f0616e" : c < -0.5 ? "#5a9bff" : "#8b9096";
+  const maxN = Math.max(...e.years.map((y) => y.n), 1);
+  const cols = e.years.map((y) => {
+    const up = y.avg >= 0;
+    const h = Math.max(8, (Math.abs(y.avg) / 2) * 100);
+    const op = 0.35 + (y.n / maxN) * 0.65;
+    return `<div class="ypv-col2" title="${y.year} 평균 ${y.avg} (${y.n}건)">
+      <span class="ypv-up">${up ? `<i style="height:${h}%;opacity:${op}"></i>` : ""}</span>
+      <span class="ypv-mid"></span>
+      <span class="ypv-dn">${!up ? `<i style="height:${h}%;opacity:${op}"></i>` : ""}</span>
+      <i class="ypv-x">${y.year.slice(2)}</i></div>`;
+  }).join("");
+  return `<section class="ypv">
+    <div class="ypv-head"><b>한 장 요약</b><span>${e.count}인 최신 발언 · <strong style="color:${tone}">${label}</strong> (강세 ${e.bullish} · 중립 ${e.neutral} · 약세 ${e.bearish})</span></div>
+    <div class="ypv-gauge"><span style="left:${pos}%;background:${tone}"></span></div>
+    <div class="ypv-gauge-x"><i>하락</i><i>상승</i></div>
+    <div class="ypv-chart2">${cols}</div>
+  </section>`;
+}
+
+// ── 공통(글로벌 바 + 스크롤바 + 요약 배너) ─────────────────────────────────
 const COMMON = `
+.ypv{margin:14px 28px 0;background:#17181d;border:1px solid #232430;border-radius:12px;padding:14px}
+.ypv-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ypv-head b{font-size:13px;color:#e8eaed}
+.ypv-head span{font-size:11px;color:#8b9096}
+.ypv-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:end}
+.ypv-chart{display:flex;align-items:flex-end;gap:4px;height:76px}
+.ypv-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.ypv-n{font-style:normal;font-size:9px;color:#8b9096}
+.ypv-bar{width:100%;background:rgba(167,139,250,.25);border-radius:3px 3px 0 0;display:flex;flex-direction:column;justify-content:flex-end;min-height:6px}
+.ypv-bar>span{width:100%;background:#a78bfa;border-radius:3px 3px 0 0}
+.ypv-x{font-style:normal;font-size:9px;color:#6b7076}
+.ypv-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.ypv-list li{display:grid;grid-template-columns:58px 1fr 20px;align-items:center;gap:7px}
+.ypv-list span{font-size:11px;color:#c9ccd1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ypv-list i{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;display:block}
+.ypv-list i em{display:block;height:100%;background:#a78bfa;border-radius:3px}
+.ypv-list b{font-size:10px;color:#8b9096;text-align:right}
+.ypv-gauge{position:relative;height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(90,155,255,.25),rgba(139,144,150,.25),rgba(240,97,110,.25))}
+.ypv-gauge span{position:absolute;top:50%;transform:translate(-50%,-50%);width:4px;height:16px;border-radius:2px}
+.ypv-gauge-x{display:flex;justify-content:space-between;margin-top:3px}
+.ypv-gauge-x i{font-style:normal;font-size:10px;color:#6b7076}
+.ypv-chart2{display:flex;gap:3px;margin-top:12px}
+.ypv-col2{flex:1;display:flex;flex-direction:column;align-items:center}
+.ypv-up,.ypv-dn{display:flex;width:100%;height:22px}
+.ypv-up{align-items:flex-end}
+.ypv-dn{align-items:flex-start}
+.ypv-up i,.ypv-dn i{display:block;width:100%;background:#f0616e;border-radius:2px 2px 0 0}
+.ypv-dn i{background:#5a9bff;border-radius:0 0 2px 2px}
+.ypv-mid{width:100%;height:1px;background:rgba(255,255,255,.1)}
+@media(max-width:760px){.ypv{margin:12px 14px 0}.ypv-grid{grid-template-columns:1fr;gap:12px}}
+
 .yp-top{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;background:rgba(16,16,19,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #1e1f26;font-family:'Noto Sans KR','Malgun Gothic',sans-serif}
 .yp-top .yp-brand{display:flex;align-items:center;gap:8px;color:#e8eaed;text-decoration:none;font-size:15px;font-weight:400;letter-spacing:-.01em}
 .yp-top .yp-brand b{font-weight:800}
@@ -205,14 +292,15 @@ summary{color:#c4b5fd}
 .elect-names,.elect-score{color:#8b9096}
 `;
 
-function apply(file, css) {
+function apply(file, css, banner = "") {
   const p = path.join(DIR, file);
   let s = fs.readFileSync(p, "utf8");
   // 기존 주입분 제거(멱등)
   s = s.replace(/<style id="yp-theme">[\s\S]*?<\/style>/g, "");
   s = s.replace(/<div class="yp-top">[\s\S]*?<\/div>/g, "");
-  // 글로벌 바 주입(<body> 직후) — 현재 파일을 세부 탭에서 활성 표시
-  s = s.replace(/(<body[^>]*>)/i, `$1${barFor(`/realestate/${file}`)}`);
+  s = s.replace(/<section class="ypv">[\s\S]*?<\/section>/g, "");
+  // 글로벌 바 + 시각 요약 배너 주입(<body> 직후) — 현재 파일을 세부 탭에서 활성 표시
+  s = s.replace(/(<body[^>]*>)/i, `$1${barFor(`/realestate/${file}`)}${banner}`);
   // 오버라이드 스타일은 문서 맨끝(</body> 직전)에 주입 →
   // 원본 <style>이 head 밖(본문)에 있어도 항상 뒤에 와서 우선순위 승
   const block = `<style id="yp-theme">${COMMON}${css}</style>`;
@@ -224,5 +312,12 @@ function apply(file, css) {
 
 const mb1 = apply(ANALYZER, ANALYZER_CSS);
 console.log(`시장분석기 테마 적용 · ${mb1} MB`);
-for (const f of SIBLINGS) console.log(`${f} 테마 적용 · ${apply(f, SIBLING_CSS)} MB`);
-console.log("완료: 3파일 다크 통일 + 글로벌 스위처");
+const BANNERS = {
+  "real_estate_policy_timeline_v1_0.html": policyBanner(),
+  "real_estate_expert_signals_v1_0.html": expertBanner(),
+};
+for (const f of SIBLINGS) {
+  const banner = BANNERS[f] ?? "";
+  console.log(`${f} 테마 적용 · ${apply(f, SIBLING_CSS, banner)} MB${banner ? " (+요약 배너)" : ""}`);
+}
+console.log("완료: 3파일 다크 통일 + 글로벌 스위처" + (SUM ? " + 시각 요약" : " (요약 데이터 없음)"));

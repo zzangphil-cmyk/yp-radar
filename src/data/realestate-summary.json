@@ -719,6 +719,299 @@
    }
   ]
  },
+ "policy": {
+  "count": 28,
+  "range": [
+   "2016-11-03",
+   "2026-07-10"
+  ],
+  "years": [
+   {
+    "year": "2016",
+    "total": 1,
+    "major": 1
+   },
+   {
+    "year": "2017",
+    "total": 2,
+    "major": 2
+   },
+   {
+    "year": "2018",
+    "total": 1,
+    "major": 1
+   },
+   {
+    "year": "2019",
+    "total": 2,
+    "major": 1
+   },
+   {
+    "year": "2020",
+    "total": 2,
+    "major": 2
+   },
+   {
+    "year": "2021",
+    "total": 2,
+    "major": 2
+   },
+   {
+    "year": "2022",
+    "total": 1,
+    "major": 1
+   },
+   {
+    "year": "2023",
+    "total": 1,
+    "major": 1
+   },
+   {
+    "year": "2024",
+    "total": 2,
+    "major": 2
+   },
+   {
+    "year": "2025",
+    "total": 6,
+    "major": 4
+   },
+   {
+    "year": "2026",
+    "total": 8,
+    "major": 5
+   }
+  ],
+  "buckets": [
+   {
+    "name": "공급",
+    "count": 10
+   },
+   {
+    "name": "금융",
+    "count": 7
+   },
+   {
+    "name": "세제",
+    "count": 5
+   },
+   {
+    "name": "청약·전매",
+    "count": 2
+   },
+   {
+    "name": "규제지역",
+    "count": 2
+   },
+   {
+    "name": "임대차",
+    "count": 1
+   },
+   {
+    "name": "기타",
+    "count": 1
+   }
+  ],
+  "regions": [
+   {
+    "name": "전국",
+    "count": 11
+   },
+   {
+    "name": "수도권",
+    "count": 7
+   },
+   {
+    "name": "서울",
+    "count": 7
+   },
+   {
+    "name": "울산",
+    "count": 2
+   },
+   {
+    "name": "인천",
+    "count": 1
+   }
+  ],
+  "latest": [
+   {
+    "date": "2026-07-10",
+    "title": "2031년 31만호 착공 공정관리 격상",
+    "region": "서울",
+    "category": "공급·정비",
+    "major": false
+   },
+   {
+    "date": "2026-07-09",
+    "title": "모아주택 심의기준 개선",
+    "region": "서울",
+    "category": "소규모정비",
+    "major": true
+   },
+   {
+    "date": "2026-06-15",
+    "title": "재개발·재건축 속도 제고 10대 법령 개정 건의",
+    "region": "서울",
+    "category": "공급·정비",
+    "major": true
+   },
+   {
+    "date": "2026-05-09",
+    "title": "다주택자 양도소득세 중과 유예 종료",
+    "region": "전국",
+    "category": "세제",
+    "major": true
+   }
+  ]
+ },
+ "experts": {
+  "count": 12,
+  "consensusNow": 0.58,
+  "bullish": 8,
+  "bearish": 2,
+  "neutral": 2,
+  "years": [
+   {
+    "year": "2018",
+    "sum": 5,
+    "n": 4,
+    "up": 4,
+    "down": 0,
+    "avg": 1.25
+   },
+   {
+    "year": "2020",
+    "sum": 2,
+    "n": 4,
+    "up": 2,
+    "down": 1,
+    "avg": 0.5
+   },
+   {
+    "year": "2021",
+    "sum": 2,
+    "n": 3,
+    "up": 1,
+    "down": 0,
+    "avg": 0.67
+   },
+   {
+    "year": "2022",
+    "sum": 4,
+    "n": 7,
+    "up": 4,
+    "down": 2,
+    "avg": 0.57
+   },
+   {
+    "year": "2023",
+    "sum": 4,
+    "n": 6,
+    "up": 5,
+    "down": 1,
+    "avg": 0.67
+   },
+   {
+    "year": "2024",
+    "sum": 6,
+    "n": 14,
+    "up": 8,
+    "down": 3,
+    "avg": 0.43
+   },
+   {
+    "year": "2025",
+    "sum": 9,
+    "n": 10,
+    "up": 7,
+    "down": 0,
+    "avg": 0.9
+   },
+   {
+    "year": "2026",
+    "sum": 3,
+    "n": 3,
+    "up": 3,
+    "down": 0,
+    "avg": 1
+   }
+  ],
+  "latest": [
+   {
+    "name": "김인만",
+    "ym": "2026-06",
+    "direction": 1,
+    "theme": "세제·공급"
+   },
+   {
+    "name": "김학렬",
+    "ym": "2026-02",
+    "direction": 1,
+    "theme": "전세가·교통"
+   },
+   {
+    "name": "아기곰",
+    "ym": "2025-10",
+    "direction": 2,
+    "theme": "공급"
+   },
+   {
+    "name": "부읽남",
+    "ym": "2025-10",
+    "direction": 1,
+    "theme": "심리"
+   },
+   {
+    "name": "이상우",
+    "ym": "2025-06",
+    "direction": 1,
+    "theme": "정책"
+   },
+   {
+    "name": "라이트하우스",
+    "ym": "2025-06",
+    "direction": 0,
+    "theme": "6.27대책"
+   },
+   {
+    "name": "박합수",
+    "ym": "2025-04",
+    "direction": 1,
+    "theme": "분양·공급"
+   },
+   {
+    "name": "월천대사",
+    "ym": "2025-01",
+    "direction": 1,
+    "theme": "교육·입지"
+   },
+   {
+    "name": "채상욱",
+    "ym": "2024-12",
+    "direction": 1,
+    "theme": "정비사업"
+   },
+   {
+    "name": "이광수",
+    "ym": "2024-12",
+    "direction": -1,
+    "theme": "수요·정책"
+   },
+   {
+    "name": "부룡",
+    "ym": "2024-07",
+    "direction": 0,
+    "theme": "사이클·전세"
+   },
+   {
+    "name": "한문도",
+    "ym": "2024-06",
+    "direction": -1,
+    "theme": "수요·매물"
+   }
+  ]
+ },
  "coverage": [
   {
    "metro": "서울",
