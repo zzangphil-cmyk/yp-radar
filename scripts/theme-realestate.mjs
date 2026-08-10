@@ -164,15 +164,29 @@ body{background:var(--paper);color:var(--ink)}
 .tile.regional-complex small{color:#8b9096}
 .tile.zone em,.tile.regional-complex em{color:#8b9096}
 .tile.match{outline-color:#a78bfa}
-.map.spatial{background:#0d0d10;border-color:var(--line)}
-.zone-shape{stroke:#101013}
-.zone-shape:hover,.zone-shape.selected{stroke:#a78bfa}
-.map-label{fill:#e8eaed;stroke:#0d0d10}
-.zone-bubble{fill:#17181d;stroke:#a78bfa}
-.bubble-count{fill:#e8eaed}
-.complex-marker{fill:#17181d;stroke:#a78bfa}
-.complex-marker:hover,.complex-marker.selected{fill:#a78bfa;stroke:#101013}
-.map-foot{background:rgba(19,19,24,.9);border-color:var(--line);color:#8b9096}
+/* 지도 — 평면 검정 대신 은은한 비네트, 얇고 차분한 경계 */
+.map.spatial{border-color:var(--line);background:
+  radial-gradient(120% 90% at 50% 0%,#15161d 0%,#101116 45%,#0b0b0f 100%)}
+.geo-map{filter:saturate(.92)}
+/* 경계선은 인라인 style로 그려져 CSS가 지려면 !important가 필요하다 */
+.zone-shape{transition:filter .18s,opacity .18s,stroke .18s,stroke-width .18s}
+.zone-shape:hover{filter:brightness(1.2) saturate(1.06);stroke:#eceef2!important;stroke-width:1.6!important;stroke-opacity:1!important}
+.zone-shape.selected{stroke:#f4e3b0!important;stroke-width:2.2!important;stroke-opacity:1!important;filter:brightness(1.12) drop-shadow(0 0 7px rgba(244,227,176,.35))}
+.zone-shape.dimmed{opacity:.16}
+/* 라벨 — 작고 자간 있는 캡션 톤 + 얇은 헤일로 */
+.map-label{fill:#eceef2;font-size:11.5px;font-weight:700;letter-spacing:.02em;
+  stroke:rgba(8,8,11,.92);stroke-width:2.6px;paint-order:stroke}
+.zone-bubble{fill:rgba(20,21,28,.92);stroke:rgba(232,234,237,.5);stroke-width:1}
+.bubble-count{fill:#eceef2;font-size:10.5px}
+/* 단지 마커 — 채운 점 대신 링, 선택 시만 금색 강조 */
+.complex-marker{fill:rgba(20,21,28,.9);stroke:rgba(236,238,242,.75);stroke-width:1.2;
+  transition:fill .15s,stroke .15s,filter .15s}
+.complex-marker:hover{fill:#eceef2;stroke:#eceef2}
+.complex-marker.selected{fill:#f4e3b0;stroke:#f4e3b0;filter:drop-shadow(0 0 6px rgba(244,227,176,.5))}
+.map-foot{background:rgba(14,14,18,.82);border-color:rgba(255,255,255,.07);color:#9aa0a6;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:8px}
+/* 범례 스와치 — 각지지 않게 */
+.legend .sw{border-radius:3px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .spark svg,.multi-chart{background:#131318;border-color:var(--line)}
 .multi-chart .grid{stroke:#26272e}
 .status{background:rgba(52,211,153,.12);color:#34d399}
@@ -292,6 +306,57 @@ summary{color:#c4b5fd}
 .elect-names,.elect-score{color:#8b9096}
 `;
 
+// ── 지도 팔레트 정제 (분석기 전용) ────────────────────────────────────────
+// 원본은 빨강·주황·노랑연두 신호등 배색 — 다크 배경에서 조악하다.
+// 금색(상급지) → 남보라(하급지) 단일 계열 perceptual 램프로 교체한다.
+const MAP_MARK = "/*yp-map*/";
+const RAMP = `${MAP_MARK}
+function _ypRamp(t){
+  var S=[[45,86,68],[28,76,61],[352,44,53],[294,30,45],[250,24,37]];
+  t=Math.max(0,Math.min(1,t));
+  var p=t*(S.length-1),i=Math.min(S.length-2,Math.floor(p)),f=p-i,a=S[i],b=S[i+1];
+  var d=b[0]-a[0]; if(d>180)d-=360; if(d<-180)d+=360;
+  var h=(a[0]+d*f+360)%360,s=a[1]+(b[1]-a[1])*f,l=a[2]+(b[2]-a[2])*f;
+  return 'hsl('+h.toFixed(0)+' '+s.toFixed(0)+'% '+l.toFixed(0)+'%)';
+}
+function gradeColor(grade){
+  if(grade==null||!Number.isFinite(Number(grade)))return '#2b2d38';
+  return _ypRamp((Math.max(1,Math.min(10,Number(grade)))-1)/9);
+}`;
+
+function refineMap(html) {
+  if (html.includes(MAP_MARK)) return html; // 멱등
+  // 1) gradeColor 교체 (1급지=금색 … 10급지=남보라)
+  const gcRe = /function gradeColor\(grade\)\{[\s\S]*?\n\}/;
+  if (!gcRe.test(html)) throw new Error("gradeColor를 찾지 못함 — 분석기 구조 변경 확인");
+  html = html.replace(gcRe, RAMP);
+  // 2) 연속형 지표(heatColor)도 같은 계열로 — 값이 높을수록 밝은 금색
+  // 본문에 `${hue}` 템플릿 중괄호가 있어 [^}]* 로는 끊긴다 — 함수 끝 패턴까지 매칭
+  const hcRe = /function heatColor\(value,min,max\)\{[\s\S]*?%\)`\}/;
+  if (hcRe.test(html)) {
+    html = html.replace(hcRe,
+      "function heatColor(value,min,max){if(value==null||!Number.isFinite(Number(value)))return '#2b2d38';" +
+      "var t=max===min?0.5:(Number(value)-min)/(max-min);return _ypRamp(1-Math.max(0,Math.min(1,t)))}");
+  }
+  // 3) 범례 문구를 새 배색에 맞춤
+  html = html.replace(
+    "1~3급지 빨강 · 4~6급지 주황 · 7~10급지 노랑연두",
+    "1급지 금색 → 10급지 남보라 · 밝을수록 상급지"
+  );
+  html = html.replace(
+    "예비급지(시장가격+상품성) 기준 · 같은 색 안에서는 진할수록 상급지",
+    "예비급지(시장가격+상품성) 기준 · 색이 곧 급지"
+  );
+  // 4) 경계선 — 권역별 색 테두리는 채움색과 충돌해 어수선하다.
+  //    중립 헤어라인으로 바꿔 색은 오직 '급지'만 말하게 한다(인라인 style이라 CSS로는 못 이김).
+  html = html.replace(
+    'style="stroke:${COLORS[p.planning_region]};stroke-width:2.2"',
+    'style="stroke:rgba(8,8,11,.55);stroke-width:.6"'
+  );
+  html = html.replace('style="stroke:#1c2b33;stroke-width:1.2"', 'style="stroke:rgba(8,8,11,.5);stroke-width:.7"');
+  return html;
+}
+
 function apply(file, css, banner = "") {
   const p = path.join(DIR, file);
   let s = fs.readFileSync(p, "utf8");
@@ -310,6 +375,14 @@ function apply(file, css, banner = "") {
   return (fs.statSync(p).size / 1024 / 1024).toFixed(2);
 }
 
+// 지도 팔레트는 분석기에만 적용 (테마 주입 전에 먼저 수행)
+{
+  const p = path.join(DIR, ANALYZER);
+  const before = fs.readFileSync(p, "utf8");
+  const after = refineMap(before);
+  if (after !== before) { fs.writeFileSync(p, after); console.log("지도 팔레트 정제 적용 (금색→남보라 램프)"); }
+  else console.log("지도 팔레트 이미 적용됨");
+}
 const mb1 = apply(ANALYZER, ANALYZER_CSS);
 console.log(`시장분석기 테마 적용 · ${mb1} MB`);
 const BANNERS = {
