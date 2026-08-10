@@ -1,6 +1,6 @@
 {
  "asOf": "2026-07-31",
- "window": "2025-08~2026-07",
+ "window": "undefined~undefined",
  "counts": {
   "complexes": 5306,
   "zones": 169,
@@ -538,7 +538,7 @@
     "gu": "강남구",
     "zone": "압구정·청담",
     "pyeong": 18160,
-    "changePct": 7,
+    "changePct": null,
     "saleCount": 172,
     "jeonseRatio": 17.9
    },
@@ -547,7 +547,7 @@
     "gu": "서초구",
     "zone": "반포",
     "pyeong": 17782,
-    "changePct": -5.2,
+    "changePct": null,
     "saleCount": 414,
     "jeonseRatio": 31
    },
@@ -556,7 +556,7 @@
     "gu": "강남구",
     "zone": "개포·일원",
     "pyeong": 14345,
-    "changePct": -3.9,
+    "changePct": null,
     "saleCount": 301,
     "jeonseRatio": 36.8
    },
@@ -565,7 +565,7 @@
     "gu": "강남구",
     "zone": "삼성",
     "pyeong": 14275,
-    "changePct": 16.4,
+    "changePct": null,
     "saleCount": 120,
     "jeonseRatio": 35.3
    },
@@ -574,7 +574,7 @@
     "gu": "강남구",
     "zone": "대치·도곡",
     "pyeong": 13600,
-    "changePct": 2,
+    "changePct": null,
     "saleCount": 344,
     "jeonseRatio": 26.7
    },
@@ -583,7 +583,7 @@
     "gu": "송파구",
     "zone": "잠실1",
     "pyeong": 13228,
-    "changePct": 1.2,
+    "changePct": null,
     "saleCount": 671,
     "jeonseRatio": 33
    },
@@ -592,7 +592,7 @@
     "gu": "서초구",
     "zone": "서초",
     "pyeong": 12678,
-    "changePct": -9.4,
+    "changePct": null,
     "saleCount": 198,
     "jeonseRatio": 35.3
    },
@@ -601,123 +601,13 @@
     "gu": "강남구",
     "zone": "역삼·논현",
     "pyeong": 12583,
-    "changePct": -8.6,
+    "changePct": null,
     "saleCount": 155,
     "jeonseRatio": 38.5
    }
   ],
-  "topRise": [
-   {
-    "region": "도심권",
-    "gu": "용산구",
-    "zone": "한남",
-    "pyeong": 9611,
-    "changePct": 119.3,
-    "saleCount": 22,
-    "jeonseRatio": 25.3
-   },
-   {
-    "region": "서북권",
-    "gu": "은평구",
-    "zone": "수색",
-    "pyeong": 5454,
-    "changePct": 79.8,
-    "saleCount": 430,
-    "jeonseRatio": 59.1
-   },
-   {
-    "region": "동남권",
-    "gu": "강동구",
-    "zone": "천호성내",
-    "pyeong": 5517,
-    "changePct": 68.2,
-    "saleCount": 179,
-    "jeonseRatio": 52.5
-   },
-   {
-    "region": "동남권",
-    "gu": "강남구",
-    "zone": "수서·세곡",
-    "pyeong": 8954,
-    "changePct": 60.9,
-    "saleCount": 548,
-    "jeonseRatio": 33.6
-   },
-   {
-    "region": "서남권",
-    "gu": "동작구",
-    "zone": "신대방",
-    "pyeong": 4738,
-    "changePct": 60.6,
-    "saleCount": 208,
-    "jeonseRatio": 48.8
-   },
-   {
-    "region": "서북권",
-    "gu": "마포구",
-    "zone": "아현",
-    "pyeong": 9359,
-    "changePct": 53.5,
-    "saleCount": 560,
-    "jeonseRatio": 40.6
-   }
-  ],
-  "topFall": [
-   {
-    "region": "서북권",
-    "gu": "은평구",
-    "zone": "연신내",
-    "pyeong": 2716,
-    "changePct": -19.4,
-    "saleCount": 43,
-    "jeonseRatio": 71.7
-   },
-   {
-    "region": "서남권",
-    "gu": "강서구",
-    "zone": "화곡2",
-    "pyeong": 3822,
-    "changePct": -16.6,
-    "saleCount": 127,
-    "jeonseRatio": 51.4
-   },
-   {
-    "region": "서남권",
-    "gu": "관악구",
-    "zone": "대학",
-    "pyeong": 2927,
-    "changePct": -15.4,
-    "saleCount": 245,
-    "jeonseRatio": 61.7
-   },
-   {
-    "region": "서남권",
-    "gu": "금천구",
-    "zone": "독산",
-    "pyeong": 3249,
-    "changePct": -14.6,
-    "saleCount": 236,
-    "jeonseRatio": 59.7
-   },
-   {
-    "region": "서북권",
-    "gu": "은평구",
-    "zone": "진관",
-    "pyeong": 3452,
-    "changePct": -14.1,
-    "saleCount": 222,
-    "jeonseRatio": 42.2
-   },
-   {
-    "region": "서남권",
-    "gu": "영등포구",
-    "zone": "여의도",
-    "pyeong": 10272,
-    "changePct": -13.6,
-    "saleCount": 99,
-    "jeonseRatio": 21.9
-   }
-  ]
+  "topRise": [],
+  "topFall": []
  },
  "policy": {
   "count": 28,

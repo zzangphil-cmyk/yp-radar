@@ -8,9 +8,30 @@ const SRC = path.join(ROOT, "public", "realestate", "capital_area_market_analyze
 const OUT = path.join(ROOT, "src", "data", "realestate-summary.json");
 
 const html = fs.readFileSync(SRC, "utf8");
-const m = html.match(/_decodePayload\("([A-Za-z0-9+/=]+)"\)/);
-if (!m) throw new Error("payload(base64)를 찾지 못함 — 분석기 구조가 바뀌었는지 확인");
-const DATA = JSON.parse(Buffer.from(m[1], "base64").toString("utf8"));
+
+// payload는 두 형태 중 하나: 원본(base64) 또는 optimize-realestate 적용 후(인라인 JSON)
+function readPayload() {
+  // 최적화본이면 마커를 우선 사용 (파일 뒤쪽에 COLORS용 별도 base64가 있어 순서가 중요)
+  const i = html.indexOf("/*yp-optimized*/");
+  if (i < 0) {
+    const b64 = html.match(/const DATA=_decodePayload\("([A-Za-z0-9+/=]+)"\)/);
+    if (!b64) throw new Error("payload를 찾지 못함 — 분석기 구조가 바뀌었는지 확인");
+    return JSON.parse(Buffer.from(b64[1], "base64").toString("utf8"));
+  }
+  const start = html.indexOf("{", i);
+  let depth = 0, inStr = false, esc = false, end = -1;
+  for (let p = start; p < html.length; p++) {
+    const c = html[p];
+    if (esc) { esc = false; continue; }
+    if (c === "\\") { esc = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === "{" || c === "[") depth++;
+    else if (c === "}" || c === "]") { depth--; if (depth === 0) { end = p + 1; break; } }
+  }
+  return JSON.parse(html.slice(start, end));
+}
+const DATA = readPayload();
 
 // 원본과 동일: 일부 대형 테이블은 {columns, rows} 압축형 → 객체 배열로 펼침
 const inflate = (t) => {
@@ -18,9 +39,9 @@ const inflate = (t) => {
   const cols = t?.columns ?? [];
   return (t?.rows ?? []).map((row) => Object.fromEntries(cols.map((c, i) => [c, row[i]])));
 };
-for (const k of ["complex_market_monthly_area", "zone_market_monthly_area",
-  "complex_market_window_area", "zone_market_window_area", "location", "official_land"]) {
-  DATA[k] = inflate(DATA[k]);
+// optimize 적용 후에는 패킹된 테이블이 늘어나므로 {columns,rows} 형태면 모두 펼친다
+for (const [k, v] of Object.entries(DATA)) {
+  if (v && !Array.isArray(v) && Array.isArray(v.columns) && Array.isArray(v.rows)) DATA[k] = inflate(v);
 }
 
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
