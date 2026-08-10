@@ -1,0 +1,749 @@
+{
+ "asOf": "2026-07-31",
+ "window": "2025-08~2026-07",
+ "counts": {
+  "complexes": 5306,
+  "zones": 169,
+  "sigungu": 82,
+  "households": 4811447
+ },
+ "gradeBands": [
+  {
+   "band": "1.0~1.9급지",
+   "count": 65
+  },
+  {
+   "band": "2.0~2.9급지",
+   "count": 138
+  },
+  {
+   "band": "3.0~3.9급지",
+   "count": 247
+  },
+  {
+   "band": "4.0~4.9급지",
+   "count": 323
+  },
+  {
+   "band": "5.0~5.9급지",
+   "count": 630
+  },
+  {
+   "band": "6.0~6.9급지",
+   "count": 623
+  },
+  {
+   "band": "7.0~7.9급지",
+   "count": 1031
+  },
+  {
+   "band": "10급지",
+   "count": 2249
+  }
+ ],
+ "gradeCutoffs": [
+  {
+   "label": "1급지",
+   "min": 75.18,
+   "max": 83.96,
+   "pctFrom": 0,
+   "pctTo": 5
+  },
+  {
+   "label": "2급지",
+   "min": 69.81,
+   "max": 75.18,
+   "pctFrom": 5,
+   "pctTo": 15
+  },
+  {
+   "label": "3급지",
+   "min": 62.63,
+   "max": 69.81,
+   "pctFrom": 15,
+   "pctTo": 30
+  },
+  {
+   "label": "4급지",
+   "min": 57.44,
+   "max": 62.63,
+   "pctFrom": 30,
+   "pctTo": 45
+  },
+  {
+   "label": "5급지",
+   "min": 52.95,
+   "max": 57.44,
+   "pctFrom": 45,
+   "pctTo": 60
+  },
+  {
+   "label": "6급지",
+   "min": 47.2,
+   "max": 52.95,
+   "pctFrom": 60,
+   "pctTo": 75
+  },
+  {
+   "label": "7급지",
+   "min": 39.4,
+   "max": 47.2,
+   "pctFrom": 75,
+   "pctTo": 90
+  },
+  {
+   "label": "10급지",
+   "min": 29.78,
+   "max": 39.4,
+   "pctFrom": 90,
+   "pctTo": 100
+  }
+ ],
+ "regions": [
+  {
+   "metro": "서울",
+   "region": "동남권",
+   "grade": 3.2,
+   "complexes": 298,
+   "households": 350891,
+   "sigunguCount": 4
+  },
+  {
+   "metro": "서울",
+   "region": "도심권",
+   "grade": 3.8,
+   "complexes": 36,
+   "households": 32525,
+   "sigunguCount": 3
+  },
+  {
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 5.6,
+   "complexes": 352,
+   "households": 329688,
+   "sigunguCount": 7
+  },
+  {
+   "metro": "서울",
+   "region": "서북권",
+   "grade": 5.6,
+   "complexes": 148,
+   "households": 121219,
+   "sigunguCount": 3
+  },
+  {
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 6.7,
+   "complexes": 430,
+   "households": 432427,
+   "sigunguCount": 8
+  },
+  {
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.8,
+   "complexes": 3386,
+   "households": 2910787,
+   "sigunguCount": 47
+  },
+  {
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "complexes": 656,
+   "households": 633910,
+   "sigunguCount": 10
+  }
+ ],
+ "macro": {
+  "asOf": "2026-07",
+  "status": "긴축·부담",
+  "baseRate": 2.75,
+  "baseRateChange6m": 0.25,
+  "treasury3y": 3.8,
+  "treasury3yChange6m": 0.8,
+  "cpiYoy": 2.8,
+  "creditYoy": 1.4,
+  "series": [
+   {
+    "ym": "2021-08",
+    "base": 0.75,
+    "t3y": 1.4,
+    "credit": 1844021.5
+   },
+   {
+    "ym": "2021-09",
+    "base": 0.75,
+    "t3y": 1.5,
+    "credit": 1844021.5
+   },
+   {
+    "ym": "2021-10",
+    "base": 0.75,
+    "t3y": 1.8,
+    "credit": 1861315.1
+   },
+   {
+    "ym": "2021-11",
+    "base": 1,
+    "t3y": 2,
+    "credit": 1861315.1
+   },
+   {
+    "ym": "2021-12",
+    "base": 1,
+    "t3y": 1.8,
+    "credit": 1861315.1
+   },
+   {
+    "ym": "2022-01",
+    "base": 1.25,
+    "t3y": 2.1,
+    "credit": 1861205.5
+   },
+   {
+    "ym": "2022-02",
+    "base": 1.25,
+    "t3y": 2.3,
+    "credit": 1861205.5
+   },
+   {
+    "ym": "2022-03",
+    "base": 1.25,
+    "t3y": 2.4,
+    "credit": 1861205.5
+   },
+   {
+    "ym": "2022-04",
+    "base": 1.5,
+    "t3y": 2.9,
+    "credit": 1866565
+   },
+   {
+    "ym": "2022-05",
+    "base": 1.75,
+    "t3y": 3,
+    "credit": 1866565
+   },
+   {
+    "ym": "2022-06",
+    "base": 1.75,
+    "t3y": 3.5,
+    "credit": 1866565
+   },
+   {
+    "ym": "2022-07",
+    "base": 2.25,
+    "t3y": 3.2,
+    "credit": 1869113.3
+   },
+   {
+    "ym": "2022-08",
+    "base": 2.5,
+    "t3y": 3.2,
+    "credit": 1869113.3
+   },
+   {
+    "ym": "2022-09",
+    "base": 2.5,
+    "t3y": 3.9,
+    "credit": 1869113.3
+   },
+   {
+    "ym": "2022-10",
+    "base": 3,
+    "t3y": 4.2,
+    "credit": 1865404.9
+   },
+   {
+    "ym": "2022-11",
+    "base": 3.25,
+    "t3y": 3.9,
+    "credit": 1865404.9
+   },
+   {
+    "ym": "2022-12",
+    "base": 3.25,
+    "t3y": 3.6,
+    "credit": 1865404.9
+   },
+   {
+    "ym": "2023-01",
+    "base": 3.5,
+    "t3y": 3.5,
+    "credit": 1850744.4
+   },
+   {
+    "ym": "2023-02",
+    "base": 3.5,
+    "t3y": 3.5,
+    "credit": 1850744.4
+   },
+   {
+    "ym": "2023-03",
+    "base": 3.5,
+    "t3y": 3.5,
+    "credit": 1850744.4
+   },
+   {
+    "ym": "2023-04",
+    "base": 3.5,
+    "t3y": 3.3,
+    "credit": 1858832.8
+   },
+   {
+    "ym": "2023-05",
+    "base": 3.5,
+    "t3y": 3.3,
+    "credit": 1858832.8
+   },
+   {
+    "ym": "2023-06",
+    "base": 3.5,
+    "t3y": 3.5,
+    "credit": 1858832.8
+   },
+   {
+    "ym": "2023-07",
+    "base": 3.5,
+    "t3y": 3.6,
+    "credit": 1875807.6
+   },
+   {
+    "ym": "2023-08",
+    "base": 3.5,
+    "t3y": 3.7,
+    "credit": 1875807.6
+   },
+   {
+    "ym": "2023-09",
+    "base": 3.5,
+    "t3y": 3.8,
+    "credit": 1875807.6
+   },
+   {
+    "ym": "2023-10",
+    "base": 3.5,
+    "t3y": 4,
+    "credit": 1882633.9
+   },
+   {
+    "ym": "2023-11",
+    "base": 3.5,
+    "t3y": 3.8,
+    "credit": 1882633.9
+   },
+   {
+    "ym": "2023-12",
+    "base": 3.5,
+    "t3y": 3.4,
+    "credit": 1882633.9
+   },
+   {
+    "ym": "2024-01",
+    "base": 3.5,
+    "t3y": 3.3,
+    "credit": 1879403.3
+   },
+   {
+    "ym": "2024-02",
+    "base": 3.5,
+    "t3y": 3.4,
+    "credit": 1879403.3
+   },
+   {
+    "ym": "2024-03",
+    "base": 3.5,
+    "t3y": 3.3,
+    "credit": 1879403.3
+   },
+   {
+    "ym": "2024-04",
+    "base": 3.5,
+    "t3y": 3.4,
+    "credit": 1892719.1
+   },
+   {
+    "ym": "2024-05",
+    "base": 3.5,
+    "t3y": 3.4,
+    "credit": 1892719.1
+   },
+   {
+    "ym": "2024-06",
+    "base": 3.5,
+    "t3y": 3.3,
+    "credit": 1892719.1
+   },
+   {
+    "ym": "2024-07",
+    "base": 3.5,
+    "t3y": 3.1,
+    "credit": 1911441
+   },
+   {
+    "ym": "2024-08",
+    "base": 3.5,
+    "t3y": 2.9,
+    "credit": 1911441
+   },
+   {
+    "ym": "2024-09",
+    "base": 3.5,
+    "t3y": 2.9,
+    "credit": 1911441
+   },
+   {
+    "ym": "2024-10",
+    "base": 3.25,
+    "t3y": 2.9,
+    "credit": 1922706.5
+   },
+   {
+    "ym": "2024-11",
+    "base": 3,
+    "t3y": 2.9,
+    "credit": 1922706.5
+   },
+   {
+    "ym": "2024-12",
+    "base": 3,
+    "t3y": 2.6,
+    "credit": 1922706.5
+   },
+   {
+    "ym": "2025-01",
+    "base": 3,
+    "t3y": 2.6,
+    "credit": 1924971.5
+   },
+   {
+    "ym": "2025-02",
+    "base": 2.75,
+    "t3y": 2.6,
+    "credit": 1924971.5
+   },
+   {
+    "ym": "2025-03",
+    "base": 2.75,
+    "t3y": 2.6,
+    "credit": 1924971.5
+   },
+   {
+    "ym": "2025-04",
+    "base": 2.75,
+    "t3y": 2.4,
+    "credit": 1949977.5
+   },
+   {
+    "ym": "2025-05",
+    "base": 2.5,
+    "t3y": 2.3,
+    "credit": 1949977.5
+   },
+   {
+    "ym": "2025-06",
+    "base": 2.5,
+    "t3y": 2.4,
+    "credit": 1949977.5
+   },
+   {
+    "ym": "2025-07",
+    "base": 2.5,
+    "t3y": 2.5,
+    "credit": 1964814.7
+   },
+   {
+    "ym": "2025-08",
+    "base": 2.5,
+    "t3y": 2.4,
+    "credit": 1964814.7
+   },
+   {
+    "ym": "2025-09",
+    "base": 2.5,
+    "t3y": 2.5,
+    "credit": 1964814.7
+   },
+   {
+    "ym": "2025-10",
+    "base": 2.5,
+    "t3y": 2.6,
+    "credit": 1979088.4
+   },
+   {
+    "ym": "2025-11",
+    "base": 2.5,
+    "t3y": 2.9,
+    "credit": 1979088.4
+   },
+   {
+    "ym": "2025-12",
+    "base": 2.5,
+    "t3y": 3,
+    "credit": 1979088.4
+   },
+   {
+    "ym": "2026-01",
+    "base": 2.5,
+    "t3y": 3,
+    "credit": 1993110.8
+   },
+   {
+    "ym": "2026-02",
+    "base": 2.5,
+    "t3y": 3.2,
+    "credit": 1993110.8
+   },
+   {
+    "ym": "2026-03",
+    "base": 2.5,
+    "t3y": 3.4,
+    "credit": 1993110.8
+   },
+   {
+    "ym": "2026-04",
+    "base": 2.5,
+    "t3y": 3.4,
+    "credit": 1993110.8
+   },
+   {
+    "ym": "2026-05",
+    "base": 2.5,
+    "t3y": 3.7,
+    "credit": 1993110.8
+   },
+   {
+    "ym": "2026-06",
+    "base": 2.5,
+    "t3y": 3.8,
+    "credit": 1993110.8
+   },
+   {
+    "ym": "2026-07",
+    "base": 2.75,
+    "t3y": 3.8,
+    "credit": 1993110.8
+   }
+  ]
+ },
+ "zones": {
+  "count": 170,
+  "medianPyeong": 3879,
+  "topPrice": [
+   {
+    "region": "동남권",
+    "gu": "강남구",
+    "zone": "압구정·청담",
+    "pyeong": 18160,
+    "changePct": 7,
+    "saleCount": 172,
+    "jeonseRatio": 17.9
+   },
+   {
+    "region": "동남권",
+    "gu": "서초구",
+    "zone": "반포",
+    "pyeong": 17782,
+    "changePct": -5.2,
+    "saleCount": 414,
+    "jeonseRatio": 31
+   },
+   {
+    "region": "동남권",
+    "gu": "강남구",
+    "zone": "개포·일원",
+    "pyeong": 14345,
+    "changePct": -3.9,
+    "saleCount": 301,
+    "jeonseRatio": 36.8
+   },
+   {
+    "region": "동남권",
+    "gu": "강남구",
+    "zone": "삼성",
+    "pyeong": 14275,
+    "changePct": 16.4,
+    "saleCount": 120,
+    "jeonseRatio": 35.3
+   },
+   {
+    "region": "동남권",
+    "gu": "강남구",
+    "zone": "대치·도곡",
+    "pyeong": 13600,
+    "changePct": 2,
+    "saleCount": 344,
+    "jeonseRatio": 26.7
+   },
+   {
+    "region": "동남권",
+    "gu": "송파구",
+    "zone": "잠실1",
+    "pyeong": 13228,
+    "changePct": 1.2,
+    "saleCount": 671,
+    "jeonseRatio": 33
+   },
+   {
+    "region": "동남권",
+    "gu": "서초구",
+    "zone": "서초",
+    "pyeong": 12678,
+    "changePct": -9.4,
+    "saleCount": 198,
+    "jeonseRatio": 35.3
+   },
+   {
+    "region": "동남권",
+    "gu": "강남구",
+    "zone": "역삼·논현",
+    "pyeong": 12583,
+    "changePct": -8.6,
+    "saleCount": 155,
+    "jeonseRatio": 38.5
+   }
+  ],
+  "topRise": [
+   {
+    "region": "도심권",
+    "gu": "용산구",
+    "zone": "한남",
+    "pyeong": 9611,
+    "changePct": 119.3,
+    "saleCount": 22,
+    "jeonseRatio": 25.3
+   },
+   {
+    "region": "서북권",
+    "gu": "은평구",
+    "zone": "수색",
+    "pyeong": 5454,
+    "changePct": 79.8,
+    "saleCount": 430,
+    "jeonseRatio": 59.1
+   },
+   {
+    "region": "동남권",
+    "gu": "강동구",
+    "zone": "천호성내",
+    "pyeong": 5517,
+    "changePct": 68.2,
+    "saleCount": 179,
+    "jeonseRatio": 52.5
+   },
+   {
+    "region": "동남권",
+    "gu": "강남구",
+    "zone": "수서·세곡",
+    "pyeong": 8954,
+    "changePct": 60.9,
+    "saleCount": 548,
+    "jeonseRatio": 33.6
+   },
+   {
+    "region": "서남권",
+    "gu": "동작구",
+    "zone": "신대방",
+    "pyeong": 4738,
+    "changePct": 60.6,
+    "saleCount": 208,
+    "jeonseRatio": 48.8
+   },
+   {
+    "region": "서북권",
+    "gu": "마포구",
+    "zone": "아현",
+    "pyeong": 9359,
+    "changePct": 53.5,
+    "saleCount": 560,
+    "jeonseRatio": 40.6
+   }
+  ],
+  "topFall": [
+   {
+    "region": "서북권",
+    "gu": "은평구",
+    "zone": "연신내",
+    "pyeong": 2716,
+    "changePct": -19.4,
+    "saleCount": 43,
+    "jeonseRatio": 71.7
+   },
+   {
+    "region": "서남권",
+    "gu": "강서구",
+    "zone": "화곡2",
+    "pyeong": 3822,
+    "changePct": -16.6,
+    "saleCount": 127,
+    "jeonseRatio": 51.4
+   },
+   {
+    "region": "서남권",
+    "gu": "관악구",
+    "zone": "대학",
+    "pyeong": 2927,
+    "changePct": -15.4,
+    "saleCount": 245,
+    "jeonseRatio": 61.7
+   },
+   {
+    "region": "서남권",
+    "gu": "금천구",
+    "zone": "독산",
+    "pyeong": 3249,
+    "changePct": -14.6,
+    "saleCount": 236,
+    "jeonseRatio": 59.7
+   },
+   {
+    "region": "서북권",
+    "gu": "은평구",
+    "zone": "진관",
+    "pyeong": 3452,
+    "changePct": -14.1,
+    "saleCount": 222,
+    "jeonseRatio": 42.2
+   },
+   {
+    "region": "서남권",
+    "gu": "영등포구",
+    "zone": "여의도",
+    "pyeong": 10272,
+    "changePct": -13.6,
+    "saleCount": 99,
+    "jeonseRatio": 21.9
+   }
+  ]
+ },
+ "coverage": [
+  {
+   "metro": "서울",
+   "status": "verified",
+   "parsed": 116,
+   "official": 116,
+   "sigunguCount": 25,
+   "framework": "2030 서울생활권계획"
+  },
+  {
+   "metro": "경기",
+   "status": "partial",
+   "parsed": 42,
+   "official": 47,
+   "sigunguCount": 31,
+   "framework": "경기도 종합계획 2021-2040"
+  },
+  {
+   "metro": "인천",
+   "status": "hierarchy_only",
+   "parsed": 16,
+   "official": 16,
+   "sigunguCount": 10,
+   "framework": "2040 인천도시기본계획"
+  }
+ ],
+ "source": "수도권 주택시장 분석기 v3.0 (국토부 실거래·K-apt·생활권계획)"
+}

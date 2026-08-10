@@ -11,16 +11,23 @@ const SIBLINGS = ["real_estate_policy_timeline_v1_0.html", "real_estate_expert_s
 
 // ── 상단 글로벌 스위처 (사이트 TopBar와 동일 구성) ─────────────────────────
 const MARK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#a78bfa" stroke-width="1.4" opacity=".45"/><circle cx="12" cy="12" r="5.5" stroke="#a78bfa" stroke-width="1.4" opacity=".8"/><circle cx="12" cy="12" r="1.7" fill="#a78bfa"/></svg>';
-const YP_BAR =
+// 사이트 TopBar와 동일한 2단 구조: 대분류(주식·부동산) → 세부(시장분석·정책·전문가집단)
+const SUB = [
+  { href: `/realestate/${ANALYZER}`, label: "시장분석" },
+  { href: "/realestate/real_estate_policy_timeline_v1_0.html", label: "정책" },
+  { href: "/realestate/real_estate_expert_signals_v1_0.html", label: "전문가집단" },
+];
+const barFor = (activeHref) =>
   '<div class="yp-top">' +
     `<a class="yp-brand" href="/">${MARK}<span>주부 <b>레이더</b></span></a>` +
     '<nav class="yp-switch">' +
       '<a href="/radar">주식</a>' +
-      '<a href="/etf">ETF</a>' +
-      '<a href="/nps">국민연금</a>' +
       `<a class="on" href="/realestate/${ANALYZER}">부동산</a>` +
     '</nav>' +
-    '<span class="yp-chip">부동산 레이더 · 수도권</span>' +
+    '<nav class="yp-sub">' +
+      SUB.map((s) => `<a class="${s.href === activeHref ? "on" : ""}" href="${s.href}">${s.label}</a>`).join("") +
+    '</nav>' +
+    '<span class="yp-chip">수도권 주택시장</span>' +
   '</div>';
 
 // ── 공통(글로벌 바 + 스크롤바) ─────────────────────────────────────────────
@@ -32,8 +39,12 @@ const COMMON = `
 .yp-switch a{padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;color:rgba(255,255,255,.45);text-decoration:none;transition:color .15s,background .15s}
 .yp-switch a:hover{color:#fff}
 .yp-switch a.on{background:rgba(167,139,250,.16);color:#c4b5fd}
+.yp-sub{display:flex;gap:2px}
+.yp-sub a{padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.45);text-decoration:none;transition:color .15s,background .15s}
+.yp-sub a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.yp-sub a.on{color:#c4b5fd;background:rgba(255,255,255,.06)}
 .yp-chip{margin-left:auto;font-size:11px;color:#8b9096;border:1px solid #26272e;border-radius:999px;padding:5px 11px;white-space:nowrap}
-@media(max-width:680px){.yp-top{height:auto;flex-wrap:wrap;gap:10px;padding:10px 14px}.yp-chip{display:none}.yp-switch{width:100%}.yp-switch a{flex:1;text-align:center}}
+@media(max-width:680px){.yp-top{height:auto;flex-wrap:wrap;gap:8px;padding:10px 14px}.yp-chip{display:none}.yp-switch,.yp-sub{width:100%}.yp-switch a,.yp-sub a{flex:1;text-align:center}}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#2b2c33;border-radius:5px}::-webkit-scrollbar-track{background:transparent}
 `;
 
@@ -114,6 +125,12 @@ body{background:var(--paper);color:var(--ink)}
 .unit-link:hover{border-color:#a78bfa}
 .go-gu{background:var(--accent);color:#101013}
 .market-explorer{border-top-color:#3a3b44}
+/* v3.1 신규 UI */
+.back-btn{background:var(--panel)!important;border:1px solid var(--line);color:#c9ccd1}
+.back-btn:hover{border-color:#a78bfa;color:#fff}
+.mini-map{background:rgba(19,19,24,.92)!important;border:1px solid var(--line)}
+.mini-map-label{background:rgba(19,19,24,.85)!important;color:#c9ccd1}
+.mini-map svg path,.mini-map svg polygon{stroke:#2b2c33}
 `;
 
 // ── 정책·전문가(하드코딩 녹색 팔레트) 다크 오버라이드 ──────────────────────
@@ -194,8 +211,8 @@ function apply(file, css) {
   // 기존 주입분 제거(멱등)
   s = s.replace(/<style id="yp-theme">[\s\S]*?<\/style>/g, "");
   s = s.replace(/<div class="yp-top">[\s\S]*?<\/div>/g, "");
-  // 글로벌 바 주입(<body> 직후)
-  s = s.replace(/(<body[^>]*>)/i, `$1${YP_BAR}`);
+  // 글로벌 바 주입(<body> 직후) — 현재 파일을 세부 탭에서 활성 표시
+  s = s.replace(/(<body[^>]*>)/i, `$1${barFor(`/realestate/${file}`)}`);
   // 오버라이드 스타일은 문서 맨끝(</body> 직전)에 주입 →
   // 원본 <style>이 head 밖(본문)에 있어도 항상 뒤에 와서 우선순위 승
   const block = `<style id="yp-theme">${COMMON}${css}</style>`;

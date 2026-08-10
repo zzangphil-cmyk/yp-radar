@@ -4,48 +4,53 @@ import EtfTable from "@/components/EtfTable";
 import EtfStockMap from "@/components/EtfStockMap";
 import CrossPanel from "@/components/CrossPanel";
 import DeltaText from "@/components/DeltaText";
+import CategoryTabs from "@/components/CategoryTabs";
+import {
+  RegionGradeChart,
+  GradeDistribution,
+  MacroTimeline,
+  ZoneRanking,
+  RealestateEntries,
+} from "@/components/RealestatePanels";
 import { etf, etfStocks, fmtAmt } from "@/lib/etfData";
-import { changes, formatEok } from "@/lib/npsData";
+import { changes } from "@/lib/npsData";
+import { radarData } from "@/lib/radarData";
+import { realestate as re } from "@/lib/realestateData";
 import { cross } from "@/lib/cross";
 
 export default function Hub() {
   const topThemes = etf.themes.slice(0, 5);
   const npsTotal = changes.totals.find((t) => t.year === changes.curYear)?.jo ?? 0;
 
-  return (
+  // ── 주식 대분류 ──────────────────────────────────────────────────────────
+  const stock = (
     <div className="space-y-10">
-      {/* 히어로 */}
-      <section className="card relative overflow-hidden p-7 sm:p-9">
-        <div className="pointer-events-none absolute -right-10 -top-16 opacity-20">
-          <RadarMark size={210} />
-        </div>
-        <div className="relative max-w-2xl">
-          <div className="mb-3 flex flex-wrap gap-2">
-            <span className="pill bg-amber-500/15 text-amber-400">ETF 실시간 · {etf.asOf}</span>
-            <span className="pill bg-radar/15 text-radar">국민연금 · {changes.curYear}년 말</span>
+      {/* 세부 진입 */}
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Link href="/radar" className="card group p-4 transition-colors hover:bg-white/[0.04]">
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-bold text-white group-hover:text-[#3182f6]">관제 스코프</span>
+            <span className="text-[11px] text-white/35">{radarData.asOf}</span>
           </div>
-          <h1 className="text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
-            빠른 돈과 느린 돈을 한 화면에
-          </h1>
-          <p className="mt-2 text-sm text-white/60">
-            <strong className="text-amber-400">ETF</strong>로 지금 시장의 수급·테마(실시간)를,{" "}
-            <strong className="text-radar">국민연금</strong>으로 장기자금의 구조(연간)를 함께 봅니다.
-            시점이 다른 두 신호의 <strong className="text-white">일치·괴리</strong>가 인사이트입니다.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/etf" className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-base-900 transition-colors hover:bg-amber-400">
-              ETF 레이더
-            </Link>
-            <Link href="/nps" className="btn-radar">국민연금 레이더</Link>
-            <a href="/realestate/capital_area_market_analyzer_v3_0.html"
-              className="rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 transition-colors hover:border-white/30 hover:text-white">
-              부동산 분석기
-            </a>
+          <p className="mt-1 text-[12px] text-white/50">이상 신호 온도 · 2D/3D 실시간 레이더</p>
+        </Link>
+        <Link href="/etf" className="card group p-4 transition-colors hover:bg-white/[0.04]">
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-bold text-white group-hover:text-amber-400">ETF</span>
+            <span className="text-[11px] text-white/35">{etf.asOf}</span>
           </div>
-        </div>
+          <p className="mt-1 text-[12px] text-white/50">수급·테마·구성종목 · 실시간</p>
+        </Link>
+        <Link href="/nps" className="card group p-4 transition-colors hover:bg-white/[0.04]">
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-bold text-white group-hover:text-radar">국민연금</span>
+            <span className="text-[11px] text-white/35">{changes.curYear}년 말</span>
+          </div>
+          <p className="mt-1 text-[12px] text-white/50">장기자금 포트폴리오 · DART 동향</p>
+        </Link>
       </section>
 
-      {/* ① ETF 실시간 — 구성종목 9분면 (메인 쇼케이스) */}
+      {/* ETF 구성종목 9분면 */}
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <h2 className="section-title">
@@ -60,7 +65,6 @@ export default function Hub() {
         </p>
         <EtfStockMap stocks={etfStocks.stocks} compact />
 
-        {/* 보조: ETF 거래량 + 테마 자금 */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
           <div>
             <div className="mb-2 flex items-center justify-between">
@@ -93,7 +97,7 @@ export default function Hub() {
         </div>
       </section>
 
-      {/* ② 국민연금 구조 */}
+      {/* 국민연금 구조 */}
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-3 border-t border-white/[0.07] pt-8">
           <h2 className="section-title">
@@ -139,7 +143,7 @@ export default function Hub() {
         </div>
       </section>
 
-      {/* ③ 교차 신호 (종목 단위) */}
+      {/* 교차 신호 */}
       <section className="space-y-4">
         <div className="border-t border-white/[0.07] pt-8">
           <h2 className="section-title">교차 신호 — ETF × 국민연금</h2>
@@ -156,10 +160,81 @@ export default function Hub() {
           <CrossPanel title="🔻 공감대 매도" desc="ETF·국민연금 둘 다 줄이는 중" tone="text-white/70" items={cross.convergeSell} />
         </div>
         <p className="text-xs text-white/40">
-          ※ ETF 자금 = 3개월 순유입(2026, 실시간) · 국민연금 = 지분율 증감(2023→2024, 연간). 시점이
-          다른 두 신호의 일치/괴리를 봅니다. 종목명을 누르면 ETF 보유 상세로 이동.
+          ※ ETF 자금 = 3개월 순유입(실시간) · 국민연금 = 지분율 증감(연간). 시점이 다른 두 신호의
+          일치/괴리를 봅니다. 종목명을 누르면 ETF 보유 상세로 이동.
         </p>
       </section>
+    </div>
+  );
+
+  // ── 부동산 대분류 ────────────────────────────────────────────────────────
+  const realestate = (
+    <div className="space-y-10">
+      <RealestateEntries />
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="section-title">
+            수도권 한눈에
+            <span className="ml-2 align-middle text-xs font-normal text-[#c4b5fd]">기준 {re.asOf}</span>
+          </h2>
+          <Link href="/realestate/capital_area_market_analyzer_v3_0.html" className="text-sm text-[#c4b5fd] hover:text-[#ddd6fe]">
+            분석기 열기 →
+          </Link>
+        </div>
+        <p className="-mt-1 text-sm text-white/55">
+          400세대 이상 <strong className="text-white/80">{re.counts.complexes.toLocaleString("ko-KR")}개 단지</strong>,{" "}
+          <strong className="text-white/80">{re.counts.zones}개 생활권</strong>, {re.counts.sigungu}개 시군구를
+          입지·상품·희소성으로 채점했습니다.
+        </p>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <RegionGradeChart />
+          <GradeDistribution />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div className="border-t border-white/[0.07] pt-8">
+          <h2 className="section-title">가격 지도 — 어디가 비싸고, 어디가 움직였나</h2>
+        </div>
+        <ZoneRanking />
+      </section>
+
+      <section className="space-y-4">
+        <div className="border-t border-white/[0.07] pt-8">
+          <h2 className="section-title">돈의 값 — 거시 타이밍</h2>
+        </div>
+        <MacroTimeline />
+        <p className="text-xs text-white/40">
+          ※ 급지·점수는 공개 데이터 기반 관측 지표이며 감정평가나 투자 권유가 아닙니다. 출처: {re.source}
+        </p>
+      </section>
+    </div>
+  );
+
+  return (
+    <div className="space-y-8">
+      {/* 히어로 */}
+      <section className="card relative overflow-hidden p-7 sm:p-9">
+        <div className="pointer-events-none absolute -right-10 -top-16 opacity-20">
+          <RadarMark size={210} />
+        </div>
+        <div className="relative max-w-2xl">
+          <div className="mb-3 flex flex-wrap gap-2">
+            <span className="pill bg-[#3182f6]/15 text-[#3182f6]">주식 · {radarData.asOf}</span>
+            <span className="pill bg-[#a78bfa]/15 text-[#c4b5fd]">부동산 · {re.asOf}</span>
+          </div>
+          <h1 className="text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
+            주식과 부동산, 한 화면에
+          </h1>
+          <p className="mt-2 text-sm text-white/60">
+            한국 가계 자산의 두 축을 같은 렌즈로 봅니다. <strong className="text-white">주식</strong>은
+            이상 신호·수급·장기자금으로, <strong className="text-white">부동산</strong>은 급지·실거래·정책으로.
+          </p>
+        </div>
+      </section>
+
+      <CategoryTabs stock={stock} realestate={realestate} />
     </div>
   );
 }
