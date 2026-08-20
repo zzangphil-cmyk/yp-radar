@@ -354,6 +354,24 @@ function _ypWaterLayer(project,features,geometryPath){
 }`;
 }
 
+// ── 지도를 실제 지도(MapLibre) 위로 ───────────────────────────────────────
+// SVG 생활권 지도를 Carto 다크 베이스맵 위 레이어로 교체한다. 베이스맵이 한강·도로를
+// 그려주므로 이 경우 수계 레이어는 필요 없다.
+const GL_MARK = "/*yp-gl*/";
+const GL_SRC = path.join(process.cwd(), "scripts", "analyzer-glmap.js");
+function injectGlMap(html) {
+  if (html.includes(GL_MARK)) return html;
+  if (!fs.existsSync(GL_SRC)) return html;
+  const js = fs.readFileSync(GL_SRC, "utf8");
+  // maplibre 스타일시트(같은 출처)
+  if (!html.includes("/maplibre/maplibre-gl.css")) {
+    html = html.replace("</head>", '<link rel="stylesheet" href="/maplibre/maplibre-gl.css"></head>');
+  }
+  // 원본 스크립트가 전역을 다 정의한 뒤에 실행되도록 문서 끝에 넣는다
+  const tag = `<script>${js}</script>`;
+  return html.includes("</body>") ? html.replace("</body>", `${tag}</body>`) : html + tag;
+}
+
 // 수계 주입은 팔레트와 별개 단계 (각각 독립적으로 멱등)
 const WATER_MARK = "/*yp-water*/";
 function refineWater(html) {
@@ -424,8 +442,11 @@ function apply(file, css, banner = "") {
   const before = fs.readFileSync(p, "utf8");
   const paletted = refineMap(before);
   if (paletted !== before) console.log("지도 팔레트 정제 적용 (금색→남보라 램프)");
-  const after = refineWater(paletted);
-  if (after !== paletted) console.log("수계 레이어 주입 (한강·지천, OSM)");
+  // 베이스맵이 수계를 그리므로 GL 지도를 쓸 때는 SVG용 수계 레이어를 넣지 않는다
+  const gl = injectGlMap(paletted);
+  if (gl !== paletted) console.log("지도를 실제 지도(MapLibre) 위로 교체");
+  const after = gl.includes(GL_MARK) ? gl : refineWater(gl);
+  if (after !== gl) console.log("수계 레이어 주입 (한강·지천, OSM)");
   if (after !== before) writeAtomic(p, after);
   else console.log("지도 정제 이미 적용됨");
 }
