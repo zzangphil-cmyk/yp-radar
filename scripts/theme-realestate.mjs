@@ -5,6 +5,14 @@
 import fs from "node:fs";
 import path from "node:path";
 
+// 원자적 쓰기 — 임시 파일에 쓴 뒤 rename.
+// 프로세스가 쓰기 도중 죽어도 원본이 0바이트로 잘리지 않는다(실제로 한 번 겪음).
+function writeAtomic(p, data) {
+  const tmp = p + ".tmp";
+  fs.writeFileSync(tmp, data);
+  fs.renameSync(tmp, p);
+}
+
 const DIR = path.join(process.cwd(), "public", "realestate");
 const ANALYZER = "capital_area_market_analyzer_v3_0.html";
 const SIBLINGS = ["real_estate_policy_timeline_v1_0.html", "real_estate_expert_signals_v1_0.html"];
@@ -173,6 +181,9 @@ body{background:var(--paper);color:var(--ink)}
 .zone-shape:hover{filter:brightness(1.2) saturate(1.06);stroke:#eceef2!important;stroke-width:1.6!important;stroke-opacity:1!important}
 .zone-shape.selected{stroke:#f4e3b0!important;stroke-width:2.2!important;stroke-opacity:1!important;filter:brightness(1.12) drop-shadow(0 0 7px rgba(244,227,176,.35))}
 .zone-shape.dimmed{opacity:.16}
+/* 수계 — 폴리곤 위에 얹어 한강이 지도를 가르게 (OSM/ODbL) */
+.yp-water{fill:#0c1b2c;fill-opacity:.88;stroke:rgba(130,180,230,.28);stroke-width:.6;
+  vector-effect:non-scaling-stroke;pointer-events:none}
 /* 라벨 — 작고 자간 있는 캡션 톤 + 얇은 헤일로 */
 .map-label{fill:#eceef2;font-size:11.5px;font-weight:700;letter-spacing:.02em;
   stroke:rgba(8,8,11,.92);stroke-width:2.6px;paint-order:stroke}
@@ -324,6 +335,38 @@ function gradeColor(grade){
   return _ypRamp((Math.max(1,Math.min(10,Number(grade)))-1)/9);
 }`;
 
+// 수계(한강·지천) 레이어 — 지도에 지리적 맥락을 준다. OSM/ODbL, 약 35KB.
+const WATER_PATH = path.join(process.cwd(), "src", "data", "water-capital.json");
+function waterLayerJs() {
+  if (!fs.existsSync(WATER_PATH)) return "";
+  const w = JSON.parse(fs.readFileSync(WATER_PATH, "utf8"));
+  const rings = w.features.flatMap((f) => f.geometry.coordinates); // 좌표만 남겨 용량 최소화
+  return `var _YP_WATER=${JSON.stringify(rings)};
+function _ypWaterLayer(project,features,geometryPath){
+  if(!_YP_WATER||!_YP_WATER.length)return '';
+  var d=_YP_WATER.map(function(ring){
+    return ring.map(function(p,i){var q=project(p);return (i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)}).join('')+'Z';
+  }).join('');
+  // 화면 밖으로 뻗은 강줄기가 허공에 떠 보이지 않도록 육지 실루엣으로 클리핑
+  var land=features.map(function(f){return '<path d="'+geometryPath(f.geometry,project)+'"/>'}).join('');
+  return '<defs><clipPath id="ypLand" clip-rule="evenodd">'+land+'</clipPath></defs>'+
+         '<path class="yp-water" clip-path="url(#ypLand)" d="'+d+'" fill-rule="evenodd"></path>';
+}`;
+}
+
+// 수계 주입은 팔레트와 별개 단계 (각각 독립적으로 멱등)
+const WATER_MARK = "/*yp-water*/";
+function refineWater(html) {
+  if (html.includes(WATER_MARK)) return html;
+  const water = waterLayerJs();
+  if (!water) return html;
+  html = html.replace("function spatialMap()", `${WATER_MARK}${water}\nfunction spatialMap()`);
+  // 폴리곤 위, 라벨 아래에 그려 한강이 지도를 가르게 한다
+  const svgRe = /(aria-label="서울 공식 생활권 경계 지도">\$\{paths\})(\$\{bubbles\})/;
+  if (!svgRe.test(html)) throw new Error("지도 SVG 조립부를 찾지 못함 — 분석기 구조 변경 확인");
+  return html.replace(svgRe, "$1${_ypWaterLayer(project,features,geometryPath)}$2");
+}
+
 function refineMap(html) {
   if (html.includes(MAP_MARK)) return html; // 멱등
   // 1) gradeColor 교체 (1급지=금색 … 10급지=남보라)
@@ -371,7 +414,7 @@ function apply(file, css, banner = "") {
   const block = `<style id="yp-theme">${COMMON}${css}</style>`;
   if (s.includes("</body>")) s = s.replace("</body>", block + "</body>");
   else s = s + block;
-  fs.writeFileSync(p, s);
+  writeAtomic(p, s);
   return (fs.statSync(p).size / 1024 / 1024).toFixed(2);
 }
 
@@ -379,9 +422,12 @@ function apply(file, css, banner = "") {
 {
   const p = path.join(DIR, ANALYZER);
   const before = fs.readFileSync(p, "utf8");
-  const after = refineMap(before);
-  if (after !== before) { fs.writeFileSync(p, after); console.log("지도 팔레트 정제 적용 (금색→남보라 램프)"); }
-  else console.log("지도 팔레트 이미 적용됨");
+  const paletted = refineMap(before);
+  if (paletted !== before) console.log("지도 팔레트 정제 적용 (금색→남보라 램프)");
+  const after = refineWater(paletted);
+  if (after !== paletted) console.log("수계 레이어 주입 (한강·지천, OSM)");
+  if (after !== before) writeAtomic(p, after);
+  else console.log("지도 정제 이미 적용됨");
 }
 const mb1 = apply(ANALYZER, ANALYZER_CSS);
 console.log(`시장분석기 테마 적용 · ${mb1} MB`);
