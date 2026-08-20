@@ -26,6 +26,15 @@ export interface ReSummary {
   gradeBands: { band: string; count: number }[];
   gradeCutoffs: { label: string; min: number; max: number; pctFrom: number; pctTo: number }[];
   regions: ReRegion[];
+  sigungu: {
+    sigungu: string;
+    metro: string | null;
+    region: string | null;
+    grade: number | null;
+    pyeong: number | null;
+    complexes: number;
+    households: number;
+  }[];
   macro: {
     asOf: string | null;
     status: string | null;

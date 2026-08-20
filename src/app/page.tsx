@@ -5,6 +5,7 @@ import EtfStockMap from "@/components/EtfStockMap";
 import CrossPanel from "@/components/CrossPanel";
 import DeltaText from "@/components/DeltaText";
 import CategoryTabs from "@/components/CategoryTabs";
+import SigunguMap from "@/components/SigunguMap";
 import {
   RegionGradeChart,
   GradeDistribution,
@@ -189,6 +190,7 @@ export default function Hub() {
           <strong className="text-white/80">{re.counts.zones}개 생활권</strong>, {re.counts.sigungu}개 시군구를
           입지·상품·희소성으로 채점했습니다.
         </p>
+        <SigunguMap />
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <RegionGradeChart />
           <GradeDistribution />

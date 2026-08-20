@@ -125,6 +125,42 @@ const zoneStats = {
     .map((z) => ({ ...z, pyeong: Math.round(z.pyeong) })),
 };
 
+// ── 4-b) 시군구별 지표 (mapcn-kr 지도 코로플레스용) ────────────────────────
+const sggAgg = {};
+const touch = (name) => (sggAgg[name] ??= {
+  sigungu: name, metro: null, region: null, grades: [], pyeongs: [], complexes: 0, households: 0,
+});
+for (const c of DATA.complex_grade) {
+  if (!c.sigungu) continue;
+  const s = touch(c.sigungu);
+  s.metro ??= c.metro_area;
+  s.region ??= c.planning_region;
+  const g = num(c.provisional_grade);
+  if (g != null) s.grades.push(g);
+}
+for (const z of DATA.zone_summary ?? []) {
+  if (!z.sigungu) continue;
+  const s = touch(z.sigungu);
+  s.complexes += Number(z.complex_count_400_plus ?? 0);
+  s.households += Number(z.household_count ?? 0);
+}
+for (const z of zw) {
+  if (!z.sigungu) continue;
+  const p = num(z.sale_price_per_pyeong_median_10k_krw);
+  if (p != null) touch(z.sigungu).pyeongs.push(p);
+}
+const sigungu = Object.values(sggAgg)
+  .map((s) => ({
+    sigungu: s.sigungu,
+    metro: s.metro,
+    region: s.region,
+    grade: s.grades.length ? r1(median(s.grades)) : null,
+    pyeong: s.pyeongs.length ? Math.round(median(s.pyeongs)) : null,
+    complexes: s.complexes,
+    households: s.households,
+  }))
+  .sort((a, b) => (a.grade ?? 99) - (b.grade ?? 99));
+
 // ── 5) 커버리지·기준일 ────────────────────────────────────────────────────
 const coverage = DATA.coverage.map((c) => ({
   metro: c.metro_area,
@@ -248,6 +284,7 @@ const out = {
     pctTo: g.top_percentile_to,
   })),
   regions,
+  sigungu,
   macro,
   zones: zoneStats,
   policy,

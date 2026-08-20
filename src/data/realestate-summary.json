@@ -157,6 +157,746 @@
    "sigunguCount": 10
   }
  ],
+ "sigungu": [
+  {
+   "sigungu": "강남구",
+   "metro": "서울",
+   "region": "동남권",
+   "grade": 2.4,
+   "pyeong": 14275,
+   "complexes": 99,
+   "households": 105399
+  },
+  {
+   "sigungu": "서초구",
+   "metro": "서울",
+   "region": "동남권",
+   "grade": 2.5,
+   "pyeong": 12678,
+   "complexes": 63,
+   "households": 60074
+  },
+  {
+   "sigungu": "용산구",
+   "metro": "서울",
+   "region": "도심권",
+   "grade": 3.4,
+   "pyeong": 9611,
+   "complexes": 20,
+   "households": 16238
+  },
+  {
+   "sigungu": "성동구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 3.4,
+   "pyeong": 7750,
+   "complexes": 58,
+   "households": 51445
+  },
+  {
+   "sigungu": "광진구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 3.7,
+   "pyeong": 7585,
+   "complexes": 25,
+   "households": 18775
+  },
+  {
+   "sigungu": "송파구",
+   "metro": "서울",
+   "region": "동남권",
+   "grade": 3.7,
+   "pyeong": 8376,
+   "complexes": 78,
+   "households": 110267
+  },
+  {
+   "sigungu": "마포구",
+   "metro": "서울",
+   "region": "서북권",
+   "grade": 3.8,
+   "pyeong": 6838,
+   "complexes": 61,
+   "households": 51094
+  },
+  {
+   "sigungu": "중구",
+   "metro": "서울",
+   "region": "도심권",
+   "grade": 4.1,
+   "pyeong": 8440,
+   "complexes": 13,
+   "households": 15377
+  },
+  {
+   "sigungu": "성남분당구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 4.2,
+   "pyeong": 6576,
+   "complexes": 120,
+   "households": 108363
+  },
+  {
+   "sigungu": "과천시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 4.3,
+   "pyeong": 9469,
+   "complexes": 18,
+   "households": 18070
+  },
+  {
+   "sigungu": "영등포구",
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 4.4,
+   "pyeong": 6313,
+   "complexes": 55,
+   "households": 43819
+  },
+  {
+   "sigungu": "동작구",
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 4.6,
+   "pyeong": 6226,
+   "complexes": 58,
+   "households": 47024
+  },
+  {
+   "sigungu": "강동구",
+   "metro": "서울",
+   "region": "동남권",
+   "grade": 4.9,
+   "pyeong": 6228,
+   "complexes": 63,
+   "households": 80982
+  },
+  {
+   "sigungu": "양천구",
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 5.2,
+   "pyeong": 5460,
+   "complexes": 55,
+   "households": 59029
+  },
+  {
+   "sigungu": "성남수정구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 5.2,
+   "pyeong": 5446,
+   "complexes": 31,
+   "households": 32330
+  },
+  {
+   "sigungu": "강서구",
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 5.5,
+   "pyeong": 5060,
+   "complexes": 78,
+   "households": 75209
+  },
+  {
+   "sigungu": "하남시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 5.6,
+   "pyeong": 4458,
+   "complexes": 96,
+   "households": 82461
+  },
+  {
+   "sigungu": "동대문구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 5.7,
+   "pyeong": 4545,
+   "complexes": 51,
+   "households": 53083
+  },
+  {
+   "sigungu": "화성만세구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 6.1,
+   "pyeong": 1736,
+   "complexes": 70,
+   "households": 54688
+  },
+  {
+   "sigungu": "서대문구",
+   "metro": "서울",
+   "region": "서북권",
+   "grade": 6.2,
+   "pyeong": 4942,
+   "complexes": 41,
+   "households": 34103
+  },
+  {
+   "sigungu": "성남중원구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 6.2,
+   "pyeong": 4001,
+   "complexes": 34,
+   "households": 29544
+  },
+  {
+   "sigungu": "종로구",
+   "metro": "서울",
+   "region": "도심권",
+   "grade": 6.4,
+   "pyeong": 4464,
+   "complexes": 8,
+   "households": 5114
+  },
+  {
+   "sigungu": "성북구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 6.4,
+   "pyeong": 4068,
+   "complexes": 69,
+   "households": 66852
+  },
+  {
+   "sigungu": "관악구",
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 6.6,
+   "pyeong": 4052,
+   "complexes": 31,
+   "households": 37831
+  },
+  {
+   "sigungu": "연천군",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 6.6,
+   "pyeong": 1342,
+   "complexes": 3,
+   "households": 1772
+  },
+  {
+   "sigungu": "광명시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 6.7,
+   "pyeong": 3757,
+   "complexes": 66,
+   "households": 87591
+  },
+  {
+   "sigungu": "은평구",
+   "metro": "서울",
+   "region": "서북권",
+   "grade": 6.8,
+   "pyeong": 4213,
+   "complexes": 51,
+   "households": 40256
+  },
+  {
+   "sigungu": "안양동안구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 6.8,
+   "pyeong": 3844,
+   "complexes": 84,
+   "households": 86282
+  },
+  {
+   "sigungu": "용인수지구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7,
+   "pyeong": 3387,
+   "complexes": 118,
+   "households": 89399
+  },
+  {
+   "sigungu": "화성동탄구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.1,
+   "pyeong": 3060,
+   "complexes": 149,
+   "households": 128506
+  },
+  {
+   "sigungu": "남양주시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.2,
+   "pyeong": 2424,
+   "complexes": 215,
+   "households": 170079
+  },
+  {
+   "sigungu": "강북구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 7.3,
+   "pyeong": 3266,
+   "complexes": 23,
+   "households": 26078
+  },
+  {
+   "sigungu": "구로구",
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 7.3,
+   "pyeong": 3879,
+   "complexes": 64,
+   "households": 51613
+  },
+  {
+   "sigungu": "중랑구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 7.5,
+   "pyeong": 3281,
+   "complexes": 44,
+   "households": 38044
+  },
+  {
+   "sigungu": "수원영통구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.5,
+   "pyeong": 2807,
+   "complexes": 93,
+   "households": 89948
+  },
+  {
+   "sigungu": "구리시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.5,
+   "pyeong": 3241,
+   "complexes": 51,
+   "households": 38435
+  },
+  {
+   "sigungu": "의왕시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.5,
+   "pyeong": 3322,
+   "complexes": 50,
+   "households": 42825
+  },
+  {
+   "sigungu": "금천구",
+   "metro": "서울",
+   "region": "서남권",
+   "grade": 7.6,
+   "pyeong": 2920,
+   "complexes": 18,
+   "households": 20672
+  },
+  {
+   "sigungu": "노원구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 7.7,
+   "pyeong": 3486,
+   "complexes": 128,
+   "households": 140513
+  },
+  {
+   "sigungu": "수원팔달구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.7,
+   "pyeong": 3201,
+   "complexes": 27,
+   "households": 33895
+  },
+  {
+   "sigungu": "부천오정구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.7,
+   "pyeong": 2451,
+   "complexes": 11,
+   "households": 6766
+  },
+  {
+   "sigungu": "안양만안구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.8,
+   "pyeong": 3184,
+   "complexes": 30,
+   "households": 32160
+  },
+  {
+   "sigungu": "고양덕양구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.8,
+   "pyeong": 2529,
+   "complexes": 126,
+   "households": 112988
+  },
+  {
+   "sigungu": "용인기흥구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.8,
+   "pyeong": 2291,
+   "complexes": 131,
+   "households": 99274
+  },
+  {
+   "sigungu": "안산단원구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.9,
+   "pyeong": 2128,
+   "complexes": 64,
+   "households": 65703
+  },
+  {
+   "sigungu": "양평군",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 7.9,
+   "pyeong": 1929,
+   "complexes": 11,
+   "households": 6450
+  },
+  {
+   "sigungu": "도봉구",
+   "metro": "서울",
+   "region": "동북권",
+   "grade": 10,
+   "pyeong": 2346,
+   "complexes": 46,
+   "households": 47631
+  },
+  {
+   "sigungu": "제물포구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 1170,
+   "complexes": 22,
+   "households": 21007
+  },
+  {
+   "sigungu": "영종구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 1636,
+   "complexes": 41,
+   "households": 36624
+  },
+  {
+   "sigungu": "미추홀구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 1774,
+   "complexes": 60,
+   "households": 58255
+  },
+  {
+   "sigungu": "연수구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 2454,
+   "complexes": 114,
+   "households": 108684
+  },
+  {
+   "sigungu": "남동구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 1659,
+   "complexes": 112,
+   "households": 111297
+  },
+  {
+   "sigungu": "부평구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 1824,
+   "complexes": 93,
+   "households": 114744
+  },
+  {
+   "sigungu": "계양구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 1398,
+   "complexes": 66,
+   "households": 51055
+  },
+  {
+   "sigungu": "서해구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 2301,
+   "complexes": 71,
+   "households": 67442
+  },
+  {
+   "sigungu": "검단구",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 2056,
+   "complexes": 91,
+   "households": 80336
+  },
+  {
+   "sigungu": "강화군",
+   "metro": "인천",
+   "region": "인천",
+   "grade": 10,
+   "pyeong": 822,
+   "complexes": 3,
+   "households": 2397
+  },
+  {
+   "sigungu": "수원장안구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 2469,
+   "complexes": 42,
+   "households": 46520
+  },
+  {
+   "sigungu": "수원권선구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 2294,
+   "complexes": 88,
+   "households": 76650
+  },
+  {
+   "sigungu": "의정부시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1625,
+   "complexes": 136,
+   "households": 111351
+  },
+  {
+   "sigungu": "부천원미구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 2509,
+   "complexes": 82,
+   "households": 65852
+  },
+  {
+   "sigungu": "부천소사구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 2553,
+   "complexes": 41,
+   "households": 37821
+  },
+  {
+   "sigungu": "평택시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1500,
+   "complexes": 191,
+   "households": 157117
+  },
+  {
+   "sigungu": "동두천시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 855,
+   "complexes": 22,
+   "households": 15093
+  },
+  {
+   "sigungu": "안산상록구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1767,
+   "complexes": 43,
+   "households": 45706
+  },
+  {
+   "sigungu": "고양일산동구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1884,
+   "complexes": 75,
+   "households": 61441
+  },
+  {
+   "sigungu": "고양일산서구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1698,
+   "complexes": 94,
+   "households": 73820
+  },
+  {
+   "sigungu": "오산시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1517,
+   "complexes": 81,
+   "households": 74071
+  },
+  {
+   "sigungu": "시흥시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 2016,
+   "complexes": 162,
+   "households": 124489
+  },
+  {
+   "sigungu": "군포시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 2305,
+   "complexes": 72,
+   "households": 64030
+  },
+  {
+   "sigungu": "용인처인구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1963,
+   "complexes": 53,
+   "households": 45314
+  },
+  {
+   "sigungu": "파주시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1528,
+   "complexes": 139,
+   "households": 133984
+  },
+  {
+   "sigungu": "이천시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 996,
+   "complexes": 44,
+   "households": 27285
+  },
+  {
+   "sigungu": "안성시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 895,
+   "complexes": 64,
+   "households": 53465
+  },
+  {
+   "sigungu": "김포시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1817,
+   "complexes": 134,
+   "households": 126713
+  },
+  {
+   "sigungu": "화성효행구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1412,
+   "complexes": 61,
+   "households": 49451
+  },
+  {
+   "sigungu": "화성병점구",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1812,
+   "complexes": 59,
+   "households": 50507
+  },
+  {
+   "sigungu": "광주시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 2093,
+   "complexes": 70,
+   "households": 47800
+  },
+  {
+   "sigungu": "양주시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1537,
+   "complexes": 104,
+   "households": 87719
+  },
+  {
+   "sigungu": "포천시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1002,
+   "complexes": 22,
+   "households": 19005
+  },
+  {
+   "sigungu": "여주시",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 873,
+   "complexes": 21,
+   "households": 12547
+  },
+  {
+   "sigungu": "가평군",
+   "metro": "경기",
+   "region": "경기",
+   "grade": 10,
+   "pyeong": 1543,
+   "complexes": 5,
+   "households": 2253
+  }
+ ],
  "macro": {
   "asOf": "2026-07",
   "status": "긴축·부담",
