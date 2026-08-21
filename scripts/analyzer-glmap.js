@@ -152,7 +152,7 @@
           "text-font": ["Open Sans Bold", "Noto Sans Bold"],
           "text-allow-overlap": false,
         },
-        paint: { "text-color": "#eceef2", "text-halo-color": "rgba(8,8,11,.92)", "text-halo-width": 1.6 },
+        paint: { "text-color": "#e8ebf0", "text-halo-color": "rgba(8,8,11,.92)", "text-halo-width": 1.6 },
       });
     } else {
       map.getSource(SRC_L).setData(labels);
@@ -168,7 +168,7 @@
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["get", "_r"], 3, 4, 12, 10],
           "circle-color": ["get", "_c"],
-          "circle-stroke-color": "rgba(236,238,242,.75)",
+          "circle-stroke-color": "rgba(232,235,240,.75)",
           "circle-stroke-width": 1.2,
           "circle-opacity": 0.95,
         },
@@ -254,7 +254,7 @@
           properties: {
             _id: d.complex_id,
             _r: Math.max(3, Math.min(12, 3 + Math.sqrt(Number(d.households) || 0) / 10)),
-            _c: metric === "grade" ? gradeColor(cg ? Number(cg.provisional_grade) : null) : "#f4e3b0",
+            _c: metric === "grade" ? gradeColor(cg ? Number(cg.provisional_grade) : null) : "#f04452",
           },
         });
       });

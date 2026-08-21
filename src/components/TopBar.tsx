@@ -33,9 +33,9 @@ const STOCK_PRODUCTS = [
   { key: "nps", href: "/nps", label: "국민연금", accent: "text-radar", nav: NPS_NAV },
 ];
 const RE_PRODUCTS = [
-  { key: "re-market", href: "/realestate/capital_area_market_analyzer_v3_0.html", label: "시장분석", accent: "text-[#c4b5fd]", nav: [] },
-  { key: "re-policy", href: "/realestate/real_estate_policy_timeline_v1_0.html", label: "정책", accent: "text-[#c4b5fd]", nav: [] },
-  { key: "re-expert", href: "/realestate/real_estate_expert_signals_v1_0.html", label: "전문가집단", accent: "text-[#c4b5fd]", nav: [] },
+  { key: "re-market", href: "/realestate/capital_area_market_analyzer_v3_0.html", label: "시장분석", accent: "text-[#4c8dff]", nav: [] },
+  { key: "re-policy", href: "/realestate/real_estate_policy_timeline_v1_0.html", label: "정책", accent: "text-[#4c8dff]", nav: [] },
+  { key: "re-expert", href: "/realestate/real_estate_expert_signals_v1_0.html", label: "전문가집단", accent: "text-[#4c8dff]", nav: [] },
 ];
 
 function isActive(pathname: string, href: string, exact?: boolean) {

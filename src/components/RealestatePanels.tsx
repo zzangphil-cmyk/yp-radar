@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { realestate as re, fmtPyeong, fmtHouseholds, RE_PAGES, type ReZone } from "@/lib/realestateData";
 
-const PURPLE = "#a78bfa";
+const PURPLE = "#3182f6";
 
 /** 권역별 중앙 급지 — 급지가 낮을수록(=상위) 막대가 길다 */
 export function RegionGradeChart() {
@@ -101,7 +101,7 @@ export function MacroTimeline() {
     <div className="card p-4">
       <div className="mb-1 flex items-baseline justify-between">
         <span className="text-sm font-semibold text-white/85">거시 타이밍</span>
-        <span className="rounded-full bg-[#a78bfa]/15 px-2 py-0.5 text-[11px] font-semibold text-[#c4b5fd]">
+        <span className="rounded-full bg-[#3182f6]/15 px-2 py-0.5 text-[11px] font-semibold text-[#4c8dff]">
           {m.status ?? "-"}
         </span>
       </div>
@@ -109,7 +109,7 @@ export function MacroTimeline() {
         금리가 집값의 방향을 정하진 않지만, <strong className="text-white/60">돈의 값</strong>은 정합니다. {m.asOf} 기준.
       </p>
       <svg viewBox={`0 0 ${W} ${H}`} className="block w-full" style={{ height: 110 }} preserveAspectRatio="none">
-        <polyline points={line("t3y")} fill="none" stroke="#5a9bff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+        <polyline points={line("t3y")} fill="none" stroke="#4c82fb" strokeWidth="2" vectorEffect="non-scaling-stroke" />
         <polyline points={line("base")} fill="none" stroke={PURPLE} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
       </svg>
       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
@@ -120,7 +120,7 @@ export function MacroTimeline() {
           <span className={tone(m.baseRateChange6m)}>{sign(m.baseRateChange6m)}</span>
         </span>
         <span className="flex items-center gap-1.5">
-          <i className="inline-block h-2 w-3 rounded-sm bg-[#5a9bff]" />
+          <i className="inline-block h-2 w-3 rounded-sm bg-[#4c82fb]" />
           <span className="text-white/55">국고 3년</span>
           <b className="tabular-nums text-white/85">{m.treasury3y}%</b>
           <span className={tone(m.treasury3yChange6m)}>{sign(m.treasury3yChange6m)}</span>
@@ -141,7 +141,7 @@ function ZoneRows({ rows, mode }: { rows: ReZone[]; mode: "price" | "change" }) 
         const v = mode === "price" ? r.pyeong : r.changePct ?? 0;
         const w = (Math.abs(v) / max) * 100;
         const up = (r.changePct ?? 0) >= 0;
-        const color = mode === "price" ? PURPLE : up ? "#f0616e" : "#5a9bff";
+        const color = mode === "price" ? PURPLE : up ? "#f04452" : "#4c82fb";
         return (
           <li key={r.gu + r.zone} className="grid grid-cols-[92px_1fr_58px] items-center gap-2 rounded px-1 py-0.5">
             <span className="truncate text-[12px] text-white/80" title={`${r.gu} ${r.zone}`}>{r.zone}</span>
@@ -172,7 +172,7 @@ export function ZoneRanking() {
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <div className="mb-1 text-[11px] font-semibold text-[#c4b5fd]">평단가 TOP</div>
+          <div className="mb-1 text-[11px] font-semibold text-[#4c8dff]">평단가 TOP</div>
           <ZoneRows rows={z.topPrice.slice(0, 6)} mode="price" />
         </div>
         <div>
@@ -201,7 +201,7 @@ export function PolicyPulse() {
         <span className="text-[11px] text-white/40">{p.count}건 · {p.range?.[0]?.slice(0, 4)}~{p.range?.[1]?.slice(0, 4)}</span>
       </div>
       <p className="mb-3 text-[11px] text-white/45">
-        막대 높이 = 그해 대책 수. <span className="text-[#c4b5fd]">진한 부분</span>이 주요 대책 —{" "}
+        막대 높이 = 그해 대책 수. <span className="text-[#4c8dff]">진한 부분</span>이 주요 대책 —{" "}
         <strong className="text-white/70">최근 2년에 몰려 있으면 규제 사이클</strong>입니다.
       </p>
       <div className="flex h-20 items-end gap-1">
@@ -211,8 +211,8 @@ export function PolicyPulse() {
           return (
             <div key={y.year} className="flex flex-1 flex-col items-center gap-1" title={`${y.year} ${y.total}건 (주요 ${y.major})`}>
               <span className="text-[9px] tabular-nums text-white/40">{y.total}</span>
-              <span className="flex w-full flex-col justify-end rounded-t bg-[#a78bfa]/25" style={{ height: `${Math.max(6, h)}%` }}>
-                <span className="w-full rounded-t bg-[#a78bfa]" style={{ height: `${majorH}%` }} />
+              <span className="flex w-full flex-col justify-end rounded-t bg-[#3182f6]/25" style={{ height: `${Math.max(6, h)}%` }}>
+                <span className="w-full rounded-t bg-[#3182f6]" style={{ height: `${majorH}%` }} />
               </span>
               <span className="text-[9px] text-white/35">{y.year.slice(2)}</span>
             </div>
@@ -227,7 +227,7 @@ export function PolicyPulse() {
               <li key={b.name} className="grid grid-cols-[62px_1fr_20px] items-center gap-2">
                 <span className="truncate text-[11px] text-white/70">{b.name}</span>
                 <span className="h-1.5 overflow-hidden rounded-full bg-white/[0.05]">
-                  <span className="block h-full rounded-full bg-[#a78bfa]" style={{ width: `${(b.count / maxB) * 100}%` }} />
+                  <span className="block h-full rounded-full bg-[#3182f6]" style={{ width: `${(b.count / maxB) * 100}%` }} />
                 </span>
                 <span className="text-right text-[10px] tabular-nums text-white/45">{b.count}</span>
               </li>
@@ -240,14 +240,14 @@ export function PolicyPulse() {
             {p.latest.slice(0, 4).map((it) => (
               <li key={it.date + it.title} className="flex items-center gap-1.5">
                 <span className="shrink-0 text-[10px] tabular-nums text-white/35">{it.date.slice(2, 7)}</span>
-                {it.major && <span className="shrink-0 rounded bg-[#a78bfa]/15 px-1 text-[9px] font-bold text-[#c4b5fd]">주요</span>}
+                {it.major && <span className="shrink-0 rounded bg-[#3182f6]/15 px-1 text-[9px] font-bold text-[#4c8dff]">주요</span>}
                 <span className="min-w-0 flex-1 truncate text-[11px] text-white/75" title={it.title}>{it.title}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
-      <Link href={RE_PAGES.policy} className="mt-2 inline-block text-[11px] text-[#c4b5fd] hover:text-[#ddd6fe]">
+      <Link href={RE_PAGES.policy} className="mt-2 inline-block text-[11px] text-[#4c8dff] hover:text-[#7aa9ff]">
         정책 타임라인 전체 →
       </Link>
     </div>
@@ -261,7 +261,7 @@ export function ExpertConsensus() {
   const c = e.consensusNow ?? 0;
   const pos = ((c + 2) / 4) * 100; // -2~+2 → 0~100%
   const label = c > 0.5 ? "상승 우위" : c < -0.5 ? "하락 우위" : "혼조";
-  const tone = c > 0.5 ? "#f0616e" : c < -0.5 ? "#5a9bff" : "#8b9096";
+  const tone = c > 0.5 ? "#f04452" : c < -0.5 ? "#4c82fb" : "#8b9096";
   const maxN = Math.max(...e.years.map((y) => y.n), 1);
   return (
     <div className="card p-4">
@@ -274,7 +274,7 @@ export function ExpertConsensus() {
       </p>
 
       {/* 게이지 */}
-      <div className="relative h-2 rounded-full" style={{ background: "linear-gradient(90deg,#5a9bff33,#8b909633,#f0616e33)" }}>
+      <div className="relative h-2 rounded-full" style={{ background: "linear-gradient(90deg,#4c82fb33,#8b909633,#f0445233)" }}>
         <span className="absolute top-1/2 h-4 w-1 -translate-y-1/2 rounded-full" style={{ left: `${pos}%`, background: tone }} />
       </div>
       <div className="mt-1 flex justify-between text-[10px] text-white/35">
@@ -293,11 +293,11 @@ export function ExpertConsensus() {
           return (
             <div key={y.year} className="flex flex-1 flex-col items-center" title={`${y.year} 평균 ${y.avg} (${y.n}건)`}>
               <span className="flex h-6 w-full items-end">
-                {up && <span className="w-full rounded-t" style={{ height: `${Math.max(6, h)}%`, background: "#f0616e", opacity: 0.35 + (y.n / maxN) * 0.65 }} />}
+                {up && <span className="w-full rounded-t" style={{ height: `${Math.max(6, h)}%`, background: "#f04452", opacity: 0.35 + (y.n / maxN) * 0.65 }} />}
               </span>
               <span className="h-px w-full bg-white/10" />
               <span className="flex h-6 w-full items-start">
-                {!up && <span className="w-full rounded-b" style={{ height: `${Math.max(6, h)}%`, background: "#5a9bff", opacity: 0.35 + (y.n / maxN) * 0.65 }} />}
+                {!up && <span className="w-full rounded-b" style={{ height: `${Math.max(6, h)}%`, background: "#4c82fb", opacity: 0.35 + (y.n / maxN) * 0.65 }} />}
               </span>
             </div>
           );
@@ -306,7 +306,7 @@ export function ExpertConsensus() {
       <div className="flex gap-1 text-[9px] text-white/30">
         {e.years.map((y) => <span key={y.year} className="flex-1 text-center">{y.year.slice(2)}</span>)}
       </div>
-      <Link href={RE_PAGES.experts} className="mt-2 inline-block text-[11px] text-[#c4b5fd] hover:text-[#ddd6fe]">
+      <Link href={RE_PAGES.experts} className="mt-2 inline-block text-[11px] text-[#4c8dff] hover:text-[#7aa9ff]">
         전문가 12인 상세 →
       </Link>
     </div>
@@ -325,7 +325,7 @@ export function RealestateEntries() {
       {items.map((it) => (
         <Link key={it.href} href={it.href} className="card group p-4 transition-colors hover:bg-white/[0.04]">
           <div className="flex items-baseline justify-between">
-            <span className="text-sm font-bold text-white group-hover:text-[#c4b5fd]">{it.title}</span>
+            <span className="text-sm font-bold text-white group-hover:text-[#4c8dff]">{it.title}</span>
             <span className="text-[11px] text-white/35">{it.stat}</span>
           </div>
           <p className="mt-1 text-[12px] text-white/50">{it.desc}</p>

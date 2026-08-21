@@ -179,9 +179,9 @@ export default function Hub() {
         <div className="flex items-center justify-between gap-3">
           <h2 className="section-title">
             수도권 한눈에
-            <span className="ml-2 align-middle text-xs font-normal text-[#c4b5fd]">기준 {re.asOf}</span>
+            <span className="ml-2 align-middle text-xs font-normal text-[#4c8dff]">기준 {re.asOf}</span>
           </h2>
-          <Link href="/realestate/capital_area_market_analyzer_v3_0.html" className="text-sm text-[#c4b5fd] hover:text-[#ddd6fe]">
+          <Link href="/realestate/capital_area_market_analyzer_v3_0.html" className="text-sm text-[#4c8dff] hover:text-[#7aa9ff]">
             분석기 열기 →
           </Link>
         </div>
@@ -240,7 +240,7 @@ export default function Hub() {
         <div className="relative max-w-2xl">
           <div className="mb-3 flex flex-wrap gap-2">
             <span className="pill bg-[#3182f6]/15 text-[#3182f6]">주식 · {radarData.asOf}</span>
-            <span className="pill bg-[#a78bfa]/15 text-[#c4b5fd]">부동산 · {re.asOf}</span>
+            <span className="pill bg-[#3182f6]/15 text-[#4c8dff]">부동산 · {re.asOf}</span>
           </div>
           <h1 className="text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
             주식과 부동산, 한 화면에

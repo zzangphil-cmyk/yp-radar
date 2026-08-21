@@ -19,14 +19,14 @@ const CAPITAL_BOUNDS: [[number, number], [number, number]] = [
 
 const NO_DATA = "#2b2d38";
 
-/** 분석기 지도와 같은 계열: 밝은 금색(상위) → 남보라(하위) */
+/** 주식 화면과 같은 한국식 등락 색: 상위 빨강 → 하위 파랑 */
 function ramp(t: number): string {
   const S = [
-    [45, 86, 68],
-    [28, 76, 61],
-    [352, 44, 53],
-    [294, 30, 45],
-    [250, 24, 37],
+    [354, 82, 62],
+    [6, 58, 59],
+    [228, 9, 55],
+    [216, 56, 58],
+    [221, 88, 64],
   ];
   const x = Math.max(0, Math.min(1, t));
   const p = x * (S.length - 1);
@@ -143,7 +143,7 @@ export default function SigunguMap() {
       }
       if (s.pyeong == null) return NO_DATA;
       const t = (Math.log(s.pyeong) - pyeongScale.lo) / (pyeongScale.hi - pyeongScale.lo || 1);
-      return ramp(1 - t); // 비쌀수록 금색
+      return ramp(1 - t); // 비쌀수록 붉게
     },
     [byName, metric, pyeongScale]
   );
@@ -163,7 +163,7 @@ export default function SigunguMap() {
     <button
       onClick={() => setMetric(k)}
       className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-colors ${
-        metric === k ? "bg-[#a78bfa]/20 text-[#c4b5fd]" : "text-white/45 hover:text-white"
+        metric === k ? "bg-[#3182f6]/20 text-[#4c8dff]" : "text-white/45 hover:text-white"
       }`}
     >
       {label}
@@ -218,7 +218,7 @@ export default function SigunguMap() {
           <div className="pointer-events-none absolute left-3 top-3 rounded-xl border border-white/10 bg-black/70 px-3 py-2 backdrop-blur-md">
             <div className="text-[13px] font-bold text-white">{hovered.sigungu}</div>
             <div className="mt-0.5 flex gap-3 text-[11px] tabular-nums">
-              <span className="text-[#c4b5fd]">{hovered.grade ?? "-"}급지</span>
+              <span className="text-[#4c8dff]">{hovered.grade ?? "-"}급지</span>
               <span className="text-white/70">{fmtPyeong(hovered.pyeong)}/평</span>
             </div>
             <div className="mt-0.5 text-[10px] text-white/40">

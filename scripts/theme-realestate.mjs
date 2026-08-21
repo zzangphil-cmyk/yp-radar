@@ -18,7 +18,7 @@ const ANALYZER = "capital_area_market_analyzer_v3_0.html";
 const SIBLINGS = ["real_estate_policy_timeline_v1_0.html", "real_estate_expert_signals_v1_0.html"];
 
 // ── 상단 글로벌 스위처 (사이트 TopBar와 동일 구성) ─────────────────────────
-const MARK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#a78bfa" stroke-width="1.4" opacity=".45"/><circle cx="12" cy="12" r="5.5" stroke="#a78bfa" stroke-width="1.4" opacity=".8"/><circle cx="12" cy="12" r="1.7" fill="#a78bfa"/></svg>';
+const MARK = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="#3182f6" stroke-width="1.4" opacity=".45"/><circle cx="12" cy="12" r="5.5" stroke="#3182f6" stroke-width="1.4" opacity=".8"/><circle cx="12" cy="12" r="1.7" fill="#3182f6"/></svg>';
 // 사이트 TopBar와 동일한 2단 구조: 대분류(주식·부동산) → 세부(시장분석·정책·전문가집단)
 const SUB = [
   { href: `/realestate/${ANALYZER}`, label: "시장분석" },
@@ -74,7 +74,7 @@ function expertBanner() {
   const c = e.consensusNow ?? 0;
   const pos = ((c + 2) / 4) * 100;
   const label = c > 0.5 ? "상승 우위" : c < -0.5 ? "하락 우위" : "혼조";
-  const tone = c > 0.5 ? "#f0616e" : c < -0.5 ? "#5a9bff" : "#8b9096";
+  const tone = c > 0.5 ? "#f04452" : c < -0.5 ? "#4c82fb" : "#8b9096";
   const maxN = Math.max(...e.years.map((y) => y.n), 1);
   const cols = e.years.map((y) => {
     const up = y.avg >= 0;
@@ -96,24 +96,24 @@ function expertBanner() {
 
 // ── 공통(글로벌 바 + 스크롤바 + 요약 배너) ─────────────────────────────────
 const COMMON = `
-.ypv{margin:14px 28px 0;background:#17181d;border:1px solid #232430;border-radius:12px;padding:14px}
+.ypv{margin:14px 28px 0;background:#17181d;border-radius:20px;padding:16px}
 .ypv-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
-.ypv-head b{font-size:13px;color:#e8eaed}
+.ypv-head b{font-size:13px;color:#e8ebf0}
 .ypv-head span{font-size:11px;color:#8b9096}
 .ypv-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;align-items:end}
 .ypv-chart{display:flex;align-items:flex-end;gap:4px;height:76px}
 .ypv-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
 .ypv-n{font-style:normal;font-size:9px;color:#8b9096}
-.ypv-bar{width:100%;background:rgba(167,139,250,.25);border-radius:3px 3px 0 0;display:flex;flex-direction:column;justify-content:flex-end;min-height:6px}
-.ypv-bar>span{width:100%;background:#a78bfa;border-radius:3px 3px 0 0}
+.ypv-bar{width:100%;background:rgba(49,130,246,.25);border-radius:3px 3px 0 0;display:flex;flex-direction:column;justify-content:flex-end;min-height:6px}
+.ypv-bar>span{width:100%;background:#3182f6;border-radius:3px 3px 0 0}
 .ypv-x{font-style:normal;font-size:9px;color:#6b7076}
 .ypv-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .ypv-list li{display:grid;grid-template-columns:58px 1fr 20px;align-items:center;gap:7px}
 .ypv-list span{font-size:11px;color:#c9ccd1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ypv-list i{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;display:block}
-.ypv-list i em{display:block;height:100%;background:#a78bfa;border-radius:3px}
+.ypv-list i em{display:block;height:100%;background:#3182f6;border-radius:3px}
 .ypv-list b{font-size:10px;color:#8b9096;text-align:right}
-.ypv-gauge{position:relative;height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(90,155,255,.25),rgba(139,144,150,.25),rgba(240,97,110,.25))}
+.ypv-gauge{position:relative;height:8px;border-radius:999px;background:linear-gradient(90deg,rgba(76,130,251,.28),rgba(255,255,255,.10),rgba(240,68,82,.28))}
 .ypv-gauge span{position:absolute;top:50%;transform:translate(-50%,-50%);width:4px;height:16px;border-radius:2px}
 .ypv-gauge-x{display:flex;justify-content:space-between;margin-top:3px}
 .ypv-gauge-x i{font-style:normal;font-size:10px;color:#6b7076}
@@ -122,38 +122,38 @@ const COMMON = `
 .ypv-up,.ypv-dn{display:flex;width:100%;height:22px}
 .ypv-up{align-items:flex-end}
 .ypv-dn{align-items:flex-start}
-.ypv-up i,.ypv-dn i{display:block;width:100%;background:#f0616e;border-radius:2px 2px 0 0}
-.ypv-dn i{background:#5a9bff;border-radius:0 0 2px 2px}
+.ypv-up i,.ypv-dn i{display:block;width:100%;background:#f04452;border-radius:2px 2px 0 0}
+.ypv-dn i{background:#4c82fb;border-radius:0 0 2px 2px}
 .ypv-mid{width:100%;height:1px;background:rgba(255,255,255,.1)}
 @media(max-width:760px){.ypv{margin:12px 14px 0}.ypv-grid{grid-template-columns:1fr;gap:12px}}
 
 .yp-top{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:16px;height:56px;padding:0 20px;background:rgba(16,16,19,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #1e1f26;font-family:'Noto Sans KR','Malgun Gothic',sans-serif}
-.yp-top .yp-brand{display:flex;align-items:center;gap:8px;color:#e8eaed;text-decoration:none;font-size:15px;font-weight:400;letter-spacing:-.01em}
+.yp-top .yp-brand{display:flex;align-items:center;gap:8px;color:#e8ebf0;text-decoration:none;font-size:15px;font-weight:400;letter-spacing:-.01em}
 .yp-top .yp-brand b{font-weight:800}
 .yp-switch{display:flex;gap:2px;background:rgba(255,255,255,.05);padding:4px;border-radius:14px}
 .yp-switch a{padding:6px 13px;border-radius:10px;font-size:13px;font-weight:700;color:rgba(255,255,255,.45);text-decoration:none;transition:color .15s,background .15s}
 .yp-switch a:hover{color:#fff}
-.yp-switch a.on{background:rgba(167,139,250,.16);color:#c4b5fd}
+.yp-switch a.on{background:rgba(49,130,246,.16);color:#4c8dff}
 .yp-sub{display:flex;gap:2px}
 .yp-sub a{padding:6px 10px;border-radius:8px;font-size:13px;font-weight:600;color:rgba(255,255,255,.45);text-decoration:none;transition:color .15s,background .15s}
 .yp-sub a:hover{color:#fff;background:rgba(255,255,255,.05)}
-.yp-sub a.on{color:#c4b5fd;background:rgba(255,255,255,.06)}
-.yp-chip{margin-left:auto;font-size:11px;color:#8b9096;border:1px solid #26272e;border-radius:999px;padding:5px 11px;white-space:nowrap}
+.yp-sub a.on{color:#4c8dff;background:rgba(255,255,255,.06)}
+.yp-chip{margin-left:auto;font-size:11px;color:rgba(255,255,255,.6);background:rgba(255,255,255,.07);border-radius:999px;padding:5px 11px;white-space:nowrap}
 @media(max-width:680px){.yp-top{height:auto;flex-wrap:wrap;gap:8px;padding:10px 14px}.yp-chip{display:none}.yp-switch,.yp-sub{width:100%}.yp-switch a,.yp-sub a{flex:1;text-align:center}}
 ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#2b2c33;border-radius:5px}::-webkit-scrollbar-track{background:transparent}
 `;
 
 // ── 시장분석기(변수 기반) 다크 오버라이드 ─────────────────────────────────
 const ANALYZER_CSS = `
-:root{--ink:#e8eaed;--muted:#8b9096;--line:#26272e;--paper:#101013;--panel:#17181d;--accent:#a78bfa;--warn:#f5a623;--good:#34d399}
+:root{--ink:#e8ebf0;--muted:#8b9096;--line:#26272e;--paper:#101013;--panel:#17181d;--accent:#3182f6;--warn:#f5a623;--good:#34d399}
 body{background:var(--paper);color:var(--ink)}
 .top{background:#131318;border-bottom:1px solid var(--line)}
-.brand h1{font-size:15px;color:#e8eaed}
+.brand h1{font-size:15px;color:#e8ebf0}
 .metro-tabs{border-color:var(--line)}
 .metro-tabs button{background:#1a1b21;color:#c9ccd1;border-color:var(--line)}
 .metro-tabs button.active{background:var(--accent);color:#101013}
 .page-nav a{color:var(--muted)}
-.page-nav a.active{color:#c4b5fd;border-color:#a78bfa}
+.page-nav a.active{color:#4c8dff;border-color:#3182f6}
 .shell{min-height:0}
 .side{background:#131318;border-left:1px solid var(--line);top:56px;height:calc(100vh - 56px)}
 .kpi{background:var(--panel);border-color:var(--line)}
@@ -171,29 +171,29 @@ body{background:var(--paper);color:var(--ink)}
 .tile.zone,.tile.regional-complex{background:#17181d!important;color:var(--ink);border-color:var(--line)}
 .tile.regional-complex small{color:#8b9096}
 .tile.zone em,.tile.regional-complex em{color:#8b9096}
-.tile.match{outline-color:#a78bfa}
+.tile.match{outline-color:#3182f6}
 /* 지도 — 평면 검정 대신 은은한 비네트, 얇고 차분한 경계 */
 .map.spatial{border-color:var(--line);background:
   radial-gradient(120% 90% at 50% 0%,#15161d 0%,#101116 45%,#0b0b0f 100%)}
 .geo-map{filter:saturate(.92)}
 /* 경계선은 인라인 style로 그려져 CSS가 지려면 !important가 필요하다 */
 .zone-shape{transition:filter .18s,opacity .18s,stroke .18s,stroke-width .18s}
-.zone-shape:hover{filter:brightness(1.2) saturate(1.06);stroke:#eceef2!important;stroke-width:1.6!important;stroke-opacity:1!important}
-.zone-shape.selected{stroke:#f4e3b0!important;stroke-width:2.2!important;stroke-opacity:1!important;filter:brightness(1.12) drop-shadow(0 0 7px rgba(244,227,176,.35))}
+.zone-shape:hover{filter:brightness(1.2) saturate(1.06);stroke:#e8ebf0!important;stroke-width:1.6!important;stroke-opacity:1!important}
+.zone-shape.selected{stroke:#f04452!important;stroke-width:2.2!important;stroke-opacity:1!important;filter:brightness(1.12) drop-shadow(0 0 7px rgba(240,68,82,.35))}
 .zone-shape.dimmed{opacity:.16}
 /* 수계 — 폴리곤 위에 얹어 한강이 지도를 가르게 (OSM/ODbL) */
-.yp-water{fill:#0c1b2c;fill-opacity:.88;stroke:rgba(130,180,230,.28);stroke-width:.6;
+.yp-water{fill:#0c1b2c;fill-opacity:.88;stroke:rgba(76,130,251,.28);stroke-width:.6;
   vector-effect:non-scaling-stroke;pointer-events:none}
 /* 라벨 — 작고 자간 있는 캡션 톤 + 얇은 헤일로 */
-.map-label{fill:#eceef2;font-size:11.5px;font-weight:700;letter-spacing:.02em;
+.map-label{fill:#e8ebf0;font-size:11.5px;font-weight:700;letter-spacing:.02em;
   stroke:rgba(8,8,11,.92);stroke-width:2.6px;paint-order:stroke}
 .zone-bubble{fill:rgba(20,21,28,.92);stroke:rgba(232,234,237,.5);stroke-width:1}
-.bubble-count{fill:#eceef2;font-size:10.5px}
-/* 단지 마커 — 채운 점 대신 링, 선택 시만 금색 강조 */
-.complex-marker{fill:rgba(20,21,28,.9);stroke:rgba(236,238,242,.75);stroke-width:1.2;
+.bubble-count{fill:#e8ebf0;font-size:10.5px}
+/* 단지 마커 — 채운 점 대신 링, 선택 시만 강조색 */
+.complex-marker{fill:rgba(20,21,28,.9);stroke:rgba(232,235,240,.75);stroke-width:1.2;
   transition:fill .15s,stroke .15s,filter .15s}
-.complex-marker:hover{fill:#eceef2;stroke:#eceef2}
-.complex-marker.selected{fill:#f4e3b0;stroke:#f4e3b0;filter:drop-shadow(0 0 6px rgba(244,227,176,.5))}
+.complex-marker:hover{fill:#e8ebf0;stroke:#e8ebf0}
+.complex-marker.selected{fill:#f04452;stroke:#f04452;filter:drop-shadow(0 0 6px rgba(240,68,82,.5))}
 .map-foot{background:rgba(14,14,18,.82);border-color:rgba(255,255,255,.07);color:#9aa0a6;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:8px}
 /* 범례 스와치 — 각지지 않게 */
@@ -209,37 +209,37 @@ body{background:var(--paper);color:var(--ink)}
 .complex-row:hover,.complex-row.active{background:#1e1f26}
 .back-complex{background:var(--panel);border-color:var(--line);color:#c9ccd1}
 .note{background:#1c1a12;border-left-color:var(--warn);color:#d8b878}
-.source{color:#a78bfa}
+.source{color:#3182f6}
 .progress{background:#26272e}
 .why-box{background:#131318;border-color:var(--line)}
 .why-row i{background:#26272e}
-.why-row i:after{background:#a78bfa}
+.why-row i:after{background:#3182f6}
 .reason,.grade-comment{color:#9aa0a6!important}
 .monthly-table-wrap{border-color:var(--line)}
 .monthly-table{background:var(--panel)}
 .monthly-table th{background:#1a1b21;color:#9aa0a6}
 .monthly-table th,.monthly-table td{border-color:#232430}
-.monthly-table .sale{color:#f0616e}
-.monthly-table .rent{color:#5a9bff}
+.monthly-table .sale{color:#f04452}
+.monthly-table .rent{color:#4c82fb}
 .monthly-table tr.no-trade{color:#6b7076}
-.monthly-table td:nth-child(2),.monthly-table td:nth-child(3),.monthly-table td:nth-child(4),.monthly-table td:nth-child(5),.monthly-table td:nth-child(6),.monthly-table td:nth-child(7),.monthly-table td:nth-child(9){color:#e8eaed}
+.monthly-table td:nth-child(2),.monthly-table td:nth-child(3),.monthly-table td:nth-child(4),.monthly-table td:nth-child(5),.monthly-table td:nth-child(6),.monthly-table td:nth-child(7),.monthly-table td:nth-child(9){color:#e8ebf0}
 .grade-transition{background:var(--panel);border-color:#3a3b44}
 .transition-cell{border-color:var(--line)}
-.transition-cell.to-be{background:rgba(167,139,250,.12);border-color:#5b4b8a}
+.transition-cell.to-be{background:rgba(49,130,246,.12);border-color:#5b4b8a}
 .cutoff-table th,.cutoff-table td{border-color:var(--line)}
-.cutoff-table strong,.key-metric{color:#e8eaed}
+.cutoff-table strong,.key-metric{color:#e8ebf0}
 .region-node{background:var(--panel);border-color:var(--line)}
 .region-head{background:transparent}
 .region-head:hover,.region-node.open .region-head{background:#1e1f26}
 .region-body{background:#131318}
 .region-gu{background:var(--panel);border-color:#232430}
 .unit-link{background:var(--panel);border-color:var(--line)}
-.unit-link:hover{border-color:#a78bfa}
+.unit-link:hover{border-color:#3182f6}
 .go-gu{background:var(--accent);color:#101013}
 .market-explorer{border-top-color:#3a3b44}
 /* v3.1 신규 UI */
 .back-btn{background:var(--panel)!important;border:1px solid var(--line);color:#c9ccd1}
-.back-btn:hover{border-color:#a78bfa;color:#fff}
+.back-btn:hover{border-color:#3182f6;color:#fff}
 .mini-map{background:rgba(19,19,24,.92)!important;border:1px solid var(--line)}
 .mini-map-label{background:rgba(19,19,24,.85)!important;color:#c9ccd1}
 .mini-map svg path,.mini-map svg polygon{stroke:#2b2c33}
@@ -247,26 +247,32 @@ body{background:var(--paper);color:var(--ink)}
 
 // ── 정책·전문가(하드코딩 녹색 팔레트) 다크 오버라이드 ──────────────────────
 const SIBLING_CSS = `
-body{background:#101013;color:#e8eaed}
-header{background:#131318;color:#e8eaed;border-bottom:1px solid #1e1f26}
+body{background:#101013;color:#e8ebf0}
+header{background:#131318;color:#e8ebf0;border-bottom:1px solid #1e1f26}
 header p{color:#8b9096}
 h1{font-size:16px}
 .page-nav a{color:#8b9096}
-.page-nav a.active,.page-nav a:hover{background:rgba(167,139,250,.15);color:#c4b5fd}
+.page-nav a.active,.page-nav a:hover{background:rgba(49,130,246,.15);color:#4c8dff}
 .summary{background:#26272e}
 .metric{background:#17181d}
 .metric span{color:#8b9096}
-.band{background:#17181d;border-top-color:#a78bfa}
+.band{background:#17181d;border-top-color:#3182f6}
+/* 사이트 카드 규약에 맞춤: 테두리 대신 밝기 차 + 큰 라운드 */
+.band,.metric,.cell,.source-card,.detail,.compare-wrap,.election,.radar-box,.yt-card,.empty,.yt-empty{border-radius:16px}
+.band{border-top:0;box-shadow:inset 0 2px 0 #3182f6}
+.summary,.facts,.matrix,.source-grid{background:transparent;gap:8px}
+.flow-copy{border-radius:12px}
+.toolbar button,.source-tab,.tabs button,.mode button,.yt-controls button,.search{border-radius:10px}
 .note{color:#8b9096}
 .toolbar button,.source-tab,.tabs button,.mode button,.yt-controls button{background:#17181d;color:#c9ccd1;border-color:#2b2c33}
-.toolbar button.active,.source-tab.active,.tabs button.active,.mode button.active,.yt-controls button.active{background:#a78bfa;color:#101013;border-color:#a78bfa}
-.search{background:#17181d;color:#e8eaed;border-color:#2b2c33}
+.toolbar button.active,.source-tab.active,.tabs button.active,.mode button.active,.yt-controls button.active{background:#3182f6;color:#101013;border-color:#3182f6}
+.search{background:#17181d;color:#e8ebf0;border-color:#2b2c33}
 .search::placeholder{color:#6b7076}
 .source-grid{background:#26272e}
-.source-card{background:#17181d;color:#e8eaed}
+.source-card{background:#17181d;color:#e8ebf0}
 .source-card span{color:#8b9096}
 .policy{border-top-color:#232430}
-.date,.flow-date{color:#f0616e}
+.date,.flow-date{color:#f04452}
 .meta{color:#8b9096}
 .major{background:#4a3f12;color:#f5d774}
 .matrix{background:#26272e}
@@ -276,16 +282,16 @@ h1{font-size:16px}
 .agenda th,.agenda td{border-color:#232430}
 .agenda th{color:#8b9096}
 .agenda td:nth-child(4){color:#34d399}
-.target-label{color:#a78bfa}
-summary{color:#c4b5fd}
-.source{color:#a78bfa}
+.target-label{color:#3182f6}
+summary{color:#4c8dff}
+.source{color:#3182f6}
 .empty,.yt-empty{background:#17181d;color:#8b9096}
 .flow-wrap:before{background:#2b2c33}
-.flow-dot{border-color:#101013;background:#a78bfa;box-shadow:0 0 0 2px #2b2c33}
+.flow-dot{border-color:#101013;background:#3182f6;box-shadow:0 0 0 2px #2b2c33}
 .flow-copy{background:#17181d;border-color:#232430}
-.flow-copy:hover{border-color:#a78bfa}
+.flow-copy:hover{border-color:#3182f6}
 .flow-copy p,.flow-side{color:#9aa0a6}
-.radar-box{background:#17181d;color:#e8eaed;border:1px solid #232430}
+.radar-box{background:#17181d;color:#e8ebf0;border:1px solid #232430}
 .axis{fill:#8b9096}
 .detail,.compare-wrap,.election{background:#17181d}
 .facts{background:#26272e}
@@ -301,13 +307,13 @@ summary{color:#c4b5fd}
 .remarks th,.compare th{color:#8b9096}
 .badge{background:#232430;color:#c9ccd1}
 .bar{background:#26272e}
-.bar i{background:#f0616e}
+.bar i{background:#f04452}
 .coverage i{background:#26272e}
 .coverage i.on{background:#34d399}
-.yt-card{background:#17181d;border-left-color:#a78bfa}
+.yt-card{background:#17181d;border-left-color:#3182f6}
 .yt-period,.count{color:#8b9096}
 .yt-sources{border-top-color:#232430}
-.yt-sources a{color:#a78bfa}
+.yt-sources a{color:#3182f6}
 .basis{background:#3a2f14;color:#e0c98a}
 .elect-row{border-color:#232430}
 .elect-bar{background:#26272e}
@@ -319,11 +325,14 @@ summary{color:#c4b5fd}
 
 // ── 지도 팔레트 정제 (분석기 전용) ────────────────────────────────────────
 // 원본은 빨강·주황·노랑연두 신호등 배색 — 다크 배경에서 조악하다.
-// 금색(상급지) → 남보라(하급지) 단일 계열 perceptual 램프로 교체한다.
+// 상급지 빨강 → 하급지 파랑(한국식 등락 색). 주식 화면과 같은 팔레트를 쓴다.
 const MAP_MARK = "/*yp-map*/";
+// 램프 스톱(HSL) — 주식 화면과 같은 한국식 등락 색. 여기만 고치면 전부 반영된다.
+const RAMP_STOPS = [[354, 82, 62], [6, 58, 59], [228, 9, 55], [216, 56, 58], [221, 88, 64]];
+const RAMP_LEGEND = "1급지 빨강 → 10급지 파랑 · 붉을수록 상급지";
 const RAMP = `${MAP_MARK}
 function _ypRamp(t){
-  var S=[[45,86,68],[28,76,61],[352,44,53],[294,30,45],[250,24,37]];
+  var S=${JSON.stringify(RAMP_STOPS)};
   t=Math.max(0,Math.min(1,t));
   var p=t*(S.length-1),i=Math.min(S.length-2,Math.floor(p)),f=p-i,a=S[i],b=S[i+1];
   var d=b[0]-a[0]; if(d>180)d-=360; if(d<-180)d+=360;
@@ -360,8 +369,9 @@ function _ypWaterLayer(project,features,geometryPath){
 const GL_MARK = "/*yp-gl*/";
 const GL_SRC = path.join(process.cwd(), "scripts", "analyzer-glmap.js");
 function injectGlMap(html) {
-  if (html.includes(GL_MARK)) return html;
   if (!fs.existsSync(GL_SRC)) return html;
+  // 이미 주입돼 있으면 통째로 교체한다(스크립트를 고치면 재실행만으로 반영되도록)
+  html = html.replace(/<script>\/\*yp-gl\*\/[\s\S]*?<\/script>/g, "");
   const js = fs.readFileSync(GL_SRC, "utf8");
   // maplibre 스타일시트(같은 출처)
   if (!html.includes("/maplibre/maplibre-gl.css")) {
@@ -386,12 +396,17 @@ function refineWater(html) {
 }
 
 function refineMap(html) {
-  if (html.includes(MAP_MARK)) return html; // 멱등
-  // 1) gradeColor 교체 (1급지=금색 … 10급지=남보라)
+  if (html.includes(MAP_MARK)) {
+    // 이미 주입돼 있으면 팔레트 값만 최신으로 갱신한다(스톱·범례를 바꿔도 재적용되도록)
+    return html
+      .replace(/var S=\[\[[\d,\[\]]*\];/, `var S=${JSON.stringify(RAMP_STOPS)};`)
+      .replace(/1급지 [^<"]*상급지/, RAMP_LEGEND);
+  }
+  // 1) gradeColor 교체 (1급지=빨강 … 10급지=파랑)
   const gcRe = /function gradeColor\(grade\)\{[\s\S]*?\n\}/;
   if (!gcRe.test(html)) throw new Error("gradeColor를 찾지 못함 — 분석기 구조 변경 확인");
   html = html.replace(gcRe, RAMP);
-  // 2) 연속형 지표(heatColor)도 같은 계열로 — 값이 높을수록 밝은 금색
+  // 2) 연속형 지표(heatColor)도 같은 계열로 — 값이 높을수록 붉게
   // 본문에 `${hue}` 템플릿 중괄호가 있어 [^}]* 로는 끊긴다 — 함수 끝 패턴까지 매칭
   const hcRe = /function heatColor\(value,min,max\)\{[\s\S]*?%\)`\}/;
   if (hcRe.test(html)) {
@@ -402,7 +417,7 @@ function refineMap(html) {
   // 3) 범례 문구를 새 배색에 맞춤
   html = html.replace(
     "1~3급지 빨강 · 4~6급지 주황 · 7~10급지 노랑연두",
-    "1급지 금색 → 10급지 남보라 · 밝을수록 상급지"
+    RAMP_LEGEND
   );
   html = html.replace(
     "예비급지(시장가격+상품성) 기준 · 같은 색 안에서는 진할수록 상급지",
@@ -441,10 +456,10 @@ function apply(file, css, banner = "") {
   const p = path.join(DIR, ANALYZER);
   const before = fs.readFileSync(p, "utf8");
   const paletted = refineMap(before);
-  if (paletted !== before) console.log("지도 팔레트 정제 적용 (금색→남보라 램프)");
+  if (paletted !== before) console.log("지도 팔레트 정제 적용 (빨강→파랑 램프)");
   // 베이스맵이 수계를 그리므로 GL 지도를 쓸 때는 SVG용 수계 레이어를 넣지 않는다
   const gl = injectGlMap(paletted);
-  if (gl !== paletted) console.log("지도를 실제 지도(MapLibre) 위로 교체");
+  if (gl !== paletted) console.log("지도를 실제 지도(MapLibre) 위로 교체/갱신");
   const after = gl.includes(GL_MARK) ? gl : refineWater(gl);
   if (after !== gl) console.log("수계 레이어 주입 (한강·지천, OSM)");
   if (after !== before) writeAtomic(p, after);
