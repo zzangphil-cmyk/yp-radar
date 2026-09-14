@@ -1,11 +1,11 @@
 {
- "asOf": "20260728",
+ "asOf": "20260914",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
   "holdings": 110,
-  "recent": 131,
-  "recentBuy": 66,
+  "recent": 132,
+  "recentBuy": 67,
   "recentSell": 65
  },
  "holdings": [
@@ -128,16 +128,6 @@
    "ownDelta": 1.01,
    "reason": "단순추가취득/처분",
    "date": "20260102"
-  },
-  {
-   "name": "(주)케이씨씨",
-   "slug": "케이씨씨",
-   "inPanel": false,
-   "stockCode": "002380",
-   "ownership": 10.14,
-   "ownDelta": -1.09,
-   "reason": "단순추가취득/처분",
-   "date": "20260701"
   },
   {
    "name": "씨에스윈드(주)",
@@ -278,6 +268,16 @@
    "ownDelta": -0.22,
    "reason": "단순추가취득/처분",
    "date": "20260701"
+  },
+  {
+   "name": "(주)케이씨씨",
+   "slug": "케이씨씨",
+   "inPanel": false,
+   "stockCode": "002380",
+   "ownership": 9.27,
+   "ownDelta": -0.87,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경",
+   "date": "20260731"
   },
   {
    "name": "(주)제일기획",
@@ -1111,6 +1111,126 @@
   }
  ],
  "recentFilings": [
+  {
+   "name": "HD현대중공업",
+   "slug": "HD현대중공업",
+   "inPanel": true,
+   "stockCode": "329180",
+   "date": "20260908",
+   "ownership": 8.02,
+   "ownDelta": 0.64,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "HS효성첨단소재",
+   "slug": "HS효성첨단소재",
+   "inPanel": true,
+   "stockCode": "298050",
+   "date": "20260901",
+   "ownership": 6.87,
+   "ownDelta": 1.01,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "HDC",
+   "slug": "HDC",
+   "inPanel": true,
+   "stockCode": "012630",
+   "date": "20260826",
+   "ownership": 5.8,
+   "ownDelta": -0.28,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "셀트리온",
+   "slug": "셀트리온",
+   "inPanel": true,
+   "stockCode": "068270",
+   "date": "20260803",
+   "ownership": 7.28,
+   "ownDelta": 1.04,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "현대로템",
+   "slug": "현대로템",
+   "inPanel": true,
+   "stockCode": "064350",
+   "date": "20260803",
+   "ownership": 7.07,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "LG화학",
+   "slug": "LG화학",
+   "inPanel": true,
+   "stockCode": "051910",
+   "date": "20260803",
+   "ownership": 7.64,
+   "ownDelta": -1,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "SK텔레콤",
+   "slug": "SK텔레콤",
+   "inPanel": true,
+   "stockCode": "017670",
+   "date": "20260803",
+   "ownership": 8.46,
+   "ownDelta": 1.01,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "HJ중공업",
+   "slug": "HJ중공업",
+   "inPanel": true,
+   "stockCode": "097230",
+   "date": "20260803",
+   "ownership": 5.02,
+   "ownDelta": 0.02,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "삼성바이오로직스",
+   "slug": "삼성바이오로직스",
+   "inPanel": true,
+   "stockCode": "207940",
+   "date": "20260731",
+   "ownership": 6.88,
+   "ownDelta": 0.2,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "두산에너빌리티",
+   "slug": "두산에너빌리티",
+   "inPanel": true,
+   "stockCode": "034020",
+   "date": "20260731",
+   "ownership": 7.63,
+   "ownDelta": -0.23,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "고려아연",
+   "slug": "고려아연",
+   "inPanel": true,
+   "stockCode": "010130",
+   "date": "20260731",
+   "ownership": 5.48,
+   "ownDelta": 0.48,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
+  {
+   "name": "케이씨씨",
+   "slug": "케이씨씨",
+   "inPanel": false,
+   "stockCode": "002380",
+   "date": "20260731",
+   "ownership": 9.27,
+   "ownDelta": -0.87,
+   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
+  },
   {
    "name": "알지노믹스",
    "slug": "알지노믹스",
@@ -2062,16 +2182,6 @@
    "reason": "단순추가취득/처분"
   },
   {
-   "name": "케이씨씨",
-   "slug": "케이씨씨",
-   "inPanel": false,
-   "stockCode": "002380",
-   "date": "20260701",
-   "ownership": 10.14,
-   "ownDelta": -1.09,
-   "reason": "단순추가취득/처분"
-  },
-  {
    "name": "NHN",
    "slug": "NHN",
    "inPanel": true,
@@ -2319,106 +2429,6 @@
    "date": "20260701",
    "ownership": 8.84,
    "ownDelta": -1.05,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "CJ제일제당",
-   "slug": "CJ제일제당",
-   "inPanel": true,
-   "stockCode": "097950",
-   "date": "20260623",
-   "ownership": 8.14,
-   "ownDelta": 0.33,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "한화오션",
-   "slug": "한화오션",
-   "inPanel": true,
-   "stockCode": "042660",
-   "date": "20260623",
-   "ownership": 6.66,
-   "ownDelta": 0.19,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "POSCO홀딩스",
-   "slug": "POSCO홀딩스",
-   "inPanel": true,
-   "stockCode": "005490",
-   "date": "20260623",
-   "ownership": 8.3,
-   "ownDelta": 0.01,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "KB금융",
-   "slug": "KB금융",
-   "inPanel": true,
-   "stockCode": "105560",
-   "date": "20260617",
-   "ownership": 9.33,
-   "ownDelta": 0.39,
-   "reason": "일반투자목적에서 단순투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "NH투자증권",
-   "slug": "NH투자증권",
-   "inPanel": true,
-   "stockCode": "005940",
-   "date": "20260617",
-   "ownership": 7.94,
-   "ownDelta": -0.42,
-   "reason": "일반투자목적에서 단순투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "효성티앤씨",
-   "slug": "효성티앤씨",
-   "inPanel": true,
-   "stockCode": "298020",
-   "date": "20260601",
-   "ownership": 10.99,
-   "ownDelta": 1.01,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "하나머티리얼즈",
-   "slug": "하나머티리얼즈",
-   "inPanel": true,
-   "stockCode": "166090",
-   "date": "20260601",
-   "ownership": 3.71,
-   "ownDelta": -1.29,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "한국전력공사",
-   "slug": "한국전력공사",
-   "inPanel": false,
-   "stockCode": "015760",
-   "date": "20260601",
-   "ownership": 6.88,
-   "ownDelta": -1.02,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "삼양식품",
-   "slug": "삼양식품",
-   "inPanel": true,
-   "stockCode": "003230",
-   "date": "20260601",
-   "ownership": 10.58,
-   "ownDelta": 1,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "CJ대한통운",
-   "slug": "CJ대한통운",
-   "inPanel": true,
-   "stockCode": "000120",
-   "date": "20260601",
-   "ownership": 9.48,
-   "ownDelta": -1.01,
    "reason": "단순추가취득/처분"
   }
  ]
