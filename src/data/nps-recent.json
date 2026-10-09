@@ -1,5 +1,5 @@
 {
- "asOf": "20261008",
+ "asOf": "20261009",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
@@ -745,9 +745,9 @@
    "inPanel": true,
    "stockCode": "000080",
    "ownership": 5,
-   "ownDelta": -1.02,
-   "reason": "단순추가취득/처분",
-   "date": "20251201"
+   "ownDelta": null,
+   "reason": null,
+   "date": "20251125"
   },
   {
    "name": "(주)케이씨",

@@ -1,7 +1,7 @@
 {
  "source": "네이버 금융 ETF 시세 (실시간)",
- "asOf": "2026-10-08",
- "asOfTime": "2026-10-08 08:33",
+ "asOf": "2026-10-09",
+ "asOfTime": "2026-10-09 08:33",
  "universe": 1172,
  "eligible": 1069,
  "excluded": 103,
@@ -15,7 +15,7 @@
    "price": 25865,
    "changeRate": -0.61,
    "nav": 25937,
-   "ret3m": -8.5412,
+   "ret3m": -7.1339,
    "volume": 68805493,
    "amount": 1781977,
    "marketSum": 210076
@@ -28,7 +28,7 @@
    "price": 23505,
    "changeRate": -0.63,
    "nav": 23575,
-   "ret3m": -8.5657,
+   "ret3m": -7.0916,
    "volume": 53814528,
    "amount": 1266914,
    "marketSum": 104315
@@ -41,7 +41,7 @@
    "price": 15165,
    "changeRate": -1.17,
    "nav": 15226,
-   "ret3m": 5.5727,
+   "ret3m": 11.795,
    "volume": 29561223,
    "amount": 450277,
    "marketSum": 50886
@@ -54,7 +54,7 @@
    "price": 27525,
    "changeRate": -0.67,
    "nav": 27638,
-   "ret3m": -6.8419,
+   "ret3m": -4.7173,
    "volume": 26511071,
    "amount": 731894,
    "marketSum": 102104
@@ -67,7 +67,7 @@
    "price": 105650,
    "changeRate": -2.67,
    "nav": 105619,
-   "ret3m": -12.0779,
+   "ret3m": -9.4146,
    "volume": 23162524,
    "amount": 2484536,
    "marketSum": 244791
@@ -80,7 +80,7 @@
    "price": 15465,
    "changeRate": -0.99,
    "nav": 15524,
-   "ret3m": 5.5405,
+   "ret3m": 11.7413,
    "volume": 14916182,
    "amount": 231838,
    "marketSum": 14593
@@ -93,7 +93,7 @@
    "price": 105915,
    "changeRate": -2.73,
    "nav": 105901,
-   "ret3m": -11.9694,
+   "ret3m": -9.4162,
    "volume": 11469745,
    "amount": 1233836,
    "marketSum": 98978
@@ -106,7 +106,7 @@
    "price": 18675,
    "changeRate": -1.48,
    "nav": 18584,
-   "ret3m": -11.7141,
+   "ret3m": -6.8347,
    "volume": 10807601,
    "amount": 204244,
    "marketSum": 57015
@@ -119,7 +119,7 @@
    "price": 19805,
    "changeRate": -2.37,
    "nav": 19721,
-   "ret3m": -11.7267,
+   "ret3m": -8.9199,
    "volume": 10080760,
    "amount": 201793,
    "marketSum": 57930
@@ -145,7 +145,7 @@
    "price": 38200,
    "changeRate": -1.74,
    "nav": 38132,
-   "ret3m": -6.0423,
+   "ret3m": -1.0363,
    "volume": 7988454,
    "amount": 310170,
    "marketSum": 100676
@@ -158,7 +158,7 @@
    "price": 15905,
    "changeRate": 1.18,
    "nav": 15934,
-   "ret3m": 15.6307,
+   "ret3m": 23.5819,
    "volume": 7755311,
    "amount": 124656,
    "marketSum": 20581
@@ -171,7 +171,7 @@
    "price": 10945,
    "changeRate": 2.34,
    "nav": 10861,
-   "ret3m": 15.7467,
+   "ret3m": 24.7293,
    "volume": 7417708,
    "amount": 81474,
    "marketSum": 7508
@@ -184,7 +184,7 @@
    "price": 5210,
    "changeRate": 1.46,
    "nav": 5222,
-   "ret3m": 8.3333,
+   "ret3m": 17.3423,
    "volume": 5791916,
    "amount": 30336,
    "marketSum": 5715
@@ -197,7 +197,7 @@
    "price": 31200,
    "changeRate": 2.94,
    "nav": 31074,
-   "ret3m": 26.6081,
+   "ret3m": 40.8577,
    "volume": 5722249,
    "amount": 178126,
    "marketSum": 13946
@@ -210,7 +210,7 @@
    "price": 184090,
    "changeRate": -0.64,
    "nav": 184849,
-   "ret3m": -6.8586,
+   "ret3m": -4.6768,
    "volume": 5143754,
    "amount": 949752,
    "marketSum": 122015
@@ -223,7 +223,7 @@
    "price": 19510,
    "changeRate": -2.21,
    "nav": 19352,
-   "ret3m": -11.0333,
+   "ret3m": -7.9627,
    "volume": 4869267,
    "amount": 95800,
    "marketSum": 26694
@@ -236,7 +236,7 @@
    "price": 4160,
    "changeRate": -3.03,
    "nav": 4163,
-   "ret3m": 10,
+   "ret3m": 9.9075,
    "volume": 4085821,
    "amount": 17043,
    "marketSum": 2355
@@ -249,7 +249,7 @@
    "price": 13560,
    "changeRate": -0.73,
    "nav": 13548,
-   "ret3m": -4.6416,
+   "ret3m": -2.5915,
    "volume": 3808966,
    "amount": 51852,
    "marketSum": 40951
@@ -262,7 +262,7 @@
    "price": 34025,
    "changeRate": -4.22,
    "nav": 34008,
-   "ret3m": -6.2244,
+   "ret3m": -1.0718,
    "volume": 3540182,
    "amount": 121394,
    "marketSum": 29908
@@ -275,7 +275,7 @@
    "price": 9190,
    "changeRate": -3.62,
    "nav": 9153,
-   "ret3m": -18.8728,
+   "ret3m": -13.1284,
    "volume": 3489414,
    "amount": 32237,
    "marketSum": 3171
@@ -288,7 +288,7 @@
    "price": 16680,
    "changeRate": -2.63,
    "nav": 16545,
-   "ret3m": -7.5617,
+   "ret3m": -6.7598,
    "volume": 3389595,
    "amount": 57017,
    "marketSum": 3853
@@ -301,7 +301,7 @@
    "price": 9650,
    "changeRate": -2.43,
    "nav": 9599,
-   "ret3m": 11.186,
+   "ret3m": 16.828,
    "volume": 3264738,
    "amount": 31841,
    "marketSum": 6557
@@ -314,7 +314,7 @@
    "price": 9325,
    "changeRate": 2.42,
    "nav": 9267,
-   "ret3m": 19.8815,
+   "ret3m": 31.709,
    "volume": 3125168,
    "amount": 29174,
    "marketSum": 1436
@@ -327,7 +327,7 @@
    "price": 27290,
    "changeRate": 2.92,
    "nav": 27320,
-   "ret3m": 18.5027,
+   "ret3m": 31.518,
    "volume": 3072583,
    "amount": 83916,
    "marketSum": 4530
@@ -340,7 +340,7 @@
    "price": 31365,
    "changeRate": 2.89,
    "nav": 31350,
-   "ret3m": 32.498,
+   "ret3m": 47.299,
    "volume": 2934036,
    "amount": 92083,
    "marketSum": 6775
@@ -353,7 +353,7 @@
    "price": 41000,
    "changeRate": -2.96,
    "nav": 40774,
-   "ret3m": -9.9628,
+   "ret3m": -6.7441,
    "volume": 2901897,
    "amount": 120946,
    "marketSum": 40508
@@ -366,7 +366,7 @@
    "price": 14250,
    "changeRate": -0.87,
    "nav": 14265,
-   "ret3m": -4.8328,
+   "ret3m": -3.2692,
    "volume": 2761264,
    "amount": 39618,
    "marketSum": 15262
@@ -379,7 +379,7 @@
    "price": 4035,
    "changeRate": -0.25,
    "nav": 4052,
-   "ret3m": 0.3905,
+   "ret3m": 1.6222,
    "volume": 2480148,
    "amount": 10014,
    "marketSum": 15767
@@ -405,7 +405,7 @@
    "price": 17210,
    "changeRate": 2.53,
    "nav": 17185,
-   "ret3m": 19.127,
+   "ret3m": 32.9984,
    "volume": 2321772,
    "amount": 40118,
    "marketSum": 1816
@@ -418,7 +418,7 @@
    "price": 5295,
    "changeRate": 1.44,
    "nav": 5300,
-   "ret3m": 10.1555,
+   "ret3m": 18.8784,
    "volume": 2081832,
    "amount": 11085,
    "marketSum": 1890
@@ -431,7 +431,7 @@
    "price": 7600,
    "changeRate": -2.94,
    "nav": 7601,
-   "ret3m": -7.4469,
+   "ret3m": -4.5826,
    "volume": 2029830,
    "amount": 15696,
    "marketSum": 4089
@@ -444,7 +444,7 @@
    "price": 13840,
    "changeRate": -0.97,
    "nav": 13878,
-   "ret3m": -10.4525,
+   "ret3m": -10.2897,
    "volume": 1997455,
    "amount": 27668,
    "marketSum": 41416
@@ -457,7 +457,7 @@
    "price": 15805,
    "changeRate": -4.5,
    "nav": 15938,
-   "ret3m": 4.4823,
+   "ret3m": 8.8123,
    "volume": 1942994,
    "amount": 30799,
    "marketSum": 5682
@@ -470,7 +470,7 @@
    "price": 6415,
    "changeRate": -3.39,
    "nav": 6478,
-   "ret3m": 4.1318,
+   "ret3m": 8.3093,
    "volume": 1911611,
    "amount": 12318,
    "marketSum": 2406
@@ -483,7 +483,7 @@
    "price": 6610,
    "changeRate": -3.43,
    "nav": 6579,
-   "ret3m": -17.7778,
+   "ret3m": -14.8196,
    "volume": 1752639,
    "amount": 11660,
    "marketSum": 1758
@@ -496,7 +496,7 @@
    "price": 11075,
    "changeRate": -2.34,
    "nav": 11020,
-   "ret3m": -2.9265,
+   "ret3m": -4.0074,
    "volume": 1708614,
    "amount": 19033,
    "marketSum": 8627
@@ -509,7 +509,7 @@
    "price": 17855,
    "changeRate": -3.72,
    "nav": 17809,
-   "ret3m": -6.6342,
+   "ret3m": -1.2399,
    "volume": 1640853,
    "amount": 29415,
    "marketSum": 9463
@@ -522,7 +522,7 @@
    "price": 11625,
    "changeRate": -1.86,
    "nav": 11579,
-   "ret3m": -8.8594,
+   "ret3m": -5.0445,
    "volume": 1616064,
    "amount": 19065,
    "marketSum": 8277
@@ -535,7 +535,7 @@
    "price": 106515,
    "changeRate": -2.68,
    "nav": 106423,
-   "ret3m": -12.1168,
+   "ret3m": -9.3558,
    "volume": 1461856,
    "amount": 158265,
    "marketSum": 42872
@@ -548,7 +548,7 @@
    "price": 10880,
    "changeRate": -2.51,
    "nav": 10769,
-   "ret3m": -11.1112,
+   "ret3m": -7.0086,
    "volume": 1414143,
    "amount": 15572,
    "marketSum": 3335
@@ -561,7 +561,7 @@
    "price": 36845,
    "changeRate": -2.58,
    "nav": 36651,
-   "ret3m": -13.3314,
+   "ret3m": -11.2452,
    "volume": 1406629,
    "amount": 52188,
    "marketSum": 18662
@@ -574,7 +574,7 @@
    "price": 45145,
    "changeRate": -1.89,
    "nav": 45534,
-   "ret3m": -8.2629,
+   "ret3m": -5.1923,
    "volume": 1376475,
    "amount": 62586,
    "marketSum": 61645
@@ -587,7 +587,7 @@
    "price": 146190,
    "changeRate": 1.02,
    "nav": 146006,
-   "ret3m": 0.8045,
+   "ret3m": 7.9849,
    "volume": 1337035,
    "amount": 196465,
    "marketSum": 62167
@@ -600,7 +600,7 @@
    "price": 12355,
    "changeRate": -2.1,
    "nav": 12557,
-   "ret3m": -0.1847,
+   "ret3m": 3.6169,
    "volume": 1297037,
    "amount": 16201,
    "marketSum": 4584
@@ -613,7 +613,7 @@
    "price": 12545,
    "changeRate": -5.03,
    "nav": 12507,
-   "ret3m": -16.5509,
+   "ret3m": -14.6599,
    "volume": 1284626,
    "amount": 16195,
    "marketSum": 3306
@@ -626,7 +626,7 @@
    "price": 16920,
    "changeRate": 0.77,
    "nav": 16855,
-   "ret3m": 12.7223,
+   "ret3m": 21.7704,
    "volume": 1271931,
    "amount": 21660,
    "marketSum": 1607
@@ -639,7 +639,7 @@
    "price": 11295,
    "changeRate": -2.71,
    "nav": 11298,
-   "ret3m": -11.0961,
+   "ret3m": -9.4228,
    "volume": 1257646,
    "amount": 14430,
    "marketSum": 6416
@@ -652,7 +652,7 @@
    "price": 10540,
    "changeRate": -0.57,
    "nav": 10583,
-   "ret3m": -7.5264,
+   "ret3m": -5.3044,
    "volume": 1199802,
    "amount": 12678,
    "marketSum": 26166
@@ -663,7 +663,7 @@
    "theme": "미국·해외",
    "count": 4,
    "amount": 4730537,
-   "avgRet": -7.7,
+   "avgRet": -5.9,
    "etfs": [
     "TIGER 미국S&P500",
     "KODEX 미국S&P500",
@@ -675,7 +675,7 @@
    "theme": "코스피·대형",
    "count": 5,
    "amount": 3959624,
-   "avgRet": -9,
+   "avgRet": -6.1,
    "etfs": [
     "KODEX 200",
     "TIGER 200",
@@ -688,7 +688,7 @@
    "theme": "반도체",
    "count": 13,
    "amount": 1344382,
-   "avgRet": 2.3,
+   "avgRet": 9.4,
    "etfs": [
     "SOL AI반도체TOP2플러스",
     "TIGER 반도체TOP10",
@@ -709,7 +709,7 @@
    "theme": "코스닥",
    "count": 2,
    "amount": 682115,
-   "avgRet": 5.6,
+   "avgRet": 11.8,
    "etfs": [
     "KODEX 코스닥150",
     "TIGER 코스닥150"
@@ -719,7 +719,7 @@
    "theme": "배당·커버드콜",
    "count": 9,
    "amount": 503617,
-   "avgRet": -7.7,
+   "avgRet": -6.4,
    "etfs": [
     "KODEX 200타겟위클리커버드콜",
     "KODEX 200커버드콜액티브",
@@ -736,7 +736,7 @@
    "theme": "2차전지",
    "count": 6,
    "amount": 316843,
-   "avgRet": 14.8,
+   "avgRet": 24.9,
    "etfs": [
     "KODEX 2차전지산업",
     "TIGER 2차전지TOP10",
@@ -750,7 +750,7 @@
    "theme": "AI·전력",
    "count": 3,
    "amount": 167010,
-   "avgRet": -4.3,
+   "avgRet": 0.4,
    "etfs": [
     "KODEX AI전력핵심설비",
     "TIGER 코리아AI전력기기TOP3플러스",
@@ -761,7 +761,7 @@
    "theme": "채권·혼합",
    "count": 2,
    "amount": 91470,
-   "avgRet": -4.7,
+   "avgRet": -2.9,
    "etfs": [
     "RISE 삼성전자SK하이닉스채권혼합50",
     "KODEX 삼성전자SK하이닉스채권혼합50"
@@ -771,7 +771,7 @@
    "theme": "방산",
    "count": 1,
    "amount": 32237,
-   "avgRet": -18.9,
+   "avgRet": -13.1,
    "etfs": [
     "KODEX 방산TOP10"
    ]
@@ -780,7 +780,7 @@
    "theme": "로봇",
    "count": 1,
    "amount": 31841,
-   "avgRet": 11.2,
+   "avgRet": 16.8,
    "etfs": [
     "TIGER 코리아휴머노이드로봇산업"
    ]
@@ -789,7 +789,7 @@
    "theme": "기타",
    "count": 2,
    "amount": 29361,
-   "avgRet": 7.1,
+   "avgRet": 9.1,
    "etfs": [
     "TIGER 화장품",
     "KODEX 건설"
@@ -799,7 +799,7 @@
    "theme": "바이오",
    "count": 1,
    "amount": 16195,
-   "avgRet": -16.6,
+   "avgRet": -14.7,
    "etfs": [
     "KoAct 바이오헬스케어액티브"
    ]
@@ -808,7 +808,7 @@
    "theme": "조선",
    "count": 1,
    "amount": 11660,
-   "avgRet": -17.8,
+   "avgRet": -14.8,
    "etfs": [
     "KODEX 조선TOP10"
    ]
