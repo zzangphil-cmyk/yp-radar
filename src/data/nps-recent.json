@@ -1,5 +1,5 @@
 {
- "asOf": "20261015",
+ "asOf": "20261016",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
@@ -1812,9 +1812,9 @@
    "reason": "단순추가취득/처분"
   },
   {
-   "name": "동아쏘시오홀딩스",
-   "slug": "동아쏘시오홀딩스",
-   "inPanel": true,
+   "name": "동아제약",
+   "slug": "동아제약",
+   "inPanel": false,
    "stockCode": "000640",
    "date": "20261002",
    "ownership": 9.45,
