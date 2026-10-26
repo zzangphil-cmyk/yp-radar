@@ -1,12 +1,12 @@
 {
- "asOf": "20261023",
+ "asOf": "20261026",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
   "holdings": 110,
-  "recent": 130,
-  "recentBuy": 62,
-  "recentSell": 68
+  "recent": 126,
+  "recentBuy": 60,
+  "recentSell": 66
  },
  "holdings": [
   {
@@ -2370,46 +2370,6 @@
    "ownership": 5.02,
    "ownDelta": 0.02,
    "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "삼성바이오로직스",
-   "slug": "삼성바이오로직스",
-   "inPanel": true,
-   "stockCode": "207940",
-   "date": "20260731",
-   "ownership": 6.88,
-   "ownDelta": 0.2,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "두산에너빌리티",
-   "slug": "두산에너빌리티",
-   "inPanel": true,
-   "stockCode": "034020",
-   "date": "20260731",
-   "ownership": 7.63,
-   "ownDelta": -0.23,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "고려아연",
-   "slug": "고려아연",
-   "inPanel": true,
-   "stockCode": "010130",
-   "date": "20260731",
-   "ownership": 5.48,
-   "ownDelta": 0.48,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "케이씨씨",
-   "slug": "케이씨씨",
-   "inPanel": false,
-   "stockCode": "002380",
-   "date": "20260731",
-   "ownership": 9.27,
-   "ownDelta": -0.87,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
   }
  ]
 }
