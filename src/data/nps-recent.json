@@ -1,12 +1,12 @@
 {
- "asOf": "20261027",
+ "asOf": "20261028",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
   "holdings": 110,
-  "recent": 126,
-  "recentBuy": 60,
-  "recentSell": 66
+  "recent": 121,
+  "recentBuy": 57,
+  "recentSell": 64
  },
  "holdings": [
   {
@@ -2320,56 +2320,6 @@
    "ownership": 5.8,
    "ownDelta": -0.28,
    "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
-  },
-  {
-   "name": "셀트리온",
-   "slug": "셀트리온",
-   "inPanel": true,
-   "stockCode": "068270",
-   "date": "20260803",
-   "ownership": 7.28,
-   "ownDelta": 1.04,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "현대로템",
-   "slug": "현대로템",
-   "inPanel": true,
-   "stockCode": "064350",
-   "date": "20260803",
-   "ownership": 7.07,
-   "ownDelta": -1.01,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "LG화학",
-   "slug": "LG화학",
-   "inPanel": true,
-   "stockCode": "051910",
-   "date": "20260803",
-   "ownership": 7.64,
-   "ownDelta": -1,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "SK텔레콤",
-   "slug": "SK텔레콤",
-   "inPanel": true,
-   "stockCode": "017670",
-   "date": "20260803",
-   "ownership": 8.46,
-   "ownDelta": 1.01,
-   "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "HJ중공업",
-   "slug": "HJ중공업",
-   "inPanel": true,
-   "stockCode": "097230",
-   "date": "20260803",
-   "ownership": 5.02,
-   "ownDelta": 0.02,
-   "reason": "단순추가취득/처분"
   }
  ]
 }
