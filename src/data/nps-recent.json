@@ -1,12 +1,12 @@
 {
- "asOf": "20261030",
+ "asOf": "20261102",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
   "holdings": 110,
-  "recent": 121,
-  "recentBuy": 57,
-  "recentSell": 64
+  "recent": 125,
+  "recentBuy": 58,
+  "recentSell": 67
  },
  "holdings": [
   {
@@ -1111,6 +1111,46 @@
   }
  ],
  "recentFilings": [
+  {
+   "name": "효성티앤씨",
+   "slug": "효성티앤씨",
+   "inPanel": true,
+   "stockCode": "298020",
+   "date": "20261102",
+   "ownership": 9.95,
+   "ownDelta": -1.04,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "현대로템",
+   "slug": "현대로템",
+   "inPanel": true,
+   "stockCode": "064350",
+   "date": "20261102",
+   "ownership": 6.06,
+   "ownDelta": -1.01,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "한화오션",
+   "slug": "한화오션",
+   "inPanel": true,
+   "stockCode": "042660",
+   "date": "20261102",
+   "ownership": 5.64,
+   "ownDelta": -1.02,
+   "reason": "단순추가취득/처분"
+  },
+  {
+   "name": "유한양행",
+   "slug": "유한양행",
+   "inPanel": true,
+   "stockCode": "000100",
+   "date": "20261102",
+   "ownership": 7.94,
+   "ownDelta": 1.11,
+   "reason": "단순추가취득/처분"
+  },
   {
    "name": "한국항공우주",
    "slug": "한국항공우주",
