@@ -1,12 +1,12 @@
 {
- "asOf": "20261119",
+ "asOf": "20261120",
  "universeAsOf": "2025-12-31",
  "source": "DART 전자공시 (국민연금 대량보유) + data.go.kr 5%+ 보고내역",
  "counts": {
   "holdings": 110,
-  "recent": 125,
+  "recent": 124,
   "recentBuy": 58,
-  "recentSell": 67
+  "recentSell": 66
  },
  "holdings": [
   {
@@ -2350,16 +2350,6 @@
    "ownership": 6.87,
    "ownDelta": 1.01,
    "reason": "단순추가취득/처분"
-  },
-  {
-   "name": "HDC",
-   "slug": "HDC",
-   "inPanel": true,
-   "stockCode": "012630",
-   "date": "20260826",
-   "ownership": 5.8,
-   "ownDelta": -0.28,
-   "reason": "단순투자목적에서 일반투자목적으로 보유목적 변경"
   }
  ]
 }
